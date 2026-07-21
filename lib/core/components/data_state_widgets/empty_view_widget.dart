@@ -1,0 +1,53 @@
+import 'package:base/core/constants/strings.dart';
+import 'package:flutter/material.dart';
+import 'package:playx/playx.dart';
+import 'package:base/core/components/custom_image_widget/custom_image.dart';
+import 'package:base/core/constants/enums/empty_enum.dart';
+import 'package:base/core/constants/extensions/buildContext_extensions.dart';
+import 'package:base/core/services/base/asset_service.dart';
+
+class EmptyViewWidget extends StatelessWidget {
+  final EmptyType? type;
+  final bool isShorten;
+
+  const EmptyViewWidget({super.key, this.type, this.isShorten = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ListView(
+        shrinkWrap: true,
+        padding: context.paddingZero,
+        children: [
+          SizedBox(
+            height: type?.image != null ? 234.r : null,
+            width: type?.image != null ? 234.r : null,
+            child: Center(child: MyImage(type?.image ?? Assets.empty)),
+          ),
+          Text(
+            type?.name ?? AppStrings.kAddress,
+            style: TextStyle(
+              color: Color(0xff353A62),
+              fontSize: (isShorten ? 12 : 24).sp,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ).marginOnly(
+            top: (isShorten ? 16 : 24).r,
+            bottom: type?.description != null ? 8.r : 0,
+          ),
+          if (type?.description != null)
+            Text(
+              "${type?.description}",
+              style: TextStyle(
+                color: Color(0xff9E9E9E),
+                fontSize: (isShorten ? 12 : 14).sp,
+                fontWeight: FontWeight.w400,
+              ),
+              textAlign: TextAlign.center,
+            ),
+        ],
+      ),
+    );
+  }
+}

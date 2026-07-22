@@ -64,13 +64,15 @@ class RequestHelper {
     );
   }
 
-  static Future<void> execute<S, T extends LoadableResponse>({
+  static Future<void> execute<S, T extends LoadableResponse, R>({
     required void Function(S state) emit,
-    required S Function({String? message, required RequestStatus status}) state,
+    required S Function({String? message, RequestStatus? status}) state,
     required T? Function() current,
     required void Function(T? value) setCurrent,
-    required Future<http.Response> Function() request,
-    required T Function(http.Response response) fromResponse,
+    required Future<R> Function() request,
+    required T Function(R result) fromResponse,
+    bool Function(R result)? isSuccess,
+    String? Function(R result)? errorMessage,
     T? Function()? cachedCurrent,
     bool refresh = false,
     bool reset = false,
@@ -88,25 +90,31 @@ class RequestHelper {
     if (reset) setCurrent(null);
     emit(state(status: RequestStatus.loading));
     try {
-      final response = await request();
-      if (!response.isSuccess) {
+      final result = await request();
+
+      final success = isSuccess?.call(result) ??
+          (result is http.Response && result.isSuccess);
+
+      if (!success) {
+        final error = errorMessage?.call(result) ??
+            (result is http.Response ? _responseError(result) : 'حدث خطأ');
         emit(
           state(
             status: RequestStatus.failure,
-            message: _responseError(response),
+            message: error,
           ),
         );
         return;
       }
-      final incoming = fromResponse(response);
-      final result = _resolveResult<T>(
+      final incoming = fromResponse(result);
+      final resolved = _resolveResult<T>(
         current: currentValue,
         incoming: incoming,
         refresh: refresh,
         reset: reset,
       );
-      setCurrent(result);
-      await onSuccess?.call(result);
+      setCurrent(resolved);
+      await onSuccess?.call(resolved);
       emit(state(status: RequestStatus.success));
     } catch (error) {
       emit(
@@ -175,42 +183,38 @@ class RequestHelper {
   }
 
   static Future<void>
-  executeAction<BaseState extends RequestState, ActionState extends BaseState>({
+  executeAction<BaseState extends RequestState, ActionState extends BaseState, T>({
     required void Function(BaseState state) emit,
     required ActionState Function({
-      required RequestStatus status,
+      RequestStatus? status,
       String? message,
       VoidCallback? onDone,
       VoidCallback? onTap,
     })
     state,
-    required Future<http.Response> Function() request,
-    String? Function(Map<String, dynamic> json)? successMessage,
-    FutureOr<void> Function(Map<String, dynamic> json)? onSuccess,
+    required Future<T> Function() request,
+    bool Function(T result)? isSuccess,
+    String? Function(T result)? successMessage,
+    FutureOr<void> Function(T result)? onSuccess,
     VoidCallback? onTap,
   }) async {
     emit(state(status: RequestStatus.loading));
 
     try {
-      final response = await request();
+      final result = await request();
 
-      final decodedBody = response.body.isNotEmpty
-          ? jsonDecode(response.body)
-          : <String, dynamic>{};
+      final success = isSuccess?.call(result) ??
+          (result is http.Response && result.isSuccess);
 
-      final json = decodedBody is Map<String, dynamic>
-          ? decodedBody
-          : <String, dynamic>{};
-
-      if (response.isSuccess) {
+      if (success) {
         emit(
           state(
             status: RequestStatus.success,
-            message: successMessage?.call(json),
+            message: successMessage?.call(result),
             onDone: onSuccess == null
                 ? null
                 : () async {
-                    await onSuccess(json);
+                    await onSuccess(result);
                   },
             onTap: onTap,
           ),
@@ -219,10 +223,13 @@ class RequestHelper {
         return;
       }
 
+      final errorMessage = result is http.Response
+          ? ErrorHandler.error(jsonDecode(result.body))
+          : 'حدث خطأ';
       emit(
         state(
           status: RequestStatus.failure,
-          message: ErrorHandler.error(json),
+          message: errorMessage,
           onTap: onTap,
         ),
       );

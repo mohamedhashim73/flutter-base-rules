@@ -23,12 +23,16 @@ class LocalizationService {
 
   Future<void> loadJsonFile() async {
     if (jsonData != null) return;
-    String jsonSource = await rootBundle.loadString(Assets.localizationJson);
+    String jsonSource = await rootBundle.loadString(
+      Assets.localizationJson,
+    );
     jsonData = jsonDecode(jsonSource);
   }
 
   String getValue({required String key}) {
-    if (jsonData == null || !jsonData!.containsKey(key)) return "empty";
+    if (jsonData == null || !jsonData!.containsKey(key)) {
+      return key;
+    }
 
     final langCode = UserSessionService.kCurrentLang.name;
     final translation = jsonData![key];
@@ -38,7 +42,11 @@ class LocalizationService {
       return translation[langCode].toString();
     }
 
-    return "empty";
+    if (translation is Map<String, dynamic> && translation.containsKey('en')) {
+      return translation['en'].toString();
+    }
+
+    return key;
   }
 }
 

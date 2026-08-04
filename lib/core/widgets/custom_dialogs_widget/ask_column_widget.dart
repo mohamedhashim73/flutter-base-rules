@@ -1,4 +1,4 @@
-import 'package:base/core/widgets/btn_widgets/text_btn_widget.dart';
+import 'package:base/core/widgets/btn_widgets/btn_widget.dart';
 import 'package:base/core/extensions/buildContext_extensions.dart';
 import 'package:base/core/theme/app_colors.dart';
 import 'package:playx/playx.dart';

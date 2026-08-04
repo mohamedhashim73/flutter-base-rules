@@ -1,9 +1,28 @@
-import 'package:base/core/theme/app_colors.dart';
 import 'package:base/core/theme/app_diemnsions.dart';
 import 'package:flutter/material.dart';
-import 'package:playx/playx.dart';
-import 'btn_button_content.dart';
-import 'btn_inkwell_button.dart';
+import '../../theme/app_colors.dart';
+
+class IconBtnWidget extends StatelessWidget {
+  final IconData iconData;
+  final Function() onTap;
+  final Color? color;
+  final double? size;
+  const IconBtnWidget({
+    super.key,
+    required this.iconData,
+    required this.onTap,
+    this.color,
+    this.size,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Icon(iconData, size: size, color: color ?? AppColors.kMain),
+    );
+  }
+}
 
 class BtnWidget extends StatelessWidget {
   final Function()? onTap;
@@ -11,7 +30,6 @@ class BtnWidget extends StatelessWidget {
   final Widget? prefix;
   final Widget? widget;
   final Color? borderColor;
-  final EdgeInsets? padding;
   final Color? backgroundColor;
   final Color? color;
   final double? radiusValue;
@@ -19,28 +37,7 @@ class BtnWidget extends StatelessWidget {
   final double? txtSize;
   final double? height;
   final String? title;
-  final double? cornerSpace;
   final bool? isLoading;
-  final MainAxisAlignment? mainAxisAlignment;
-  final bool showCornerIcons;
-  final bool? topCornerIcon;
-  final bool? bottomCornerIcon;
-  final FontWeight? fontWeight;
-  final bool defaultHeight;
-  final bool keepTxtEvenLoading;
-  final List<BoxShadow>? shadows;
-  final bool defaultShadowIsOn;
-  final String? badgeTxt;
-  final Color? badgeTxtColor;
-  final double? badgeStart;
-  final double? badgeEnd;
-  final EdgeInsetsGeometry? badgePadding;
-  final double? badgeTxtSize;
-  final double? badgeBorderRadius;
-  final bool badgeHalfOutside;
-  final double? rowSpacing;
-  final bool isBadgeUpperStartNotEnd;
-
   const BtnWidget({
     super.key,
     this.onTap,
@@ -49,9 +46,6 @@ class BtnWidget extends StatelessWidget {
     this.borderColor,
     this.radiusValue,
     this.height,
-    this.defaultHeight = false,
-    this.defaultShadowIsOn = true,
-    this.keepTxtEvenLoading = false,
     this.title,
     this.backgroundColor,
     this.color,
@@ -59,74 +53,157 @@ class BtnWidget extends StatelessWidget {
     this.suffix,
     this.widget,
     this.txtSize,
-    this.padding,
-    this.showCornerIcons = false,
-    this.topCornerIcon,
-    this.bottomCornerIcon,
-    this.fontWeight,
-    this.shadows,
-    this.mainAxisAlignment,
-    this.badgeTxt,
-    this.badgeTxtColor,
-    this.badgeStart,
-    this.badgePadding,
-    this.badgeTxtSize,
-    this.badgeBorderRadius,
-    this.badgeHalfOutside = true,
-    this.isBadgeUpperStartNotEnd = false,
-    this.badgeEnd,
-    this.cornerSpace,
-    this.rowSpacing,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bool hasCornerIcons =
-        showCornerIcons || topCornerIcon == true || bottomCornerIcon == true;
-
-    final EdgeInsets contentPadding = padding ?? AppDimensions.btnSPadding;
-
-    final double borderRadius = radiusValue ?? 70.r;
-
-    final Widget buttonContent = BtnButtonContent(
-      isLoading: isLoading,
-      keepTxtEvenLoading: keepTxtEvenLoading,
-      widget: widget,
-      rowSpacing: rowSpacing,
-      suffix: suffix,
-      prefix: prefix,
-      title: title ?? '',
-      color: color ?? AppColors.kWhite,
-      txtSize: txtSize ?? 16.sp,
-      fontWeight: fontWeight ?? FontWeight.bold,
-      mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.center,
-      isDisabled: onTap == null,
-    );
-
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        BtnInkWellButton(
-          onTap: isLoading == true ? null : onTap,
-          contentPadding: contentPadding,
-          hasCornerIcons: hasCornerIcons,
-          borderRadius: borderRadius,
-          defaultShadowIsOn: defaultShadowIsOn,
-          minWidth: minWidth,
-          height: height,
-          defaultHeight: defaultHeight,
-          backgroundColor: backgroundColor ?? AppColors.kMain,
-          borderColor: borderColor,
-          isDisabled: onTap == null,
-          topCornerIcon: topCornerIcon,
-          badgeIsOn: badgeTxt != null,
-          bottomCornerIcon: bottomCornerIcon,
-          showCornerIcons: showCornerIcons,
-          shadows: shadows,
-          cornerSpace: cornerSpace,
-          child: buttonContent,
+    return MaterialButton(
+      onPressed: isLoading != null && isLoading == true ? () {} : onTap,
+      elevation: 0,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      focusColor: Colors.transparent,
+      hoverElevation: 0,
+      disabledElevation: 0,
+      focusElevation: 0,
+      height: height ?? 46,
+      minWidth: minWidth,
+      disabledColor: onTap == null ? AppColors.kDisabled : null,
+      highlightElevation: 0,
+      color: backgroundColor ?? AppColors.kMain,
+      shape: RoundedRectangleBorder(
+        borderRadius: radiusValue != null
+            ? BorderRadius.circular(radiusValue!)
+            : AppDimensions.kMainRadius,
+        side: BorderSide(color: borderColor ?? Colors.transparent),
+      ),
+      child: Align(
+        alignment: Alignment.center,
+        child: Builder(
+          builder: (context) {
+            if (isLoading != null && isLoading == true) {
+              return SizedBox(
+                height: 26,
+                width: 26,
+                child: CircularProgressIndicator(
+                  color: color ?? AppColors.kWhite,
+                  strokeWidth: 2.4,
+                ),
+              );
+            } else {
+              if (widget != null) {
+                return widget!;
+              } else if (suffix != null || prefix != null) {
+                return Row(
+                  spacing: 10,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ?prefix,
+                    Flexible(
+                      child: Text(
+                        title ?? "",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: onTap == null
+                              ? AppColors.kSecondary
+                              : color ?? AppColors.kWhite,
+                          fontSize: txtSize ?? 14,
+                        ),
+                      ),
+                    ),
+                    ?suffix,
+                  ],
+                );
+              } else {
+                return Text(
+                  title ?? "",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: onTap == null
+                        ? AppColors.kSecondary
+                        : color ?? AppColors.kWhite,
+                    fontSize: txtSize ?? 14,
+                  ),
+                );
+              }
+            }
+          },
         ),
-      ],
+      ),
+    );
+  }
+}
+
+class CustomBtnWidget extends StatelessWidget {
+  final Function() onTap;
+  final Color? borderColor;
+  final double? radiusValue;
+  final double? minWidth;
+  final double? height;
+  final Widget widget;
+  final Color? backgroundColor;
+  final bool? withoutBackground;
+  const CustomBtnWidget({
+    super.key,
+    required this.onTap,
+    this.minWidth,
+    this.borderColor,
+    this.radiusValue,
+    this.height,
+    this.withoutBackground,
+    required this.widget,
+    this.backgroundColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialButton(
+      onPressed: onTap,
+      elevation: 0,
+      height: height ?? 46,
+      minWidth: minWidth,
+      highlightElevation: 0,
+      splashColor: Colors.transparent,
+      color: withoutBackground != null
+          ? Colors.transparent
+          : backgroundColor ?? AppColors.kMain,
+      shape: RoundedRectangleBorder(
+        borderRadius: radiusValue != null
+            ? BorderRadius.circular(radiusValue!)
+            : AppDimensions.kMainRadius,
+        side: BorderSide(color: borderColor ?? Colors.transparent),
+      ),
+      child: widget,
+    );
+  }
+}
+
+class TextBtnWidget extends StatelessWidget {
+  final String title;
+  final Function() onTap;
+  final Color? txtColor;
+  final double? txtSize;
+  const TextBtnWidget({
+    super.key,
+    required this.title,
+    required this.onTap,
+    this.txtColor,
+    this.txtSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Text(
+        title,
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: txtColor ?? AppColors.kBlack,
+          fontSize: txtSize ?? 14,
+        ),
+      ),
     );
   }
 }

@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
           theme: AppTheme.light,
           themeMode: ThemeMode.light,
           locale: Locale(UserSessionService.kCurrentLang.name),
-          supportedLocales: const [Locale("en")],
+          supportedLocales: const [Locale("en"), Locale("ar")],
           builder: (context, widget) {
             return widget!;
           },

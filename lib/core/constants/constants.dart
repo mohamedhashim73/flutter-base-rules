@@ -1,8 +1,6 @@
 import 'dart:io';
 import 'package:base/core/services/dependency_injection.dart';
 import 'package:base/core/services/base/system_ui_service.dart';
-import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
 
 class AppConstants {
   static const String kSupportPhone = "+201099874902";
@@ -29,14 +27,4 @@ class AppConstants {
   }
 
   static bool kPlatformIsAndroid = !kPlatformIsIOS;
-  static BorderRadius kMainRadius = BorderRadius.circular(10);
-  static BorderRadius kMaxRadius = BorderRadius.circular(22);
-  static BoxBorder kMainBorder = Border.all(
-    color: AppColors.kSoftGrey,
-    width: kBorderWidth,
-  );
-  static BoxBorder kSkeletonLoadingBorder = Border.all(
-    color: const Color(0xff2684FF).withValues(alpha: 0.04),
-    width: kBorderWidth,
-  );
 }

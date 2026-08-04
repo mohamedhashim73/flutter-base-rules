@@ -1,7 +1,7 @@
+import 'package:base/core/theme/app_diemnsions.dart';
 import 'package:flutter/material.dart';
-import 'package:base/core/constants/constants.dart';
-import 'package:base/core/constants/extensions/buildContext_extensions.dart';
-import 'package:base/core/constants/routes.dart';
+import 'package:base/core/extensions/buildContext_extensions.dart';
+import 'package:base/core/routes/routes.dart';
 
 class AppColors {
   // Primary & Accent
@@ -60,7 +60,7 @@ class AppColors {
   static BoxDecoration kCardDecoration = BoxDecoration(
     color: Theme.of(AppRoutes.currentContext).cardColor,
     borderRadius: AppRoutes.currentContext.main,
-    border: AppConstants.kMainBorder,
+    border: AppDimensions.kMainBorder,
     boxShadow: [
       BoxShadow(
         color: AppColors.kPrimary.withOpacity(0.06),

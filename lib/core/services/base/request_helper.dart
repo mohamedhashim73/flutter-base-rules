@@ -2,12 +2,28 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 import 'package:base/model/base/request_state.dart';
-import 'package:http/http.dart' as http;
-import 'package:base/core/constants/enums/request_status_enum.dart';
-import 'package:base/core/constants/extensions/models_extensions.dart';
+import 'package:base/core/enums/request_status_enum.dart';
 import 'package:base/core/errors/errors_msg_handler.dart';
 import 'package:base/core/services/api_services.dart';
 import 'package:base/model/base/base_response.dart';
+import 'package:playx/playx.dart';
+
+class RequestLock {
+  bool _isLocked = false;
+
+  bool tryAcquire() {
+    if (_isLocked) {
+      return false;
+    }
+
+    _isLocked = true;
+    return true;
+  }
+
+  void release() {
+    _isLocked = false;
+  }
+}
 
 class RequestHelper {
   const RequestHelper._();
@@ -64,65 +80,84 @@ class RequestHelper {
     );
   }
 
-  static Future<void> execute<S, T extends LoadableResponse, R>({
+  static Future<void> execute<S, T extends LoadableResponse>({
     required void Function(S state) emit,
-    required S Function({String? message, RequestStatus? status}) state,
+    required S Function({String? message, required RequestStatus status}) state,
     required T? Function() current,
     required void Function(T? value) setCurrent,
-    required Future<R> Function() request,
-    required T Function(R result) fromResponse,
-    bool Function(R result)? isSuccess,
-    String? Function(R result)? errorMessage,
+    required Future<Response<dynamic>> Function() request,
+    required T Function(Response<dynamic> response) fromResponse,
     T? Function()? cachedCurrent,
     bool refresh = false,
     bool reset = false,
     FutureOr<void> Function(T result)? onSuccess,
+    RequestLock? lock,
   }) async {
-    var currentValue = current();
-    if (!refresh && !reset && currentValue == null) {
-      final cachedValue = cachedCurrent?.call();
-      if (cachedValue != null) {
-        setCurrent(cachedValue);
-        currentValue = cachedValue;
-      }
+    if (lock != null && !lock.tryAcquire()) {
+      return;
     }
-    if (!shouldLoad(currentValue, refresh: refresh, reset: reset)) return;
-    if (reset) setCurrent(null);
-    emit(state(status: RequestStatus.loading));
+
     try {
-      final result = await request();
+      var currentValue = current();
 
-      final success = isSuccess?.call(result) ??
-          (result is http.Response && result.isSuccess);
+      if (!shouldLoad(currentValue, refresh: refresh, reset: reset)) {
+        return;
+      }
 
-      if (!success) {
-        final error = errorMessage?.call(result) ??
-            (result is http.Response ? _responseError(result) : 'حدث خطأ');
+      if (!refresh && !reset && currentValue == null) {
+        final cachedValue = cachedCurrent?.call();
+
+        if (cachedValue != null) {
+          currentValue = cachedValue;
+          setCurrent(cachedValue);
+          emit(state(status: RequestStatus.success));
+        }
+      }
+
+      if (reset) {
+        currentValue = null;
+        setCurrent(null);
+      }
+
+      emit(state(status: RequestStatus.loading));
+
+      try {
+        final response = await request();
+
+        if (!_isSuccess(response)) {
+          emit(
+            state(
+              status: RequestStatus.failure,
+              message: _responseError(response),
+            ),
+          );
+          return;
+        }
+
+        final incoming = fromResponse(response);
+
+        final result = _resolveResult<T>(
+          current: currentValue,
+          incoming: incoming,
+          refresh: refresh,
+          reset: reset,
+        );
+
+        setCurrent(result);
+
+        await onSuccess?.call(result);
+
+        emit(state(status: RequestStatus.success));
+      } catch (error) {
         emit(
           state(
             status: RequestStatus.failure,
-            message: error,
+            message: ErrorHandler.error(error),
           ),
         );
-        return;
       }
-      final incoming = fromResponse(result);
-      final resolved = _resolveResult<T>(
-        current: currentValue,
-        incoming: incoming,
-        refresh: refresh,
-        reset: reset,
-      );
-      setCurrent(resolved);
-      await onSuccess?.call(resolved);
-      emit(state(status: RequestStatus.success));
-    } catch (error) {
-      emit(
-        state(
-          status: RequestStatus.failure,
-          message: ErrorHandler.error(error),
-        ),
-      );
+    } finally {
+      lock?.release();
     }
   }
 
@@ -174,73 +209,123 @@ class RequestHelper {
     );
   }
 
-  static String _responseError(http.Response response) {
-    try {
-      return ErrorHandler.error(jsonDecode(response.body));
-    } catch (_) {
-      return ErrorHandler.error(response.body);
-    }
-  }
-
   static Future<void>
-  executeAction<BaseState extends RequestState, ActionState extends BaseState, T>({
+  executeAction<BaseState extends RequestState, ActionState extends BaseState>({
     required void Function(BaseState state) emit,
     required ActionState Function({
-      RequestStatus? status,
+      required RequestStatus status,
       String? message,
       VoidCallback? onDone,
       VoidCallback? onTap,
     })
     state,
-    required Future<T> Function() request,
-    bool Function(T result)? isSuccess,
-    String? Function(T result)? successMessage,
-    FutureOr<void> Function(T result)? onSuccess,
+    required Future<Response<dynamic>> Function() request,
+    String? Function(Map<String, dynamic> json)? successMessage,
+    FutureOr<void> Function(Map<String, dynamic> json)? onSuccess,
     VoidCallback? onTap,
+    ActionState Function(ActionState base)? extras,
   }) async {
     emit(state(status: RequestStatus.loading));
 
     try {
-      final result = await request();
+      final response = await request();
+      final json = _responseAsMap(response.data);
 
-      final success = isSuccess?.call(result) ??
-          (result is http.Response && result.isSuccess);
+      if (_isSuccess(response)) {
+        await onSuccess?.call(json);
 
-      if (success) {
-        emit(
-          state(
-            status: RequestStatus.success,
-            message: successMessage?.call(result),
-            onDone: onSuccess == null
-                ? null
-                : () async {
-                    await onSuccess(result);
-                  },
-            onTap: onTap,
-          ),
+        var successState = state(
+          status: RequestStatus.success,
+          message: successMessage?.call(json),
+          onDone: null,
+          onTap: onTap,
         );
 
+        if (extras != null) {
+          successState = extras(successState);
+        }
+
+        emit(successState);
         return;
       }
 
-      final errorMessage = result is http.Response
-          ? ErrorHandler.error(jsonDecode(result.body))
-          : 'حدث خطأ';
-      emit(
-        state(
-          status: RequestStatus.failure,
-          message: errorMessage,
-          onTap: onTap,
-        ),
+      var failureState = state(
+        status: RequestStatus.failure,
+        message: ErrorHandler.error(json),
+        onTap: onTap,
       );
+
+      if (extras != null) {
+        failureState = extras(failureState);
+      }
+
+      emit(failureState);
     } catch (error) {
-      emit(
-        state(
-          status: RequestStatus.failure,
-          message: ErrorHandler.error(error),
-          onTap: onTap,
-        ),
+      var errorState = state(
+        status: RequestStatus.failure,
+        message: ErrorHandler.error(error),
+        onTap: onTap,
       );
+
+      if (extras != null) {
+        errorState = extras(errorState);
+      }
+
+      emit(errorState);
     }
+  }
+
+  static bool _isSuccess(Response<dynamic> response) {
+    final statusCode = response.statusCode;
+
+    if (statusCode == null) {
+      return false;
+    }
+
+    return statusCode >= 200 && statusCode < 300;
+  }
+
+  static String _responseError(Response<dynamic> response) {
+    return ErrorHandler.error(_decodeResponseData(response.data));
+  }
+
+  static Map<String, dynamic> _responseAsMap(dynamic data) {
+    final decodedData = _decodeResponseData(data);
+
+    if (decodedData is Map<String, dynamic>) {
+      return decodedData;
+    }
+
+    if (decodedData is Map) {
+      return Map<String, dynamic>.from(decodedData);
+    }
+
+    return <String, dynamic>{};
+  }
+
+  static dynamic _decodeResponseData(dynamic data) {
+    if (data == null) {
+      return <String, dynamic>{};
+    }
+
+    // Dio عادةً يحول JSON تلقائيًا إلى Map أو List.
+    if (data is Map || data is List) {
+      return data;
+    }
+
+    // احتياطًا لو الـ backend أعاد JSON كنص.
+    if (data is String) {
+      if (data.trim().isEmpty) {
+        return <String, dynamic>{};
+      }
+
+      try {
+        return jsonDecode(data);
+      } catch (_) {
+        return data;
+      }
+    }
+
+    return data;
   }
 }

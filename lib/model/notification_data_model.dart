@@ -1,6 +1,6 @@
-import 'package:base/core/constants/extensions/string_extensions.dart';
+import 'package:base/core/extensions/string_extensions.dart';
 import 'package:playx/playx.dart';
-import 'package:base/core/constants/enums/notification_type_enum.dart';
+import 'package:base/core/enums/notification_type_enum.dart';
 
 class NotificationDataModel {
   final String title;

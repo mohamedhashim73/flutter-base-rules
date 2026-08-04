@@ -1,5 +1,5 @@
-import 'package:playx/playx.dart';
 import 'package:base/model/base/base_response.dart';
+import 'package:playx/playx.dart';
 
 class UserModel extends Equatable implements LoadableResponse<UserModel> {
   @override
@@ -11,6 +11,7 @@ class UserModel extends Equatable implements LoadableResponse<UserModel> {
   final int? compoundId;
   final String? profilePicture;
   final String? accessToken;
+  final String? refreshToken;
 
   const UserModel({
     required this.id,
@@ -20,19 +21,20 @@ class UserModel extends Equatable implements LoadableResponse<UserModel> {
     this.compoundId,
     this.profilePicture,
     this.accessToken,
+    this.refreshToken,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json, {UserModel? profile}) {
-    final user = asMapOrNull(json, 'user');
-    final userMap = user ?? json;
+    final user = asMapOr(json, 'user',fallback: json);
     return UserModel(
-      id: asInt(userMap, "id"),
-      name: asStringOr(userMap, "name"),
-      email: asStringOr(userMap, "email"),
-      phone: asStringOr(userMap, "phone"),
-      compoundId: asIntOrNull(userMap, "compound_id"),
-      profilePicture: asStringOr(userMap, "profile_picture"),
+      id: asInt(user, "id"),
+      name: asStringOr(user, "name"),
+      email: asStringOr(user, "email"),
+      phone: asStringOr(user, "phone"),
+      compoundId: asIntOrNull(user, "compound_id"),
+      profilePicture: asStringOr(user, "profile_picture"),
       accessToken: profile?.accessToken ?? asStringOr(json, "access_token"),
+      refreshToken: profile?.refreshToken ?? asStringOr(json, "refresh_token"),
     );
   }
 
@@ -41,6 +43,7 @@ class UserModel extends Equatable implements LoadableResponse<UserModel> {
     'name': name,
     'email': email,
     'phone': phone,
+    'refresh_token': refreshToken,
     'compound_id': compoundId,
     'profile_picture': profilePicture,
     'access_token': accessToken,
@@ -54,6 +57,7 @@ class UserModel extends Equatable implements LoadableResponse<UserModel> {
     int? compoundId,
     String? profilePicture,
     String? accessToken,
+    String? refreshToken,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -63,6 +67,7 @@ class UserModel extends Equatable implements LoadableResponse<UserModel> {
       compoundId: compoundId ?? this.compoundId,
       profilePicture: profilePicture ?? this.profilePicture,
       accessToken: accessToken ?? this.accessToken,
+      refreshToken: refreshToken ?? this.refreshToken,
     );
   }
 

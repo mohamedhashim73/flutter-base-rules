@@ -1,4 +1,4 @@
-import 'package:base/core/constants/enums/request_status_enum.dart';
+import 'package:base/core/enums/request_status_enum.dart';
 import 'package:base/model/base/base_response.dart';
 import 'package:base/model/base/request_state.dart';
 

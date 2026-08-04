@@ -1,177 +1,321 @@
-import 'dart:convert';
 import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'package:base/core/constants/extensions/models_extensions.dart';
-import 'package:base/core/services/user_session_service.dart';
-import '../constants/endpoints.dart';
-import 'dependency_injection.dart';
-import 'logging_service.dart';
+
+import 'package:base/core/network/network.dart';
+import 'package:playx/playx.dart';
+import '../network/api_exception.dart';
+import '../network/api_request_options.dart';
+import '../network/interceptors/api_logging_interceptor.dart';
+import '../network/interceptors/auth_session_interceptor.dart';
+import '../network/session_expiry_coordinator.dart';
 
 class ApiServices {
-  static http.Client httpClient = sl<http.Client>();
-  static int perPage = 10;
-  static Future<http.Response> postAsFormData({
+  ApiServices({
+    Dio? dio,
+    required AccessTokenProvider accessTokenProvider,
+    required RefreshTokenProvider refreshTokenProvider,
+    required LocaleProvider localeProvider,
+    required TokensUpdatedCallback onTokensUpdated,
+    required SessionExpiredCallback onSessionExpired,
+    Set<int> expiredStatusCodes = const {401, 419},
+  }) : _dio = dio ?? Dio() {
+    _configureDio();
+
+    _sessionExpiryCoordinator = SessionExpiryCoordinator(
+      onSessionExpired: onSessionExpired,
+    );
+
+    _dio.interceptors.addAll([
+      AuthSessionInterceptor(
+        dio: _dio,
+        accessTokenProvider: accessTokenProvider,
+        refreshTokenProvider: refreshTokenProvider,
+        localeProvider: localeProvider,
+        onTokensUpdated: onTokensUpdated,
+        expiredStatusCodes: expiredStatusCodes,
+        sessionExpiryCoordinator: _sessionExpiryCoordinator,
+      ),
+      ApiLoggingInterceptor(),
+    ]);
+  }
+
+  static const int perPage = 10;
+
+  final Dio _dio;
+
+  late final SessionExpiryCoordinator _sessionExpiryCoordinator;
+
+  Dio get client => _dio;
+
+  void _configureDio() {
+    _dio.options
+      ..baseUrl = ApiEndpoints.baseUrl
+      ..connectTimeout = const Duration(seconds: 30)
+      ..sendTimeout = const Duration(seconds: 30)
+      ..receiveTimeout = const Duration(seconds: 30)
+      ..contentType = Headers.jsonContentType
+      ..headers.addAll({HttpHeaders.acceptHeader: Headers.jsonContentType});
+  }
+
+  void resetSessionExpiryGuard() {
+    _sessionExpiryCoordinator.reset();
+  }
+
+  Future<Response<dynamic>> get({
     required String endpoint,
-    bool logIsOn = false,
-    Map<String, String>? fields,
+    Map<String, dynamic>? queryParameters,
+    bool validationOn = true,
+    bool logIsOn = true,
+    bool skipAuth = false,
+    bool skipRefresh = false,
+    Map<String, dynamic>? extraHeaders,
+    CancelToken? cancelToken,
+  }) {
+    return _request(
+      method: 'GET',
+      endpoint: endpoint,
+      queryParameters: queryParameters,
+      validationOn: validationOn,
+      logIsOn: logIsOn,
+      skipAuth: skipAuth,
+      skipRefresh: skipRefresh,
+      extraHeaders: extraHeaders,
+      cancelToken: cancelToken,
+    );
+  }
+
+  Future<Response<dynamic>> post({
+    required String endpoint,
+    Object? body,
+    Map<String, dynamic>? queryParameters,
+    bool validationOn = true,
+    bool logIsOn = true,
+    bool skipAuth = false,
+    bool skipRefresh = false,
+    Map<String, dynamic>? extraHeaders,
+    CancelToken? cancelToken,
+  }) {
+    return _request(
+      method: 'POST',
+      endpoint: endpoint,
+      data: body,
+      queryParameters: queryParameters,
+      validationOn: validationOn,
+      logIsOn: logIsOn,
+      skipAuth: skipAuth,
+      skipRefresh: skipRefresh,
+      extraHeaders: extraHeaders,
+      cancelToken: cancelToken,
+    );
+  }
+
+  Future<Response<dynamic>> put({
+    required String endpoint,
+    Object? body,
+    Map<String, dynamic>? queryParameters,
+    bool validationOn = true,
+    bool logIsOn = true,
+    bool skipAuth = false,
+    bool skipRefresh = false,
+    Map<String, dynamic>? extraHeaders,
+    CancelToken? cancelToken,
+  }) {
+    return _request(
+      method: 'PUT',
+      endpoint: endpoint,
+      data: body,
+      queryParameters: queryParameters,
+      validationOn: validationOn,
+      logIsOn: logIsOn,
+      skipAuth: skipAuth,
+      skipRefresh: skipRefresh,
+      extraHeaders: extraHeaders,
+      cancelToken: cancelToken,
+    );
+  }
+
+  Future<Response<dynamic>> patch({
+    required String endpoint,
+    Object? body,
+    Map<String, dynamic>? queryParameters,
+    bool validationOn = true,
+    bool logIsOn = true,
+    bool skipAuth = false,
+    bool skipRefresh = false,
+    Map<String, dynamic>? extraHeaders,
+    CancelToken? cancelToken,
+  }) {
+    return _request(
+      method: 'PATCH',
+      endpoint: endpoint,
+      data: body,
+      queryParameters: queryParameters,
+      validationOn: validationOn,
+      logIsOn: logIsOn,
+      skipAuth: skipAuth,
+      skipRefresh: skipRefresh,
+      extraHeaders: extraHeaders,
+      cancelToken: cancelToken,
+    );
+  }
+
+  Future<Response<dynamic>> delete({
+    required String endpoint,
+    Object? body,
+    Map<String, dynamic>? queryParameters,
+    bool validationOn = true,
+    bool logIsOn = true,
+    bool skipAuth = false,
+    bool skipRefresh = false,
+    Map<String, dynamic>? extraHeaders,
+    CancelToken? cancelToken,
+  }) {
+    return _request(
+      method: 'DELETE',
+      endpoint: endpoint,
+      data: body,
+      queryParameters: queryParameters,
+      validationOn: validationOn,
+      logIsOn: logIsOn,
+      skipAuth: skipAuth,
+      skipRefresh: skipRefresh,
+      extraHeaders: extraHeaders,
+      cancelToken: cancelToken,
+    );
+  }
+
+  Future<Response<dynamic>> postAsFormData({
+    required String endpoint,
+    Map<String, dynamic>? fields,
     Map<String, File>? singleFiles,
     Map<String, List<File>>? multipleFiles,
+    Map<String, dynamic>? queryParameters,
+    bool validationOn = true,
+    bool logIsOn = true,
+    bool skipAuth = false,
+    bool skipRefresh = false,
+    Map<String, dynamic>? extraHeaders,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
   }) async {
-    var uri = Uri.parse("${ApiEndpoints.baseUrl}$endpoint");
-    var request = http.MultipartRequest('POST', uri);
-    request.headers['Authorization'] =
-        "bearer ${UserSessionService.kCachedUser?.accessToken}";
-    if (fields != null && fields.isNotEmpty) {
-      request.fields.addAll(fields);
+    final formData = FormData();
+
+    if (fields != null) {
+      for (final entry in fields.entries) {
+        final value = entry.value;
+
+        if (value == null) {
+          continue;
+        }
+
+        if (value is Iterable) {
+          for (final item in value) {
+            if (item == null) {
+              continue;
+            }
+
+            formData.fields.add(MapEntry(entry.key, item.toString()));
+          }
+        } else {
+          formData.fields.add(MapEntry(entry.key, value.toString()));
+        }
+      }
     }
-    if (singleFiles != null && singleFiles.isNotEmpty) {
-      for (var entry in singleFiles.entries) {
-        request.files.add(
-          await http.MultipartFile.fromPath(entry.key, entry.value.path),
+
+    if (singleFiles != null) {
+      for (final entry in singleFiles.entries) {
+        final file = entry.value;
+
+        formData.files.add(
+          MapEntry(
+            entry.key,
+            await MultipartFile.fromFile(file.path, filename: _fileName(file)),
+          ),
         );
       }
     }
-    if (multipleFiles != null && multipleFiles.isNotEmpty) {
-      for (var entry in multipleFiles.entries) {
-        for (var file in entry.value) {
-          request.files.add(
-            await http.MultipartFile.fromPath(entry.key, file.path),
+
+    if (multipleFiles != null) {
+      for (final entry in multipleFiles.entries) {
+        for (final file in entry.value) {
+          formData.files.add(
+            MapEntry(
+              entry.key,
+              await MultipartFile.fromFile(
+                file.path,
+                filename: _fileName(file),
+              ),
+            ),
           );
         }
       }
     }
-    var streamedResponse = await request.send();
-    var response = await http.Response.fromStream(streamedResponse);
-    LoggingService.showMsg(
-      "Url : ${ApiEndpoints.baseUrl}$endpoint | Status code : ${response.statusCode} | body : $fields | Response ${response.body}",
-      isOn: logIsOn,
-    );
-    await UserSessionService.validateSessionExpire(
-      isExpired: response.isExpired,
-    );
 
-    return response;
+    return _request(
+      method: 'POST',
+      endpoint: endpoint,
+      data: formData,
+      queryParameters: queryParameters,
+      validationOn: validationOn,
+      logIsOn: logIsOn,
+      skipAuth: skipAuth,
+      skipRefresh: skipRefresh,
+      extraHeaders: extraHeaders,
+      contentType: Headers.multipartFormDataContentType,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+    );
   }
 
-  static Future<http.Response> post({
+  Future<Response<dynamic>> _request({
+    required String method,
     required String endpoint,
-    dynamic body,
+    Object? data,
+    Map<String, dynamic>? queryParameters,
     bool validationOn = true,
-    bool logIsOn = false,
-    Map<String, String>? extraHeaders,
+    bool logIsOn = true,
+    bool skipAuth = false,
+    bool skipRefresh = false,
+    Map<String, dynamic>? extraHeaders,
+    String? contentType,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
   }) async {
-    http.Response response = await httpClient.post(
-      Uri.parse("${ApiEndpoints.baseUrl}$endpoint"),
-      body: jsonEncode(body),
-      headers: headers,
-    );
-    LoggingService.showMsg(
-      "Url : ${ApiEndpoints.baseUrl}$endpoint | Headers : $headers Status code : ${response.statusCode} | body : $body | Response ${response.body}",
-      isOn: logIsOn,
-    );
-    if (validationOn) {
-      await UserSessionService.validateSessionExpire(
-        isExpired: response.isExpired,
+    try {
+      return await _dio.request<dynamic>(
+        endpoint,
+        data: data,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+        onSendProgress: onSendProgress,
+        onReceiveProgress: onReceiveProgress,
+        options: Options(
+          method: method,
+          headers: extraHeaders,
+          contentType: contentType,
+          extra: {
+            logIsOnKey: logIsOn,
+            validationOnKey: validationOn,
+            skipAuthKey: skipAuth,
+            skipRefreshKey: skipRefresh,
+          },
+        ),
+      );
+    } on DioException catch (error, stackTrace) {
+      Error.throwWithStackTrace(
+        AppNetworkException.fromDioException(error),
+        stackTrace,
       );
     }
-    return response;
   }
 
-  static Future<http.Response> delete({
-    required String endpoint,
-    dynamic body,
-    bool logIsOn = false,
-    bool validationOn = true,
-  }) async {
-    LoggingService.showMsg("Url : ${ApiEndpoints.baseUrl}$endpoint");
-    http.Response response = await httpClient.delete(
-      Uri.parse("${ApiEndpoints.baseUrl}$endpoint"),
-      body: jsonEncode(body),
-      headers: headers,
-    );
-    LoggingService.showMsg(
-      "Status code : ${response.statusCode} | body : $body | Response ${response.body}",
-      isOn: logIsOn,
-    );
-    if (validationOn) {
-      await UserSessionService.validateSessionExpire(
-        isExpired: response.isExpired,
-      );
+  String _fileName(File file) {
+    final segments = file.uri.pathSegments;
+
+    if (segments.isEmpty) {
+      return 'file';
     }
 
-    return response;
-  }
-
-  static Map<String, String> get headers => {
-    "Content-Type": "application/json",
-    if (UserSessionService.kCachedUser?.accessToken != null)
-      "Authorization": "Bearer ${UserSessionService.kCachedUser?.accessToken}",
-  };
-
-  static Future<http.Response> get({
-    required String endpoint,
-    bool logIsOn = false,
-    bool validationOn = true,
-
-    dynamic body,
-  }) async {
-    http.Response response = await httpClient.get(
-      Uri.parse("${ApiEndpoints.baseUrl}$endpoint"),
-      headers: headers,
-    );
-    if (validationOn) {
-      await UserSessionService.validateSessionExpire(
-        isExpired: response.isExpired,
-      );
-    }
-    LoggingService.showMsg(
-      "Url : ${ApiEndpoints.baseUrl}$endpoint | Headers : $headers | Response : ${response.body} | Status code : ${response.statusCode}",
-      isOn: logIsOn,
-    );
-    return response;
-  }
-
-  static Future<http.Response> put({
-    bool logIsOn = false,
-    required String endpoint,
-    dynamic body,
-  }) async {
-    LoggingService.showMsg("Url : ${ApiEndpoints.baseUrl}$endpoint");
-    http.Response response = await httpClient.put(
-      Uri.parse("${ApiEndpoints.baseUrl}$endpoint"),
-      body: jsonEncode(body),
-      headers: headers,
-    );
-    LoggingService.showMsg(
-      "Status code : ${response.statusCode} | body : $body | Response ${response.body}",
-      isOn: logIsOn,
-    );
-    await UserSessionService.validateSessionExpire(
-      isExpired: response.isExpired,
-    );
-
-    return response;
-  }
-
-  static Future<http.Response> patch({
-    required String endpoint,
-    bool logIsOn = false,
-    dynamic body,
-  }) async {
-    LoggingService.showMsg("Url : ${ApiEndpoints.baseUrl}$endpoint");
-    http.Response response = await httpClient.patch(
-      Uri.parse("${ApiEndpoints.baseUrl}$endpoint"),
-      body: jsonEncode(body),
-      headers: headers,
-    );
-    LoggingService.showMsg(
-      "Status code : ${response.statusCode} | body : $body | Response ${response.body}",
-      isOn: logIsOn,
-    );
-    await UserSessionService.validateSessionExpire(
-      isExpired: response.isExpired,
-    );
-
-    return response;
+    return segments.last;
   }
 }

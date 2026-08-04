@@ -9,6 +9,11 @@ class ScrollManager {
   ScrollController? get controller => _controller;
 
   bool get hasClients => _controller?.hasClients ?? false;
+  
+  bool get isPaginationReady =>
+      hasClients &&
+      _controller?.position.maxScrollExtent == _controller?.offset &&
+      extentAfter == 0;
 
   double get extentAfter => _controller?.position.extentAfter ?? 0;
 

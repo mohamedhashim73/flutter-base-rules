@@ -19,7 +19,11 @@ class PaginationParams {
   final int? perPage;
   final String? search;
 
-  const PaginationParams({this.page, this.perPage, this.search});
+  const PaginationParams({
+    this.page,
+    this.perPage,
+    this.search,
+  });
 
   Map<String, String> toMap() {
     return {
@@ -29,7 +33,11 @@ class PaginationParams {
     };
   }
 
-  PaginationParams copyWith({int? page, int? perPage, String? search}) {
+  PaginationParams copyWith({
+    int? page,
+    int? perPage,
+    String? search,
+  }) {
     return PaginationParams(
       page: page ?? this.page,
       perPage: perPage ?? this.perPage,

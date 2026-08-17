@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:base/core/services/logging_service.dart';
 import 'package:jailbreak_root_detection/jailbreak_root_detection.dart';
 import 'security_status.dart';
 
@@ -11,26 +12,46 @@ class DeviceSecurityServiceImpl implements DeviceSecurityService {
   Future<DeviceSecurityStatus> check() async {
     try {
       final detection = JailbreakRootDetection.instance;
+      final issues = await detection.checkForIssues;
       final isJailBroken = await detection.isJailBroken;
-      final isNotTrust = await detection.isNotTrust;
       final isRealDevice = await detection.isRealDevice;
       final isDeveloperMode =
           Platform.isAndroid ? await detection.isDevMode : false;
+      final isOnExternalStorage =
+          Platform.isAndroid ? await detection.isOnExternalStorage : false;
 
-      if (isJailBroken) {
+      LoggingService.showMsg(
+        'Security check: issues=${issues.map((issue) => issue.name).toList()}, '
+        'jailbroken=$isJailBroken, realDevice=$isRealDevice, '
+        'developerMode=$isDeveloperMode, '
+        'externalStorage=$isOnExternalStorage',
+      );
+
+      if (isJailBroken ||
+          issues.any(
+            (issue) =>
+                issue == JailbreakIssue.jailbreak ||
+                issue == JailbreakIssue.fridaFound ||
+                issue == JailbreakIssue.cydiaFound ||
+                issue == JailbreakIssue.tampered ||
+                issue == JailbreakIssue.reverseEngineered,
+          )) {
         return DeviceSecurityStatus.rootedOrJailbroken;
       }
 
-      if (isDeveloperMode) {
+      if (isDeveloperMode || issues.contains(JailbreakIssue.devMode)) {
         return DeviceSecurityStatus.developerModeEnabled;
       }
 
-      if (isNotTrust || !isRealDevice) {
-        return DeviceSecurityStatus.untrustedDevice;
+      if (!isRealDevice || issues.contains(JailbreakIssue.notRealDevice)) {
+        return DeviceSecurityStatus.emulatorOrSimulator;
       }
 
-      if (!isRealDevice) {
-        return DeviceSecurityStatus.emulatorOrSimulator;
+      if (isOnExternalStorage ||
+          issues.contains(JailbreakIssue.onExternalStorage) ||
+          issues.contains(JailbreakIssue.proxied) ||
+          issues.contains(JailbreakIssue.debugged)) {
+        return DeviceSecurityStatus.untrustedDevice;
       }
 
       return DeviceSecurityStatus.safe;

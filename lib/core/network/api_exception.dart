@@ -115,6 +115,20 @@ class AppNetworkException implements Exception {
     String? fallback,
   }) {
     if (data is Map) {
+      final errors = data['errors'];
+
+      if (errors is List && errors.isNotEmpty) {
+        final firstError = errors.first;
+
+        if (firstError is Map) {
+          final errorMessage = firstError['message'];
+
+          if (errorMessage is String && errorMessage.trim().isNotEmpty) {
+            return errorMessage;
+          }
+        }
+      }
+
       const keys = ['message', 'error', 'detail', 'description'];
 
       for (final key in keys) {
@@ -123,12 +137,6 @@ class AppNetworkException implements Exception {
         if (value is String && value.trim().isNotEmpty) {
           return value;
         }
-      }
-
-      final errors = data['errors'];
-
-      if (errors is List && errors.isNotEmpty) {
-        return errors.first.toString();
       }
     }
 

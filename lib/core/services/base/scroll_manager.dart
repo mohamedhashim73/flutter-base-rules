@@ -5,15 +5,40 @@ class ScrollManager {
   ScrollController? _controller;
   VoidCallback? _onScroll;
   bool _isListening = false;
+  bool _isPaging = false;
 
   ScrollController? get controller => _controller;
 
   bool get hasClients => _controller?.hasClients ?? false;
-  
-  bool get isPaginationReady =>
-      hasClients &&
-      _controller?.position.maxScrollExtent == _controller?.offset &&
-      extentAfter == 0;
+
+  bool get isPaginationReady {
+  if (_isPaging) return false;
+  if (!hasClients) return false;
+
+  final maxExtent = _controller?.position.maxScrollExtent ?? 0;
+  final pixels = _controller?.position.pixels ?? 0;
+
+  // لو القايمة مش بتعمل overflow (كل العناصر ظاهرة على الشاشة)
+  // يبقى مفيش داعي ننتظر scroll، نعتبرها جاهزة على طول
+  if (maxExtent <= 0) {
+    LoggingService.showMsg(
+      '[ScrollManager] isPaginationReady → no-overflow case, ready:true',
+    );
+    return true;
+  }
+
+  final ready = pixels >= maxExtent - 80;
+  return ready;
+}
+
+  void lockPaging() {
+    _isPaging = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _isPaging = false;
+      });
+    });
+  }
 
   double get extentAfter => _controller?.position.extentAfter ?? 0;
 

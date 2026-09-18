@@ -3,7 +3,7 @@ import 'package:base/core/extensions/string_extensions.dart';
 import 'package:base/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
-class MyImage extends StatelessWidget {
+class CustomImage extends StatelessWidget {
   final double? height;
   final double? width;
   final double? imgHeight;
@@ -18,7 +18,7 @@ class MyImage extends StatelessWidget {
   final BoxShape shape;
   final bool isAsset;
   final Alignment? alignment;
-  const MyImage(
+  const CustomImage(
     this.path, {
     super.key,
     this.shimmerIsOn = false,

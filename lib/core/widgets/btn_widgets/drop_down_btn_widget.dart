@@ -27,7 +27,6 @@ class DropDownBtnWidget<T> extends StatelessWidget {
   final String Function(T)? getLabel;
 
   static const _kBorderColor = Color(0xFFE7EBEF);
-  static const _kBorderWidth = AppConstants.kBorderWidth;
 
   DropDownBtnWidget({
     super.key,
@@ -55,12 +54,12 @@ class DropDownBtnWidget<T> extends StatelessWidget {
 
   InputBorder get _enabledBorder => OutlineInputBorder(
     borderRadius: _radius,
-    borderSide: const BorderSide(color: _kBorderColor, width: _kBorderWidth),
+    borderSide: const BorderSide(color: _kBorderColor),
   );
 
   InputBorder get _focusedBorder => OutlineInputBorder(
     borderRadius: _radius,
-    borderSide: BorderSide(color: AppColors.kMain, width: _kBorderWidth),
+    borderSide: BorderSide(color: AppColors.kMain),
   );
 
   ValueNotifier<T?>? _valueNotifier;
@@ -124,13 +123,13 @@ class DropDownBtnWidget<T> extends StatelessWidget {
                   Theme.of(context).inputDecorationTheme.errorBorder ??
                   OutlineInputBorder(
                     borderRadius: _radius,
-                    borderSide: BorderSide(color: AppColors.kRed, width: _kBorderWidth),
+                    borderSide: BorderSide(color: AppColors.kRed),
                   ),
               focusedErrorBorder:
                   Theme.of(context).inputDecorationTheme.focusedErrorBorder ??
                   OutlineInputBorder(
                     borderRadius: _radius,
-                    borderSide: BorderSide(color: AppColors.kRed, width: _kBorderWidth),
+                    borderSide: BorderSide(color: AppColors.kRed,),
                   ),
               prefixIcon: prefix != null ? Center(child: prefix!) : null,
               suffixIcon: trailing != null ? Center(child: trailing!) : null,
@@ -168,7 +167,6 @@ class DropDownBtnWidget<T> extends StatelessWidget {
                 borderRadius: _radius,
                 border: Border.all(
                   color: _kBorderColor,
-                  width: _kBorderWidth,
                 ),
               ),
             ),

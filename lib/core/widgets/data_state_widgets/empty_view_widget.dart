@@ -22,7 +22,7 @@ class EmptyViewWidget extends StatelessWidget {
           SizedBox(
             height: type?.image != null ? 234.r : null,
             width: type?.image != null ? 234.r : null,
-            child: Center(child: MyImage(type?.image ?? Assets.empty)),
+            child: Center(child: CustomImage(type?.image ?? Assets.empty)),
           ),
           Text(
             type?.name ?? AppStrings.kNoDataFound,

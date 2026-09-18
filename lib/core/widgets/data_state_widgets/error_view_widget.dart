@@ -36,7 +36,7 @@ class ErrorViewWidget extends StatelessWidget {
             padding: EdgeInsets.zero,
             shrinkWrap: true,
             children: [
-              MyImage(
+              CustomImage(
                 Assets.error,
                 imgHeight: (isShorten ? 74 : size) ?? 200.r,
                 imgWidth: (isShorten ? 74 : size) ?? 200.r,

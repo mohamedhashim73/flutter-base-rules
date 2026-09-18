@@ -84,7 +84,6 @@ class TxtFieldWidget extends StatefulWidget {
 
 class _TxtFieldWidgetState extends State<TxtFieldWidget> {
   static const _kBorderColor = Color(0xFFE7EBEF);
-  static const _kBorderWidth = AppConstants.kBorderWidth;
 
   FocusNode? _focusNode;
 
@@ -93,17 +92,17 @@ class _TxtFieldWidgetState extends State<TxtFieldWidget> {
 
   InputBorder get _enabledBorder => OutlineInputBorder(
     borderRadius: _radius,
-    borderSide: const BorderSide(color: _kBorderColor, width: _kBorderWidth),
+    borderSide: const BorderSide(color: _kBorderColor),
   );
 
   InputBorder get _focusedBorder => OutlineInputBorder(
     borderRadius: _radius,
-    borderSide: BorderSide(color: AppColors.kMain, width: _kBorderWidth),
+    borderSide: BorderSide(color: AppColors.kMain),
   );
 
   InputBorder get _errorBorder => OutlineInputBorder(
     borderRadius: _radius,
-    borderSide: BorderSide(color: AppColors.kRed, width: _kBorderWidth),
+    borderSide: BorderSide(color: AppColors.kRed),
   );
 
   @override

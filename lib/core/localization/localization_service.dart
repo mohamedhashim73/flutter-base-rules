@@ -1,9 +1,4 @@
-import 'dart:convert';
-import 'package:base/core/routes/routes.dart';
-import 'package:base/core/services/base/asset_service.dart';
-import 'package:base/core/services/user_session_service.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
+part of 'localization.dart';
 
 class LocalizationService {
   final Locale? locale;

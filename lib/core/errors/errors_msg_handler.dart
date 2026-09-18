@@ -1,5 +1,6 @@
-import 'package:base/core/constants/strings.dart';
-import 'package:base/core/services/logging_service.dart';
+
+
+part of 'errors.dart';
 
 class ErrorHandler {
   static String error(dynamic msg) {

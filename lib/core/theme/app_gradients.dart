@@ -1,5 +1,4 @@
-import 'package:base/core/theme/app_colors.dart';
-import 'package:flutter/material.dart';
+part of 'theme.dart';
 
 class AppGradients {
   static final Gradient basic = LinearGradient(

@@ -1,6 +1,4 @@
-import 'package:base/core/services/logging_service.dart';
-import 'package:flutter/material.dart';
-import 'package:base/core/services/base/safe_executer.dart';
+part of '../services.dart';
 
 class ScrollManager {
   ScrollController? _controller;

@@ -1,4 +1,4 @@
-import 'package:playx/playx.dart';
+import 'package:base/core/utils/utils.dart';
 import 'package:base/model/notification_data_model.dart';
 
 class NotificationModel extends Equatable {

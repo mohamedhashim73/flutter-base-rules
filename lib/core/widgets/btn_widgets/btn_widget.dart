@@ -1,6 +1,4 @@
-import 'package:base/core/theme/app_diemnsions.dart';
-import 'package:flutter/material.dart';
-import '../../theme/app_colors.dart';
+part of '../widgets.dart';
 
 class IconBtnWidget extends StatelessWidget {
   final IconData iconData;

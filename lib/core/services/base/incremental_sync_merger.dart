@@ -1,5 +1,4 @@
-
-import 'package:base/core/services/logging_service.dart';
+part of '../services.dart';
 
 /// Base interface for items with an id
 abstract class HasId {

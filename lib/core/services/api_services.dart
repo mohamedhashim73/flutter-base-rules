@@ -1,12 +1,4 @@
-import 'dart:io';
-
-import 'package:base/core/network/network.dart';
-import 'package:playx/playx.dart';
-import '../network/api_exception.dart';
-import '../network/api_request_options.dart';
-import '../network/interceptors/api_logging_interceptor.dart';
-import '../network/interceptors/auth_session_interceptor.dart';
-import '../network/session_expiry_coordinator.dart';
+part of 'services.dart';
 
 class ApiServices {
   ApiServices({

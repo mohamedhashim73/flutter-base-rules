@@ -1,9 +1,12 @@
-import 'package:http/http.dart' as http;
-
-extension ResponseEx on http.Response {
+part of 'extensions.dart';
+extension ResponseEx on Response {
   bool get isSuccess => statusCode == 200 || statusCode == 201;
-  bool get isExpired =>
-      statusCode == 401 ||
-      statusCode == 403 ||
-      (statusCode >= 301 && statusCode <= 308);
+
+  bool get isExpired {
+    final code = statusCode;
+
+    return code == 401 ||
+        code == 403 ||
+        (code != null && code >= 301 && code <= 308);
+  }
 }

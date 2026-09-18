@@ -1,3 +1,5 @@
+part of '../services.dart';
+
 class Assets {
   static const String images = 'assets/images/';
   static const String fontsPath = 'assets/fonts/';

@@ -1,5 +1,4 @@
-export 'package:base/core/extensions/string_extensions.dart';
-
+part of 'localization.dart';
 class LocalizationKeys {
   static const String apply = "apply";
 }

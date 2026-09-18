@@ -1,7 +1,4 @@
-import 'package:base/core/widgets/data_state_widgets/loading_view_widget.dart';
-import 'package:base/core/enums/request_status_enum.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+part of '../widgets.dart';
 
 class DialogContentWidget<C extends Cubit<S>, S> extends StatefulWidget {
   final C cubit;

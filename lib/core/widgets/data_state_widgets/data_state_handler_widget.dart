@@ -1,11 +1,4 @@
-import 'package:base/core/widgets/custom_listview_widgets/custom_listview_widget.dart';
-import 'package:base/core/widgets/data_state_widgets/toggle_between_widgets.dart';
-import 'package:base/core/services/base/data_state_helper.dart';
-import 'package:flutter/material.dart';
-import 'package:base/core/widgets/data_state_widgets/empty_view_widget.dart';
-import 'package:base/core/widgets/data_state_widgets/error_view_widget.dart';
-import 'package:base/core/widgets/data_state_widgets/loading_view_widget.dart';
-import 'package:base/core/enums/empty_enum.dart';
+part of '../widgets.dart';
 
 class DataStateBuilderWidget extends StatelessWidget {
   final DataState dataState;

@@ -1,9 +1,4 @@
-import 'dart:ui';
-import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:flutter/material.dart';
-import 'package:playx/playx.dart';
-import '../../constants/constants.dart';
-import '../../theme/app_colors.dart';
+part of '../widgets.dart';
 
 // ignore: must_be_immutable
 class DropDownBtnWidget<T> extends StatelessWidget {

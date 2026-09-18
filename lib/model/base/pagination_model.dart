@@ -1,4 +1,4 @@
-import 'package:playx/playx.dart';
+import 'package:base/core/utils/utils.dart';
 
 class PaginationModel {
   final int total;

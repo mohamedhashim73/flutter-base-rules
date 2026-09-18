@@ -1,6 +1,4 @@
-import 'package:base/core/enums/notification_type_enum.dart';
-import 'package:base/core/extensions/int_extensions.dart';
-import 'package:playx/playx.dart';
+part of 'extensions.dart';
 
 extension StringExtensions on String {
   String? validatorTxt({bool isNum = false, bool isOptional = true}) {

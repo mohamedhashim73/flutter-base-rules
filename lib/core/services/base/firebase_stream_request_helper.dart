@@ -1,11 +1,4 @@
-import 'dart:async';
-import 'dart:ui';
-
-import 'package:base/core/enums/request_status_enum.dart';
-import 'package:base/core/errors/errors_msg_handler.dart';
-import 'package:base/core/services/base/request_helper.dart';
-import 'package:base/model/base/base_response.dart';
-import 'package:base/model/base/request_state.dart';
+part of '../services.dart';
 
 class FirebaseStreamManager {
   StreamSubscription? _subscription;

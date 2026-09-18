@@ -1,7 +1,4 @@
-import 'dart:io';
-import 'package:base/core/services/logging_service.dart';
-import 'package:jailbreak_root_detection/jailbreak_root_detection.dart';
-import 'security_status.dart';
+part of 'security.dart';
 
 abstract interface class DeviceSecurityService {
   Future<DeviceSecurityStatus> check();

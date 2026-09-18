@@ -1,3 +1,5 @@
+part of 'services.dart';
+
 // import 'package:geocoding/geocoding.dart';
 // import 'package:geolocator/geolocator.dart';
 // import 'package:base/core/services/logging_service.dart';

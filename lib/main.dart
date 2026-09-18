@@ -1,10 +1,5 @@
-import 'package:base/core/constants/constants.dart';
-import 'package:base/core/routes/routes.dart';
-import 'package:base/core/security/app_security_gate.dart';
-import 'package:base/core/services/user_session_service.dart';
-import 'package:base/core/theme/app_theme.dart';
+import 'package:base/core/core.dart';
 import 'package:flutter/material.dart';
-import 'package:playx/playx.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

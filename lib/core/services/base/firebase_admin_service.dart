@@ -1,3 +1,5 @@
+part of '../services.dart';
+
 // import 'dart:convert';
 
 // import 'package:base/core/services/base/firebase_service.dart';

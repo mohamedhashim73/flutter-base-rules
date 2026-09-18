@@ -1,4 +1,4 @@
-import 'package:base/core/services/base/asset_service.dart';
+part of 'enums.dart';
 
 enum EmptyType {
   cart;

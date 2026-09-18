@@ -1,7 +1,4 @@
-import 'package:base/core/theme/app_diemnsions.dart';
-import 'package:flutter/material.dart';
-import 'package:base/core/extensions/buildContext_extensions.dart';
-import 'package:base/core/routes/routes.dart';
+part of 'theme.dart';
 
 class AppColors {
   // Primary & Accent

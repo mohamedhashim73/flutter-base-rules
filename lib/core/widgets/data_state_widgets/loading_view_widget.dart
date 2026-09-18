@@ -1,9 +1,4 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../constants/constants.dart';
-import '../../theme/app_colors.dart';
-import 'toggle_between_widgets.dart';
+part of '../widgets.dart';
 
 class LoadingViewWidget extends StatelessWidget {
   final String? message;

@@ -1,7 +1,4 @@
-import 'package:base/core/security/security_service.dart';
-import 'package:base/core/security/security_status.dart';
-import 'package:base/view/security/security_blocked_page.dart';
-import 'package:flutter/material.dart';
+part of 'security.dart';
 
 class AppSecurityGate extends StatefulWidget {
   final Widget child;

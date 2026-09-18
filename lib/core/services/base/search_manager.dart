@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:base/core/services/base/debouncer.dart';
-import 'package:base/core/services/base/safe_executer.dart';
+part of '../services.dart';
 
 class SearchManager {
   SearchManager({Debouncer? debouncer, String? initialValue})

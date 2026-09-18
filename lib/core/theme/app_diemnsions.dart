@@ -1,6 +1,4 @@
-import 'package:flutter/widgets.dart';
-import 'package:playx/playx.dart';
-import 'package:base/core/routes/routes.dart';
+part of 'theme.dart';
 
 class AppDimensions {
   static double btnLTxtSize = 20.sp;
@@ -30,13 +28,14 @@ class AppDimensions {
   static double bodyHSpace = 24.r;
   static double bodyHMinSpace = 12.r;
   static double dialogWidth = AppRoutes.currentContext.isLandscape
-      ? AppRoutes.currentContext.width * .3
-      : AppRoutes.currentContext.width * .85;
+      ? width * .3
+      : width * .85;
   static double bPageSpace =
       (AppRoutes.currentContext.isLandscape == true ? 16 : 24).r;
   static BorderRadius get max => BorderRadius.circular(24.r);
   static BorderRadius get main => BorderRadius.circular(16.r);
   static BorderRadius get min => BorderRadius.circular(12.r);
+  static double get width => MediaQuery.of(AppRoutes.currentContext).size.width;
   static EdgeInsets get zeroInsets => EdgeInsets.zero;
   static EdgeInsets get listViewPadding =>
       EdgeInsets.only(bottom: bSpaceIncaseFloatingBtn);

@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+part of '../services.dart';
 
 abstract final class SystemUiService {
   const SystemUiService._();

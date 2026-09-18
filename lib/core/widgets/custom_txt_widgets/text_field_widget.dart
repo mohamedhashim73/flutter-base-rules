@@ -1,10 +1,4 @@
-import 'dart:ui';
-import 'package:flutter/services.dart';
-import 'package:playx/playx.dart';
-import 'package:base/core/extensions/string_extensions.dart';
-import 'package:flutter/material.dart';
-import 'package:base/core/constants/constants.dart';
-import 'package:base/core/theme/app_colors.dart';
+part of '../widgets.dart';
 
 class TxtFieldWidget extends StatefulWidget {
   final String? label;
@@ -149,7 +143,7 @@ class _TxtFieldWidgetState extends State<TxtFieldWidget> {
           height: widget.height,
           child: TextFormField(
             controller: widget.controller,
-            textDirection: widget.textDirection,
+            textDirection: context.textDirection,
             autocorrect: true,
             readOnly: widget.readOnly,
             onTap: widget.onTap,

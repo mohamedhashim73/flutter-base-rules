@@ -1,10 +1,4 @@
-import 'package:base/core/constants/strings.dart';
-import 'package:flutter/material.dart';
-import 'package:playx/playx.dart';
-import 'package:base/core/widgets/custom_image_widget/custom_image.dart';
-import 'package:base/core/enums/empty_enum.dart';
-import 'package:base/core/extensions/buildContext_extensions.dart';
-import 'package:base/core/services/base/asset_service.dart';
+part of '../widgets.dart';
 
 class EmptyViewWidget extends StatelessWidget {
   final EmptyType? type;

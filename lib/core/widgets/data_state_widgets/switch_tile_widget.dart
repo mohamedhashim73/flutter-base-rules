@@ -1,6 +1,4 @@
-import 'package:playx/playx.dart';
-import 'package:flutter/material.dart';
-import '../../theme/app_colors.dart';
+part of '../widgets.dart';
 
 class SwitchTileWidget extends StatelessWidget {
   final bool isOn;

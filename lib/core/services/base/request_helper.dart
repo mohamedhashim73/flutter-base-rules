@@ -1,12 +1,4 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:ui';
-import 'package:base/model/base/request_state.dart';
-import 'package:base/core/enums/request_status_enum.dart';
-import 'package:base/core/errors/errors_msg_handler.dart';
-import 'package:base/core/services/api_services.dart';
-import 'package:base/model/base/base_response.dart';
-import 'package:playx/playx.dart';
+part of '../services.dart';
 
 class RequestLock {
   bool _isLocked = false;

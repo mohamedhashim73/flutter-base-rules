@@ -1,4 +1,4 @@
-import 'package:playx/playx.dart';
+part of 'network.dart';
 
 enum ApiExceptionType {
   connectionTimeout,

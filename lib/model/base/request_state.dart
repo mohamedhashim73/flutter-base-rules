@@ -1,7 +1,5 @@
 import 'dart:ui';
-import 'package:base/core/enums/msg_type_enum.dart';
-import 'package:base/core/enums/request_status_enum.dart';
-import 'package:base/core/widgets/custom_dialogs_widget/show_snack_bar.dart';
+import 'package:base/core/core.dart';
 
 abstract class RequestState {
   final RequestStatus? status;

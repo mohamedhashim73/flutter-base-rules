@@ -1,4 +1,4 @@
-import 'package:playx/playx.dart';
+import 'package:base/core/utils/utils.dart';
 import 'package:base/model/base/base_response.dart';
 import 'package:base/model/notification_model.dart';
 import 'package:base/model/base/pagination_model.dart';

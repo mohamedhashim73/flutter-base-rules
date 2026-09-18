@@ -1,3 +1,5 @@
+part of '../services.dart';
+
 // import 'dart:async';
 
 // import 'package:base/core/enums/request_status_enum.dart';

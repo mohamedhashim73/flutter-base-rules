@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of 'security.dart';
 
 enum DeviceSecurityStatus {
   safe,

@@ -1,3 +1,5 @@
+part of '../services.dart';
+
 // import 'package:base/core/constants/strings.dart';
 // import 'package:base/core/services/logging_service.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';

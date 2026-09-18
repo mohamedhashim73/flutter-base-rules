@@ -1,8 +1,4 @@
-import 'package:playx/playx.dart';
-import 'package:base/core/extensions/buildContext_extensions.dart';
-import 'package:flutter/material.dart';
-import '../../services/base/asset_service.dart';
-import '../../theme/app_colors.dart';
+part of '../widgets.dart';
 
 class SearchTextFieldWidget extends StatefulWidget {
   final TextEditingController? controller;

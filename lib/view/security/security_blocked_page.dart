@@ -1,7 +1,5 @@
-import 'package:base/core/security/security_status.dart';
-import 'package:base/core/theme/app_diemnsions.dart';
+import 'package:base/core/core.dart';
 import 'package:flutter/material.dart';
-import 'package:playx/playx.dart';
 
 class SecurityBlockedPage extends StatelessWidget {
   final DeviceSecurityStatus status;

@@ -1,3 +1,5 @@
+part of 'services.dart';
+
 // import 'dart:io';
 // import 'package:image_picker/image_picker.dart';
 // import 'package:base/core/components/custom_dialogs_widget/show_toast.dart';

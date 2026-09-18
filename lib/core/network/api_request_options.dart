@@ -1,3 +1,5 @@
+part of 'network.dart';
+
 const String logIsOnKey = 'logIsOn';
 const String validationOnKey = 'validationOn';
 const String skipAuthKey = 'skipAuth';

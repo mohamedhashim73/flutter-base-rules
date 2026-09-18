@@ -1,3 +1,5 @@
+part of 'services.dart';
+
 // import 'dart:async';
 // import 'dart:convert';
 // import 'package:base/core/services/firebase_messaging_service.dart';

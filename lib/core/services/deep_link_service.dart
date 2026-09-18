@@ -1,3 +1,5 @@
+part of 'services.dart';
+
 // import 'dart:async';
 // import 'package:app_links/app_links.dart';
 // import 'package:base/core/constants/routes.dart';

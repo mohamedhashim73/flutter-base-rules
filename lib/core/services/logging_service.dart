@@ -1,5 +1,4 @@
-import 'dart:developer';
-import 'package:flutter/foundation.dart';
+part of 'services.dart';
 
 class LoggingService {
   static void showMsg(dynamic msg, {bool isOn = true}) {

@@ -1,13 +1,11 @@
-// ignore: file_names
-import 'package:flutter/material.dart';
-import 'package:playx/playx.dart';
-import '../theme/app_colors.dart';
+part of 'extensions.dart';
 
 extension BuildContextExtensions on BuildContext {
   TextTheme get textTheme => Theme.of(this).textTheme;
   TextTheme get txtTheme => Theme.of(this).textTheme;
   BorderRadius get max => BorderRadius.circular(22);
   BorderRadius get main => BorderRadius.circular(14);
+  ui.TextDirection get textDirection => Directionality.of(this);
   BorderRadius get min => BorderRadius.circular(10);
   EdgeInsets get listViewPadding => const EdgeInsets.only(bottom: 24);
   EdgeInsets get paddingZero => EdgeInsets.zero;

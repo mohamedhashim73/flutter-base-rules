@@ -1,11 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:playx/playx.dart';
-import 'package:base/core/enums/empty_enum.dart';
-import 'package:base/core/extensions/buildContext_extensions.dart';
-import 'package:base/core/extensions/int_extensions.dart';
-import '../data_state_widgets/empty_view_widget.dart';
-import '../data_state_widgets/loading_view_widget.dart';
+part of '../widgets.dart';
 
 class PaginatedListviewWidget extends StatelessWidget {
   final int? length;

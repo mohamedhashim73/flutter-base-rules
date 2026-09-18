@@ -1,5 +1,4 @@
-import 'package:base/core/services/base/search_manager.dart';
-import 'package:base/model/base/pagination_model.dart';
+part of '../services.dart';
 
 /// Local Pagination Manager
 ///

@@ -1,5 +1,4 @@
-import 'package:base/core/theme/app_diemnsions.dart';
-import 'package:flutter/material.dart';
+part of '../widgets.dart';
 
 class ShimmerItemWidget extends StatelessWidget {
   final double? height;

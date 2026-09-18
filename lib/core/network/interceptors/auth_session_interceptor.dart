@@ -1,9 +1,4 @@
-import 'dart:io';
-import 'package:base/core/network/network.dart';
-import 'package:base/core/services/logging_service.dart';
-import 'package:playx/playx.dart';
-import '../api_request_options.dart';
-import '../session_expiry_coordinator.dart';
+part of '../network.dart';
 
 typedef AccessTokenProvider = String? Function();
 typedef RefreshTokenProvider = String? Function();

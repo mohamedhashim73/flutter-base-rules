@@ -1,11 +1,4 @@
-import 'package:base/core/widgets/btn_widgets/btn_widget.dart';
-import 'package:base/core/theme/app_colors.dart';
-import 'package:base/core/theme/app_diemnsions.dart';
-import 'package:playx/playx.dart';
-import 'package:base/core/constants/constants.dart';
-import 'package:base/core/routes/routes.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+part of '../widgets.dart';
 
 Future<void> showAdaptiveDialogWidget({
   Widget? content,

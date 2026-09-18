@@ -1,3 +1,5 @@
+part of '../services.dart';
+
 class SafeExecutor {
   const SafeExecutor._();
 

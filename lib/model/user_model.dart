@@ -1,5 +1,5 @@
 import 'package:base/model/base/base_response.dart';
-import 'package:playx/playx.dart';
+import 'package:base/core/utils/utils.dart';
 
 class UserModel extends Equatable implements LoadableResponse<UserModel> {
   @override

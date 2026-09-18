@@ -1,3 +1,5 @@
+part of 'services.dart';
+
 // import 'package:base/core/constants/constants.dart';
 // import 'package:base/core/constants/enums/enums.dart';
 // import 'package:base/core/localization/localization_keys.dart';

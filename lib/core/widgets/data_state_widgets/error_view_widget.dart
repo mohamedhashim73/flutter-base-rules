@@ -1,11 +1,4 @@
-import 'package:base/core/constants/strings.dart';
-import 'package:playx/playx.dart';
-import 'package:base/core/widgets/custom_image_widget/custom_image.dart';
-import 'package:base/core/extensions/buildContext_extensions.dart';
-import 'package:base/core/extensions/int_extensions.dart';
-import 'package:base/core/services/base/asset_service.dart';
-import 'package:flutter/material.dart';
-import '../../theme/app_colors.dart';
+part of '../widgets.dart';
 
 class ErrorViewWidget extends StatelessWidget {
   final Function()? retryFunction;

@@ -1,7 +1,4 @@
-import 'package:playx/playx.dart';
-import 'package:base/core/extensions/string_extensions.dart';
-import 'package:base/core/theme/app_colors.dart';
-import 'package:flutter/material.dart';
+part of '../widgets.dart';
 
 class CustomImage extends StatelessWidget {
   final double? height;
@@ -9,7 +6,8 @@ class CustomImage extends StatelessWidget {
   final double? imgHeight;
   final double? imgWidth;
   final double? radius;
-  final BorderRadius? borderRadius;
+  final BorderRadiusGeometry? borderRadius;
+  final Border? border;
   final Color? background;
   final bool shimmerIsOn;
   final String? path;
@@ -18,6 +16,7 @@ class CustomImage extends StatelessWidget {
   final BoxShape shape;
   final bool isAsset;
   final Alignment? alignment;
+
   const CustomImage(
     this.path, {
     super.key,
@@ -29,12 +28,15 @@ class CustomImage extends StatelessWidget {
     this.imgWidth,
     this.fit,
     this.borderRadius,
+    this.border,
     this.background,
     this.color,
     this.height,
     this.width,
     this.alignment,
   });
+
+  bool get _isSvg => path?.toLowerCase().contains('svg') == true;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +48,7 @@ class CustomImage extends StatelessWidget {
       decoration: BoxDecoration(
         color: background ?? (shimmerIsOn ? AppColors.kShimmer : null),
         shape: shape,
+        border: border,
         borderRadius:
             shape != BoxShape.circle && (radius != null || borderRadius != null)
             ? borderRadius ?? BorderRadius.circular(radius!)
@@ -53,42 +56,76 @@ class CustomImage extends StatelessWidget {
       ),
       child: Builder(
         builder: (context) {
-          if (path != null) {
-            if (isAsset && !(path?.isLink == true)) {
-              if (path?.contains("svg") == true) {
-                return ImageViewer.svgAsset(
-                  path!,
-                  height: imgHeight?.r,
-                  width: imgWidth?.r,
-                  color: color,
-                  fit: fit,
-                );
-              } else {
-                return ImageViewer.asset(
-                  path!,
-                  height: imgHeight?.r,
-                  width: imgWidth?.r,
-                  fit: fit,
-                  color: color,
-                );
-              }
-            }
+          if (path == null || path!.isEmpty) {
+            return const SizedBox();
           }
-          return CachedNetworkImage(
-            imageUrl: "$path",
-            fit: fit ?? BoxFit.cover,
-            height: imgHeight?.r,
-            width: imgWidth?.r,
-            placeholder: (context, url) => Image.network(
-              path ?? "",
-              height: imgHeight?.r,
-              width: imgWidth?.r,
-              fit: fit ?? BoxFit.cover,
-              errorBuilder: (context, url, error) => SizedBox(),
-            ),
-            errorWidget: (context, url, error) => SizedBox(),
-          );
+
+          if (isAsset && path?.isLink != true) {
+            return _isSvg ? _buildSvgAsset() : _buildRasterAsset();
+          }
+
+          return _buildNetworkImage();
         },
+      ),
+    );
+  }
+
+  Widget _buildSvgAsset() {
+    return SvgPicture.asset(
+      path!,
+      height: imgHeight?.r,
+      width: imgWidth?.r,
+      fit: fit ?? BoxFit.contain,
+      colorFilter: color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null,
+      placeholderBuilder: (context) => SizedBox(
+        height: imgHeight?.r,
+        width: imgWidth?.r,
+      ),
+    );
+  }
+
+  Widget _buildRasterAsset() {
+    return Image.asset(
+      path!,
+      height: imgHeight?.r,
+      width: imgWidth?.r,
+      fit: fit,
+      color: color,
+      errorBuilder: (context, error, stackTrace) => SizedBox(
+        height: imgHeight?.r,
+        width: imgWidth?.r,
+      ),
+    );
+  }
+
+  Widget _buildNetworkImage() {
+    if (_isSvg) {
+      return SvgPicture.network(
+        path!,
+        height: imgHeight?.r,
+        width: imgWidth?.r,
+        fit: fit ?? BoxFit.contain,
+        colorFilter: color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null,
+        placeholderBuilder: (context) => SizedBox(
+          height: imgHeight?.r,
+          width: imgWidth?.r,
+        ),
+      );
+    }
+
+    return CachedNetworkImage(
+      imageUrl: path!,
+      fit: fit ?? BoxFit.cover,
+      height: imgHeight?.r,
+      width: imgWidth?.r,
+      color: color,
+      placeholder: (context, url) => SizedBox(
+        height: imgHeight?.r,
+        width: imgWidth?.r,
+      ),
+      errorWidget: (context, url, error) => SizedBox(
+        height: imgHeight?.r,
+        width: imgWidth?.r,
       ),
     );
   }

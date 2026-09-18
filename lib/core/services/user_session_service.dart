@@ -1,10 +1,4 @@
-import 'package:base/core/widgets/custom_dialogs_widget/show_snack_bar.dart';
-import 'package:base/core/enums/language_enum.dart';
-import 'package:flutter/material.dart';
-import 'package:base/core/routes/routes.dart';
-import 'package:base/core/network/network.dart';
-import 'package:base/core/services/logging_service.dart';
-import 'package:base/model/user_model.dart';
+part of 'services.dart';
 
 class UserSessionService {
   static UserModel? get kCachedUser => CacheManager.getUser;

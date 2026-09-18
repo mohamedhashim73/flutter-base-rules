@@ -1,3 +1,5 @@
+part of 'network.dart';
+
 typedef SessionExpiredCallback = Future<void> Function();
 
 class SessionExpiryCoordinator {

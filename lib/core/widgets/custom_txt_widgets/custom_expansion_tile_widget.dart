@@ -1,6 +1,4 @@
-import 'package:base/core/extensions/buildContext_extensions.dart';
-import 'package:flutter/material.dart';
-import '../../theme/app_colors.dart';
+part of '../widgets.dart';
 
 class CustomExpansionListTileWidget extends StatelessWidget {
   final String title;

@@ -1,8 +1,9 @@
-import 'security_status.dart';
-import 'security_service.dart';
+import 'package:base/view/security/security_blocked_page.dart';
+import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:base/core/services/services.dart';
+import 'package:jailbreak_root_detection/jailbreak_root_detection.dart';
 
-class SecurityCheck {
-  static Future<DeviceSecurityStatus> checkDeviceSecurity() async {
-    return DeviceSecurityServiceImpl().check();
-  }
-}
+part 'app_security_gate.dart';
+part 'security_service.dart';
+part 'security_status.dart';

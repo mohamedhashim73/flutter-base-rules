@@ -1,3 +1,5 @@
+part of 'services.dart';
+
 // import 'package:base/core/components/custom_dialogs_widget/show_toast.dart';
 // import 'package:flutter/services.dart';
 // import 'package:share_plus/share_plus.dart';

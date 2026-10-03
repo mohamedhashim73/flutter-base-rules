@@ -1,3 +1,5 @@
+import 'package:base/core/security/security.dart';
+import 'package:base/core/theme/theme.dart';
 import 'package:base/core/core.dart';
 import 'package:flutter/material.dart';
 
@@ -23,7 +25,7 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           navigatorObservers: [AppRoutes.routeObserver],
-          theme: AppTheme.light,
+          theme: AppTheme.themeData(isDarkModeOverride: false),
           themeMode: ThemeMode.light,
           locale: Locale(UserSessionService.kCurrentLang.name),
           supportedLocales: const [Locale("en"), Locale("ar")],

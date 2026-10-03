@@ -77,20 +77,4 @@ extension DateFormatting on DateTime {
     if (diff.inMinutes > 0) return 'منذ ${diff.inMinutes} ${diff.inMinutes == 1 ? 'دقيقة' : 'دقائق'}';
     return 'الآن';
   }
-
-  String get toArabicRemainingTime {
-    final now = DateTime.now();
-    if (isBefore(now)) return 'انتهت صلاحيتة';
-    final remaining = difference(now);
-    if (remaining.inDays >= 1) {
-      return 'صالح لمدة ${remaining.inDays} ${remaining.inDays == 1 ? 'يوم' : 'أيام'}';
-    }
-    if (remaining.inHours >= 1) {
-      return 'صالح لمدة ${remaining.inHours} ${remaining.inHours == 1 ? 'ساعة' : 'ساعات'}';
-    }
-    if (remaining.inMinutes >= 1) {
-      return 'صالح لمدة ${remaining.inMinutes} ${remaining.inMinutes == 1 ? 'دقيقة' : 'دقائق'}';
-    }
-    return 'صالح لمدة أقل من دقيقة';
-  }
 }

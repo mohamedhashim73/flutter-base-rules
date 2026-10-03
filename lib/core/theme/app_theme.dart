@@ -1,6 +1,8 @@
 part of 'theme.dart';
 
 class AppTheme {
+  static ThemeData themeData({bool isDarkModeOverride = false}) => light;
+
   static ThemeData get light => ThemeData(
     useMaterial3: true,
     fontFamily: AppConstants.kMainFont,

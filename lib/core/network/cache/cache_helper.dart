@@ -89,7 +89,6 @@ class CacheHelper {
     try {
       return await sl<SharedPreferences>().clear();
     } catch (e) {
-      LoggingService.showMsg("CacheHelper.clearCache() error: $e");
       return false;
     }
   }

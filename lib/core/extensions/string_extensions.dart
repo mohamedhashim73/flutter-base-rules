@@ -17,7 +17,6 @@ extension StringExtensions on String {
       return null;
     }
   }
-  
   NotifyType get toNotifyType {
     for (final type in NotifyType.values) {
       if (type.name == this) return type;

@@ -5,7 +5,7 @@ class Assets {
   static const String fontsPath = 'assets/fonts/';
   static const String langPath = 'assets/lang/';
 
-  /// Language 
+  /// Language
   static const String localizationJson = "${langPath}lang.json";
 
   // SVG assets — prefixed with ic_

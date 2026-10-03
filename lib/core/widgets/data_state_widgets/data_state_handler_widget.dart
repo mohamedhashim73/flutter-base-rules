@@ -9,7 +9,6 @@ class DataStateBuilderWidget extends StatelessWidget {
   final double? emptyOrErrorTxtSize;
   final double? errorOrEmptyImageSize;
   final double? errorTxtSize;
-  final EmptyType? emptyType;
   final EdgeInsets? marginOfEmptyOrError;
   final EdgeInsets? padding;
   final bool shimmerListIsOn;
@@ -27,7 +26,6 @@ class DataStateBuilderWidget extends StatelessWidget {
     this.marginOfEmptyOrError,
     this.errorOrEmptyImageSize,
     this.errorTxtSize,
-    this.emptyType,
     required this.dataState,
     this.onRefresh,
   });
@@ -54,7 +52,6 @@ class DataStateBuilderWidget extends StatelessWidget {
             return Container(
               margin: marginOfEmptyOrError,
               child: EmptyViewWidget(
-                type: emptyType,
                 isShorten: emptyErrorIsShorten,
               ),
             );

@@ -126,7 +126,6 @@ class CustomListviewWidget extends StatelessWidget {
   final int? shownFirstItemAfterTimeAsMillSeconds;
   final EdgeInsetsGeometry? paddingOnEmpty;
   final bool shrinkWrap;
-  final EmptyType? emptyType;
   final bool emptyErrorIsShorten;
 
   const CustomListviewWidget({
@@ -143,7 +142,6 @@ class CustomListviewWidget extends StatelessWidget {
     this.separatorWidget,
     this.padding,
     this.shownFirstItemAfterTimeAsMillSeconds,
-    this.emptyType,
     this.emptyErrorIsShorten = false,
     this.paddingOnEmpty,
     this.shrinkWrap = false,
@@ -154,7 +152,7 @@ class CustomListviewWidget extends StatelessWidget {
     if (isEmpty) {
       return Padding(
         padding: paddingOnEmpty ?? EdgeInsets.zero,
-        child: EmptyViewWidget(type: emptyType, isShorten: emptyErrorIsShorten),
+        child: EmptyViewWidget(isShorten: emptyErrorIsShorten),
       );
     }
     return ListView.separated(

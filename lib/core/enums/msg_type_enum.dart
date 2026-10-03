@@ -4,5 +4,4 @@ enum MsgType {
   info,
   error,
   success,
-
 }

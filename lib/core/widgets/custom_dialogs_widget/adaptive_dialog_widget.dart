@@ -59,7 +59,7 @@ class _AndroidDialogWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: AppDimensions.main),
+      shape: RoundedRectangleBorder(borderRadius: AppDimensions.radiusMd),
       backgroundColor: Colors.white,
       alignment: AlignmentDirectional.center,
       child: SizedBox(

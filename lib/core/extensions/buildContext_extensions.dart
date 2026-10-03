@@ -1,6 +1,8 @@
 part of 'extensions.dart';
 
 extension BuildContextExtensions on BuildContext {
+  AppColorsTheme get colors =>
+      Theme.of(this).extension<AppColorsTheme>() ?? AppColorsTheme.light();
   TextTheme get textTheme => Theme.of(this).textTheme;
   TextTheme get txtTheme => Theme.of(this).textTheme;
   BorderRadius get max => BorderRadius.circular(22);
@@ -93,17 +95,10 @@ extension BuildContextPaddingExtensions on BuildContext {
   EdgeInsets horizontal(double value) =>
       EdgeInsets.symmetric(horizontal: value.r);
 
-  EdgeInsets vertical(double value) =>
-      EdgeInsets.symmetric(vertical: value.r);
+  EdgeInsets vertical(double value) => EdgeInsets.symmetric(vertical: value.r);
 
-  EdgeInsets symmetric({
-    double horizontal = 0,
-    double vertical = 0,
-  }) {
-    return EdgeInsets.symmetric(
-      horizontal: horizontal.r,
-      vertical: vertical.r,
-    );
+  EdgeInsets symmetric({double horizontal = 0, double vertical = 0}) {
+    return EdgeInsets.symmetric(horizontal: horizontal.r, vertical: vertical.r);
   }
 
   EdgeInsets only({

@@ -9,4 +9,5 @@ part 'app_colors.dart';
 part 'app_diemnsions.dart';
 part 'app_gradients.dart';
 part 'app_shadow.dart';
+part 'app_font_size.dart';
 part 'app_theme.dart';

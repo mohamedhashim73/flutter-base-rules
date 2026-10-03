@@ -27,8 +27,8 @@ class ShimmerItemWidget extends StatelessWidget {
         color: color ?? Colors.black.withOpacity(0.04),
         borderRadius: radius != null
             ? BorderRadius.circular(radius!)
-            : AppDimensions.kMainRadius,
-        border: borderIsOn ? AppDimensions.kMainBorder : null,
+            : AppDimensions.radiusSm,
+        border: borderIsOn ? AppDimensions.border : null,
       ),
       child: widget,
     );

@@ -15,14 +15,16 @@ class SecurityBlockedPage extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: AppDimensions.bodyHSpace),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppDimensions.screenPadding.left,
+          ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 520),
             child: Container(
-              padding: EdgeInsets.all(AppDimensions.bodyHSpace),
+              padding: EdgeInsets.all(AppDimensions.screenPadding.left),
               decoration: BoxDecoration(
                 color: theme.cardColor,
-                borderRadius: AppDimensions.max,
+                borderRadius: AppDimensions.radiusLg,
                 border: Border.all(
                   color: colorScheme.outline.withValues(alpha: 0.16),
                 ),
@@ -46,7 +48,7 @@ class SecurityBlockedPage extends StatelessWidget {
                     ),
                     child: Icon(status.icon, size: 38.sp, color: accentColor),
                   ),
-                  SizedBox(height: AppDimensions.vSpace * 1.5),
+                  SizedBox(height: AppDimensions.md * 1.5),
                   Text(
                     status.title,
                     style: theme.textTheme.headlineSmall?.copyWith(
@@ -55,7 +57,7 @@ class SecurityBlockedPage extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: AppDimensions.vSpace * 0.5),
+                  SizedBox(height: AppDimensions.md * 0.5),
                   Text(
                     status.description,
                     style: theme.textTheme.bodyLarge?.copyWith(

@@ -73,7 +73,7 @@ class BtnWidget extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: radiusValue != null
             ? BorderRadius.circular(radiusValue!)
-            : AppDimensions.kMainRadius,
+            : AppDimensions.radiusSm,
         side: BorderSide(color: borderColor ?? Colors.transparent),
       ),
       child: Align(
@@ -169,7 +169,7 @@ class CustomBtnWidget extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: radiusValue != null
             ? BorderRadius.circular(radiusValue!)
-            : AppDimensions.kMainRadius,
+            : AppDimensions.radiusSm,
         side: BorderSide(color: borderColor ?? Colors.transparent),
       ),
       child: widget,

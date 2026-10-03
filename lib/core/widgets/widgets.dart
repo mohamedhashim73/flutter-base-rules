@@ -7,13 +7,11 @@ import 'package:base/core/constants/constants.dart';
 import 'package:base/core/routes/routes.dart';
 import 'package:flutter/cupertino.dart' hide RefreshCallback;
 import 'package:base/core/extensions/extensions.dart';
-import 'package:base/core/routes/routes.dart';
 import 'package:base/core/enums/enums.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:base/core/services/services.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 part 'btn_widgets/btn_widget.dart';
 part 'btn_widgets/custom_radio_list_tile_widget.dart';

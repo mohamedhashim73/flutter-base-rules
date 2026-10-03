@@ -1,4 +1,4 @@
-part of 'services.dart';
+part of '../services.dart';
 
 class ApiServices {
   ApiServices({

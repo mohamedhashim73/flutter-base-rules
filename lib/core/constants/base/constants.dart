@@ -1,4 +1,4 @@
-part of 'constants.dart';
+part of '../constants.dart';
 
 class AppConstants {
   static const String kSupportPhone = "+201099874902";

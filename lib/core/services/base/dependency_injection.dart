@@ -1,4 +1,4 @@
-part of 'services.dart';
+part of '../services.dart';
 
 final GetIt sl = GetIt.instance;
 

@@ -8,9 +8,7 @@ class SecurityBlockedPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final accentColor = colorScheme.error;
+   
 
     return Scaffold(
       body: Center(
@@ -23,10 +21,10 @@ class SecurityBlockedPage extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.all(AppDimensions.screenPadding.left),
               decoration: BoxDecoration(
-                color: theme.cardColor,
+                color: context.theme.cardColor,
                 borderRadius: AppDimensions.radiusLg,
                 border: Border.all(
-                  color: colorScheme.outline.withValues(alpha: 0.16),
+                  color: context.theme.colorScheme.outline.withValues(alpha: 0.16),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -43,25 +41,25 @@ class SecurityBlockedPage extends StatelessWidget {
                     width: 84,
                     height: 84,
                     decoration: BoxDecoration(
-                      color: accentColor.withValues(alpha: 0.1),
+                      color: context.theme.colorScheme.error.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(status.icon, size: 38.sp, color: accentColor),
+                    child: Icon(status.icon, size: 38.sp, color: context. theme.colorScheme.error),
                   ),
                   SizedBox(height: AppDimensions.md * 1.5),
                   Text(
                     status.title,
-                    style: theme.textTheme.headlineSmall?.copyWith(
+                    style: context.theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: colorScheme.onSurface,
+                      color: context.theme.colorScheme.onSurface,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: AppDimensions.md * 0.5),
                   Text(
                     status.description,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
+                    style: context.theme.textTheme.bodyLarge?.copyWith(
+                      color: context.theme.colorScheme.onSurfaceVariant,
                       height: 1.5,
                     ),
                     textAlign: TextAlign.center,

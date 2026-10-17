@@ -1,3 +1,3 @@
-part of 'enums.dart';
+part of '../enums.dart';
 
 enum LanguageEnums { ar, en }

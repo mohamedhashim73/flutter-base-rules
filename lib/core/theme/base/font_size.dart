@@ -1,4 +1,4 @@
-part of 'theme.dart';
+part of '../theme.dart';
 
 class AppFonts {
   static const String main = AppConstants.kMainFont;

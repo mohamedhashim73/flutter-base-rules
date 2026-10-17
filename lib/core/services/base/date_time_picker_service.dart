@@ -1,4 +1,4 @@
-part of 'services.dart';
+part of '../services.dart';
 
 class DateTimePickerService {
   static Future<DateTime?> pickDate({

@@ -1,4 +1,4 @@
-part of 'extensions.dart';
+part of '../extensions.dart';
 extension ResponseEx on Response {
   bool get isSuccess => statusCode == 200 || statusCode == 201;
 

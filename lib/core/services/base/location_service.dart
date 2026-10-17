@@ -1,4 +1,4 @@
-part of 'services.dart';
+part of '../services.dart';
 
 // import 'package:geocoding/geocoding.dart';
 // import 'package:geolocator/geolocator.dart';

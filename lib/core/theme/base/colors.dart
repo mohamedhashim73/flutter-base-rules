@@ -1,4 +1,4 @@
-part of 'theme.dart';
+part of '../theme.dart';
 
 class AppColors {
   static Color kPrimary = const Color(0xFF07B7FA);

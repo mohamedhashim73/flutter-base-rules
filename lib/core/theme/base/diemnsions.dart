@@ -1,4 +1,4 @@
-part of 'theme.dart';
+part of '../theme.dart';
 
 /// Reusable layout tokens. Keep feature-specific measurements out of this file.
 class AppDimensions {

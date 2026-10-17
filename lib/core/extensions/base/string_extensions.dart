@@ -1,4 +1,4 @@
-part of 'extensions.dart';
+part of '../extensions.dart';
 
 extension StringExtensions on String {
   String? validatorTxt({bool isNum = false, bool isOptional = true}) {

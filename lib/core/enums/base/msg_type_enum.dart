@@ -1,4 +1,4 @@
-part of 'enums.dart';
+part of '../enums.dart';
 
 enum MsgType {
   info,

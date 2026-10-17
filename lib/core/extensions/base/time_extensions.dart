@@ -1,4 +1,4 @@
-part of 'extensions.dart';
+part of '../extensions.dart';
 extension DateFormatting on DateTime {
   String get toDayMonthYear {
     return DateFormat('dd-MM-yyyy').format(this);

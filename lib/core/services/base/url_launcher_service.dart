@@ -1,4 +1,4 @@
-part of 'services.dart';
+part of '../services.dart';
 
 // import 'package:base/core/constants/constants.dart';
 // import 'package:base/core/constants/enums/enums.dart';

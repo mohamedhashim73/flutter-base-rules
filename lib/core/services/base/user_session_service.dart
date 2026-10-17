@@ -5,7 +5,7 @@ class UserSessionService {
   static LanguageEnums get kCurrentLang => CacheManager.getLanguage();
   static bool get kIsEnglish => kCurrentLang == LanguageEnums.en;
   static Widget get kGetMainRoute =>
-      kCachedUser != null ?  const SizedBox() : const SizedBox();
+      kCachedUser != null ? const SizedBox() : const SizedBox();
 
   static Future<void> validateSessionExpire({
     bool logOutIsOn = false,
@@ -17,9 +17,7 @@ class UserSessionService {
         await emptyCubits();
         AppRoutes.goToLogin.call();
         if (isExpired) {
-          AppToast.showToast(
-            message: "Session expired, login again",
-          );
+          AppToast.showToast(message: "Session expired, login again");
         }
       }
     } catch (e) {
@@ -36,8 +34,7 @@ class UserSessionService {
   }
 
   static Future<void> emptyCubits() async {
-    try {
-    } catch (e) {
+    try {} catch (e) {
       LoggingService.showMsg('Ex: $e');
     }
   }

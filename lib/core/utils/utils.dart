@@ -1,7 +1,6 @@
 export 'parsing_utils.dart';
 
 export 'package:flutter_screenutil/flutter_screenutil.dart';
-export 'package:dio/dio.dart';
 export 'package:intl/intl.dart';
 export 'package:shared_preferences/shared_preferences.dart';
 export 'package:equatable/equatable.dart';

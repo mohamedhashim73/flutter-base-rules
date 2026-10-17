@@ -1,4 +1,5 @@
 part of '../extensions.dart';
+
 /// Common Widgets
 extension LazyBuilderFunction on Widget Function() {
   /// Will Be Use With DataStateBuilderWidget To Make It Lazy As On Widget Build Event Condition Yet Achieved

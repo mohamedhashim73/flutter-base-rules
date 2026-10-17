@@ -1,4 +1,4 @@
-import 'package:base/model/base/base_response.dart';
+import 'package:backend_sdk/backend_sdk.dart';
 import 'package:base/core/utils/utils.dart';
 
 class UserModel extends Equatable implements LoadableResponse<UserModel> {
@@ -25,7 +25,7 @@ class UserModel extends Equatable implements LoadableResponse<UserModel> {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json, {UserModel? profile}) {
-    final user = asMapOr(json, 'user',fallback: json);
+    final user = asMapOr(json, 'user', fallback: json);
     return UserModel(
       id: asInt(user, "id"),
       name: asStringOr(user, "name"),

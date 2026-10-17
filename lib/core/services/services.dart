@@ -1,14 +1,11 @@
-import 'dart:io';
+import 'package:backend_sdk/backend_sdk.dart';
 import 'package:base/core/network/network.dart';
 import 'package:base/core/utils/utils.dart';
 import 'package:get_it/get_it.dart';
 import 'package:base/core/enums/enums.dart';
-import 'package:base/model/base/base_response.dart';
 import 'package:base/model/base/request_state.dart';
 import 'dart:async';
 import 'package:base/core/errors/errors.dart';
-import 'package:base/model/base/pagination_model.dart';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:base/core/constants/constants.dart';
@@ -21,11 +18,10 @@ import 'package:flutter/foundation.dart';
 import 'package:base/core/widgets/widgets.dart';
 import 'package:base/model/user_model.dart';
 
-part 'base/api_services.dart';
+part 'base/backend_api_service.dart';
 part 'base/asset_service.dart';
 part 'base/data_state_helper.dart';
 part 'base/debouncer.dart';
-part 'base/incremental_sync_helper.dart';
 part 'base/incremental_sync_merger.dart';
 part 'base/pagination_manager.dart';
 part 'base/request_helper.dart';

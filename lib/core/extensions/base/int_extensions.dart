@@ -1,4 +1,5 @@
 part of '../extensions.dart';
+
 extension IntExtensions on int {
   Widget get vrSpace => SizedBox(height: toDouble());
   Widget get hrSpace => SizedBox(width: toDouble());

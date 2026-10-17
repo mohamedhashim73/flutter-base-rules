@@ -1,4 +1,5 @@
 part of '../extensions.dart';
+
 extension DateFormatting on DateTime {
   String get toDayMonthYear {
     return DateFormat('dd-MM-yyyy').format(this);
@@ -72,9 +73,12 @@ extension DateFormatting on DateTime {
   String get toArabicRelativeTime {
     final now = DateTime.now();
     final diff = now.difference(this);
-    if (diff.inDays > 0) return 'منذ ${diff.inDays} ${diff.inDays == 1 ? 'يوم' : 'أيام'}';
-    if (diff.inHours > 0) return 'منذ ${diff.inHours} ${diff.inHours == 1 ? 'ساعة' : 'ساعات'}';
-    if (diff.inMinutes > 0) return 'منذ ${diff.inMinutes} ${diff.inMinutes == 1 ? 'دقيقة' : 'دقائق'}';
+    if (diff.inDays > 0)
+      return 'منذ ${diff.inDays} ${diff.inDays == 1 ? 'يوم' : 'أيام'}';
+    if (diff.inHours > 0)
+      return 'منذ ${diff.inHours} ${diff.inHours == 1 ? 'ساعة' : 'ساعات'}';
+    if (diff.inMinutes > 0)
+      return 'منذ ${diff.inMinutes} ${diff.inMinutes == 1 ? 'دقيقة' : 'دقائق'}';
     return 'الآن';
   }
 }

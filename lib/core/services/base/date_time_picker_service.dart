@@ -154,7 +154,7 @@ class _IOSHeader extends StatelessWidget {
               "Confirm",
               style: TextStyle(
                 color: AppColors.kMain,
-                fontFamily: AppConstants.kMainFont,
+                fontFamily: AppFonts.main,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -167,7 +167,7 @@ class _IOSHeader extends StatelessWidget {
               "Cancel",
               style: TextStyle(
                 color: AppColors.kMainTxt,
-                fontFamily: AppConstants.kMainFont,
+                fontFamily: AppFonts.main,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),

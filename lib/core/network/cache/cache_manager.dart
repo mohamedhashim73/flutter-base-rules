@@ -18,10 +18,7 @@ class CacheManager {
               ? user.refreshToken
               : cachedUser?.refreshToken,
         );
-        await sharedPref.setString(
-          CacheKeys.user,
-          jsonEncode(safeUser.toJson),
-        );
+        await sharedPref.setString(CacheKeys.user, jsonEncode(safeUser.toJson));
       }
     } catch (_) {}
   }
@@ -68,8 +65,7 @@ class CacheManager {
   static LanguageEnums getLanguage() {
     try {
       LanguageEnums lang =
-          sharedPref.getString(CacheKeys.language) ==
-              LanguageEnums.en.name
+          sharedPref.getString(CacheKeys.language) == LanguageEnums.en.name
           ? LanguageEnums.en
           : LanguageEnums.ar;
       return lang;

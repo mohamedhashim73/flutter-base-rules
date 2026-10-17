@@ -1,5 +1,3 @@
 part of '../theme.dart';
 
-class AppShadow {
-  
-}
+class AppShadow {}

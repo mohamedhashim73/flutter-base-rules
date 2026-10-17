@@ -173,7 +173,7 @@ class AppTheme {
   /* Legacy theme kept through the themeData API above. */
   static ThemeData get legacyLight => ThemeData(
     useMaterial3: true,
-    fontFamily: AppConstants.kMainFont,
+    fontFamily: AppFonts.main,
     primaryColor: AppColors.kPrimary,
     scaffoldBackgroundColor: AppColors.kBackground,
     cardColor: AppColors.kCardBackground,
@@ -204,7 +204,7 @@ class AppTheme {
       centerTitle: true,
       titleTextStyle: TextStyle(
         color: AppColors.kFront,
-        fontFamily: AppConstants.kMainFont,
+        fontFamily: AppFonts.main,
         fontSize: 18,
         fontWeight: FontWeight.w600,
       ),

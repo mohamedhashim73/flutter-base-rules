@@ -5,7 +5,7 @@ extension BuildContextExtensions on BuildContext {
       Theme.of(this).extension<AppColorsTheme>() ?? AppColorsTheme.light();
   TextTheme get textTheme => Theme.of(this).textTheme;
   TextTheme get txtTheme => Theme.of(this).textTheme;
-   ThemeData get theme => Theme.of(this);
+  ThemeData get theme => Theme.of(this);
   BorderRadius get max => BorderRadius.circular(22);
   BorderRadius get main => BorderRadius.circular(14);
   ui.TextDirection get textDirection => Directionality.of(this);

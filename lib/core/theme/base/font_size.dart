@@ -1,9 +1,5 @@
 part of '../theme.dart';
 
-class AppFonts {
-  static const String main = AppConstants.kMainFont;
-}
-
 class AppFontSize {
   static double get display => 60.sp;
   static double get displayMedium => 32.sp;

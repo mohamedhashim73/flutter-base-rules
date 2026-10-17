@@ -11,6 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   cupertino_icons: ^1.0.8
   dropdown_button2: ^3.1.0
@@ -18,7 +20,10 @@ dependencies:
   get_it: ^9.2.1
   flutter_bloc: ^9.1.1
   jailbreak_root_detection: ^1.2.0+1
-  dio: ^5.9.0
+  backend_sdk:
+    git:
+      url: https://github.com/mohamedhashim73/Backend-Sdk.git
+      ref: d5bdcdb
   flutter_screenutil: ^5.9.3
   intl: ^0.20.2
   shared_preferences: ^2.5.5

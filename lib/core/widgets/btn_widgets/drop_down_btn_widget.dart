@@ -124,7 +124,7 @@ class DropDownBtnWidget<T> extends StatelessWidget {
                   Theme.of(context).inputDecorationTheme.focusedErrorBorder ??
                   OutlineInputBorder(
                     borderRadius: _radius,
-                    borderSide: BorderSide(color: AppColors.kRed,),
+                    borderSide: BorderSide(color: AppColors.kRed),
                   ),
               prefixIcon: prefix != null ? Center(child: prefix!) : null,
               suffixIcon: trailing != null ? Center(child: trailing!) : null,
@@ -152,7 +152,10 @@ class DropDownBtnWidget<T> extends StatelessWidget {
               color: Theme.of(context).colorScheme.onSurface,
             ),
             iconStyleData: IconStyleData(
-              icon: Icon(Icons.keyboard_arrow_down_rounded, size: iconSize ?? 18),
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: iconSize ?? 18,
+              ),
               iconSize: iconSize ?? 18,
             ),
             dropdownStyleData: DropdownStyleData(
@@ -160,9 +163,7 @@ class DropDownBtnWidget<T> extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.kWhite,
                 borderRadius: _radius,
-                border: Border.all(
-                  color: _kBorderColor,
-                ),
+                border: Border.all(color: _kBorderColor),
               ),
             ),
             menuItemStyleData: MenuItemStyleData(
@@ -181,7 +182,7 @@ class DropDownBtnWidget<T> extends StatelessWidget {
                     labelText,
                     style: TextStyle(
                       fontSize: txtSize ?? 14,
-                      fontFamily: AppConstants.kMainFont,
+                      fontFamily: AppFonts.main,
                       fontWeight: FontWeight.w400,
                       color: AppColors.kBlack,
                     ),

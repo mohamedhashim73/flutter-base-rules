@@ -175,7 +175,7 @@ class _IOSDialogWidget extends StatelessWidget {
             okTxt ?? 'تأكيد',
             style: TextStyle(
               color: AppColors.kMain,
-              fontFamily: AppConstants.kMainFont,
+              fontFamily: AppFonts.main,
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -187,7 +187,7 @@ class _IOSDialogWidget extends StatelessWidget {
             cancelTxt ?? 'إلغاء',
             style: TextStyle(
               color: AppColors.kMainTxt,
-              fontFamily: AppConstants.kMainFont,
+              fontFamily: AppFonts.main,
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),

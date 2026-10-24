@@ -28,6 +28,41 @@ The goal is to keep all scrolling behavior centralized and consistent across the
 
 ---
 
+# Shared Widget Adoption Rule
+
+When a core widget already provides the required behavior, use it directly
+instead of recreating its underlying Flutter primitive in feature code.
+
+Do not create a feature wrapper that only renames a core widget or forwards the
+same parameters unchanged. A feature wrapper is appropriate when it composes a
+core widget into a feature-specific layout, adds feature-specific semantics or
+behavior, or adapts feature data to the core widget's API.
+
+If the missing capability is broadly useful across features, evolve the core
+widget with an intentional API and backward-compatible defaults. If it is
+specific to one feature, keep that behavior in the feature wrapper rather than
+expanding the core widget for a single use case.
+
+---
+
+# Shared Widget and Theme Evolution Rule
+
+Do not change a shared widget or global theme solely to match a local feature
+mock. A shared change is appropriate when it is an intentional design-system
+decision or introduces a broadly reusable capability; it does not need to
+already appear in multiple features.
+
+Before changing a shared default, review its current consumers and relevant
+states, including responsive layouts, accessibility, light and dark themes,
+loading, disabled, error, and empty states. Preserve a backward-compatible
+default when the new appearance is not required everywhere.
+
+For a feature-specific requirement, use a feature wrapper or a narrowly scoped
+variant. Add a generic shared parameter or variant only when it has a clear
+meaning beyond the originating feature.
+
+---
+
 # 1. Available Widgets
 
 | Widget | Use Case |
@@ -44,6 +79,24 @@ The goal is to keep all scrolling behavior centralized and consistent across the
 # 2. Widget Selection Rules
 
 Always choose the widget based on the rendering behavior rather than rebuilding the scroll implementation manually.
+
+---
+
+## 2.0 Scroll Container Selection
+
+Choose the scroll container according to content and scrolling behavior:
+
+* repeated, dynamic, paginated, or grid data → use the applicable shared list,
+  pagination, or grid widget in this file
+* short, bounded static content such as a form or settings section →
+  `SingleChildScrollView` with a `Column` is acceptable when it is clearer
+* sliver composition, a collapsible app bar, or mixed scrolling sections → use
+  `CustomScrollView`
+
+Set scroll padding explicitly so that safe-area and layout spacing are
+intentional. Each viewport should have one vertical scroll owner. Do not nest
+vertical scroll views unless the design deliberately uses a supported nested or
+sliver scrolling structure with defined constraints.
 
 ---
 
@@ -338,7 +391,7 @@ Do not recreate scrolling, pagination, shimmer, or grid behavior manually.
 ## File Path
 
 txt
-lib/core/components/custom_image_widget/my_image.dart
+lib/core/widgets/custom_image_widget/custom_image.dart
 
 
 ---
@@ -348,7 +401,7 @@ lib/core/components/custom_image_widget/my_image.dart
 Use:
 
 dart
-MyImage
+CustomImage
 
 
 for **all image rendering** across the application.
@@ -361,7 +414,7 @@ It should be the only place responsible for handling different image sources and
 
 # Responsibilities
 
-`MyImage` should handle image rendering regardless of the source.
+`CustomImage` should handle image rendering regardless of the source.
 
 Supported sources include:
 
@@ -434,7 +487,7 @@ Feature widgets should only provide:
 - fit (if needed)
 - dimensions (if needed)
 
-Everything else should remain inside `MyImage`.
+Everything else should remain inside `CustomImage`.
 
 ---
 
@@ -443,13 +496,13 @@ Everything else should remain inside `MyImage`.
 Before rendering any image, always check:
 
 txt
-lib/core/components/custom_image_widget/my_image.dart
+lib/core/widgets/custom_image_widget/custom_image.dart
 
 
 and use:
 
 dart
-MyImage
+CustomImage
 
 
 instead of creating image widgets manually.

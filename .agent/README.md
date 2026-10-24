@@ -16,7 +16,7 @@ The project follows a strict 3-layer modular architecture:
 - **Model** — Data models, entities, and response classes
 - **View** — UI layer with Cubit-based state management
 
-**Data Flow:** UI → Cubit → RequestHelper → ApiServices → Server
+**Data Flow:** UI → Cubit → Repository → DataSource → `backend_sdk` (REST API / Supabase) or `CacheManager` (local cache)
 
 ## Rule Files
 
@@ -24,7 +24,7 @@ The project follows a strict 3-layer modular architecture:
 |------|-------------|
 | `architecture_index.md` | Master index — always read this first |
 | `architecture_overview.md` | Full project architecture and folder structure |
-| `api_layer_and_services_rules.md` | API layer, networking, and session management |
+| `rest_api_sdk_rules.md` | API layer, networking, and session management |
 | `cubit_states_architecture.md` | Cubit and state management patterns |
 | `firebase_architecure_rules.md` | Firebase/Firestore architecture rules |
 | `cache_and_local_storage_rules.md` | Caching and offline-first strategies |

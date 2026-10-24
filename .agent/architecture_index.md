@@ -24,7 +24,8 @@ Read when changing:
 
 - core widgets
 - shared components
-- API services
+- REST API integration via `backend_sdk`
+- API client configuration, endpoints, headers, tokens, or sessions
 - network services
 - dependency injection
 - shared utilities
@@ -32,7 +33,7 @@ Read when changing:
 Applicable rule files:
 
 - core_widgets_rules.md
-- api_layer_and_services_rules.md
+- rest_api_sdk_rules.md
 
 ## State Management Rules
 

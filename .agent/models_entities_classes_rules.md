@@ -438,6 +438,28 @@ Entities may:
 
 ---
 
+## Presentation Data Placement Rule
+
+Place a data-holding class according to what it represents, not according to
+the file that happens to render it:
+
+* backend, API, cache, or persistence data → `...Model` in the data/model layer
+* UI-only structured data → `...Entity` or `...ViewData` in the feature's
+  presentation/entities layer
+* configuration or parameters → a clearly named configuration or params class
+  in the narrowest appropriate feature or core layer
+
+Do not place a reusable or public data class inside a widget file, and do not
+name a data-holding class `...Widget`. A small private class may remain beside
+a widget only when it is a true implementation detail, is not reused outside
+that file, and does not represent a domain or presentation contract.
+
+Data Models must remain platform-independent. They MUST NOT import Flutter UI
+types such as `Color`, `TextStyle`, or `Widget`. Put framework-specific display
+values in a presentation entity or mapper instead.
+
+---
+
 # 3. Plain Classes
 
 ## Definition
@@ -506,6 +528,8 @@ Use:
 
 txt
 Entity
+
+or a clearly named `ViewData` class in the feature presentation layer.
 
 
 ---

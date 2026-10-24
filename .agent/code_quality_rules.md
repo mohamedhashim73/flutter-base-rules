@@ -440,6 +440,29 @@ string_extensions.dart
 
 ---
 
+## Extension Design Rule
+
+Use an extension only for a small, pure, reusable transformation that has a
+natural receiver. It must make the calling code more meaningful, not merely
+shorter.
+
+Appropriate examples include value checks such as `url.isNetworkImage` and
+presentation helpers such as `widget.orFallback(...)`.
+
+Extensions MUST NOT contain:
+
+* business or domain decisions
+* API, cache, database, or dependency-resolution work
+* asynchronous work, navigation, state mutation, or Cubit emissions
+* complex orchestration or helpers that require many unrelated parameters
+
+Place business logic in a Cubit, model, or service. Use a utility, mapper, or
+dedicated class when the work has no natural receiver or is too complex for a
+small extension. Document the supported input and edge-case behavior for an
+extension whose result depends on parsing or classification.
+
+---
+
 ## 10.12 Method Naming Rule
 
 Methods should:
@@ -533,9 +556,13 @@ Variables should only exist when they:
 * avoid repeated expensive operations
 * represent meaningful concepts
 
+A single-use variable is allowed when it names a meaningful presentation-only
+concept or makes a complex expression clearer. It must not hide business logic
+or state interpretation; those belong to the Cubit, model, or service.
+
 If a value is used once:
 
-❌ Don't create a variable.
+Prefer a direct expression unless the exception above applies.
 
 Prefer direct expressions.
 
@@ -564,6 +591,48 @@ Empty lines are allowed only when separating:
 * large conditional blocks
 
 This applies to every layer.
+
+---
+
+## Dead Code and Cleanup Rule
+
+Do not leave fully commented-out implementations, unused widgets, obsolete
+wrappers, or unreachable files in the codebase. Git history is the source for
+recovering intentionally removed code; comments must explain the current code,
+not preserve inactive implementations.
+
+Before deleting code, verify that it is not referenced through imports, exports,
+routes, dependency-injection registrations, generated bindings, configuration,
+or relevant tests. A missing direct import alone is not sufficient evidence.
+
+Use `@Deprecated` with a clear migration path only for a public or externally
+consumed API that cannot be removed safely in the current change. Do not use
+deprecation to retain private dead code.
+
+After cleanup, run the formatter, analyzer, and the tests relevant to the
+affected scope. If a decision must be deferred, record it in the team's task
+tracking system rather than keeping the inactive code commented out.
+
+---
+
+## Comments and Documentation Rule
+
+Write comments only when code alone cannot communicate an important reason,
+constraint, invariant, workaround, or ordering requirement. Do not restate a
+clear name, type, or method signature.
+
+Use `///` for documentation of a public API or a member that needs durable
+usage guidance. Use `//` for a local implementation reason. Keep comments
+focused; a longer explanation is valid when the decision is genuinely complex.
+
+Do not use decorative section banners, ASCII dividers, or all-caps labels as a
+substitute for structure. If a class needs many visual divisions to be
+navigable, split responsibilities instead.
+
+`TODO` comments must describe the remaining work or reference its tracking
+item. Keep lint suppression directives at the narrowest possible scope and
+include a reason when it is not self-evident. Update or remove comments when
+the code they describe changes.
 
 ---
 

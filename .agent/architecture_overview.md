@@ -1,444 +1,563 @@
 # Project Architecture Rules
 
-## Overview
+## 1. Overview
 
-The project follows a strict feature-based architecture with clear separation between:
+The project follows a **Feature-Based Architecture** inspired by Clean Architecture principles.
 
-- `core/` → shared infrastructure and reusable app-wide logic
-- `model/` → shared data models and entities
-- `view/` → feature-based UI, Cubits, pages, and widgets
+### Core Principles
 
-Each file must belong to its correct layer. No mixing between layers is allowed.
+- Strict separation of responsibilities.
+- Feature isolation.
+- Reusable shared infrastructure.
+- Centralized network, caching, and error handling.
+- Repository and DataSource separation.
+- Cubit-based state management.
+- Clean, maintainable, and scalable code.
+- Avoid unnecessary abstractions and overengineering.
 
 ---
 
-# Root Structure
+## 2. Project Structure
 
-txt
+```text
 lib/
 ├── core/
+│   ├── constants/
+│   │   ├── base/
+│   │   └── domain/
+│   ├── enums/
+│   │   ├── base/
+│   │   └── domain/
+│   ├── extensions/
+│   │   ├── base/
+│   │   └── domain/
+│   ├── errors/
+│   ├── localization/
+│   ├── network/
+│   │   └── cache/
+│   ├── routes/
+│   ├── security/
+│   ├── services/
+│   │   ├── base/
+│   │   └── domain/
+│   ├── theme/
+│   ├── utils/
+│   └── widgets/
+│       ├── buttons/
+│       ├── text_fields/
+│       ├── dialogs/
+│       ├── loading/
+│       ├── lists/
+│       ├── grids/
+│       ├── shimmer/
+│       ├── appbars/
+│       └── cards/
+│
 ├── model/
+│   ├── base/
+│   └── domain/
+│
 ├── view/
+│   └── {feature}/
+│       ├── data/
+│       │   ├── datasource/
+│       │   ├── repository/
+│       │   └── models/
+│       └── ui/
+│           ├── controllers/
+│           │   └── {feature}_cubit/
+│           │       ├── {feature}_cubit.dart
+│           │       └── {feature}_states.dart
+│           ├── pages/
+│           └── widgets/
+│               ├── {page_name}/
+│               └── shared/
+│
 ├── firebase_options.dart
 └── main.dart
+```
 
-
----
-
-# 1. Core Layer
-
-The `core/` folder contains shared infrastructure used across the entire application.
-
-Nothing inside `core/` should belong to a single feature.
-
-txt
-core/
-├── components/
-├── constants/
-├── errors/
-├── services/
-└── theme/
-
+Create directories only when needed. Do not generate empty architectural layers.
 
 ---
 
-## 1.1 Core Components
+## 3. Core Layer
 
-Reusable UI widgets across multiple features.
+The `core/` directory contains shared infrastructure and reusable application-wide functionality.
 
-txt
-components/
-├── buttons/
-├── text_fields/
-├── dialogs/
-├── loading/
-├── appbars/
-├── cards/
-└── ...
+### 3.1 Base vs Domain
 
+Applies to:
 
-### Rules
+- Constants
+- Enums
+- Extensions
+- Services
+- Shared Models
 
-- Must be reusable across features
-- Must be generic
-- Must not contain feature-specific logic
-- If a widget becomes feature-specific, move it to its feature folder
+**Base**
+
+Generic, reusable functionality that is independent of the application's business domain.
+
+Examples:
+- RequestStatus
+- Generic extensions
+- RequestHelper
+- Pagination utilities
+- Base response models
+
+**Domain**
+
+Application-wide functionality related to the application's business domain.
+
+Examples:
+- Shared business enums
+- Application-specific constants
+- Shared domain extensions
+- Shared domain services
+- Shared business models
+
+Rules:
+
+- Feature-specific code must remain inside its feature.
+- `domain/` under `core/` or `model/` does not represent a mandatory Clean Architecture Domain Layer.
+- Do not move code to Core simply to avoid duplication inside one feature.
+
+### 3.2 Core Widgets
+
+Located in:
+
+`core/widgets/`
+
+Rules:
+
+- Must be reusable across features.
+- Must not contain feature-specific business logic.
+- Prefer existing shared widgets before creating new ones.
+- Avoid unnecessary wrapper widgets.
+- Extend shared widgets only when the new behavior is broadly reusable.
+- Feature-specific presentation belongs inside the feature.
+
+### 3.3 Constants
+
+Located in:
+
+`core/constants/`
+
+Responsibilities:
+
+- Application constants.
+- Shared configuration values.
+- API endpoints.
+- Firebase collection names.
+- Shared static strings.
+
+Rules:
+
+- Centralize shared and repeated constants.
+- Never hardcode API base URLs or endpoints throughout features.
+- Never duplicate Firebase collection names.
+- Context-specific literals are allowed when extraction provides no benefit.
+
+### 3.4 Enums & Extensions
+
+Located in:
+
+`core/enums/`
+
+`core/extensions/`
+
+Rules:
+
+- Generic reusable enums/extensions belong in `base/`.
+- Shared application-domain enums/extensions belong in `domain/`.
+- Feature-specific enums/extensions remain inside their feature.
+- Avoid creating unnecessary extensions for trivial operations.
+
+### 3.5 Errors
+
+Located in:
+
+`core/errors/`
+
+Responsibilities:
+
+- Centralized error transformation.
+- Shared exception handling.
+- User-friendly error messages.
+- Reusable error contracts.
+
+### 3.6 Network & Cache
+
+Located in:
+
+`core/network/`
+
+Responsibilities:
+
+- Shared networking infrastructure.
+- HTTP client configuration.
+- Interceptors.
+- Session and token handling.
+- Shared cache infrastructure.
+
+Rules:
+
+- UI must never execute HTTP requests directly.
+- UI must never access local storage directly.
+- Backend access must remain centralized.
+- Feature-specific fetching, caching, and synchronization policies belong in the Repository.
+- Shared cache utilities remain reusable and feature-independent.
+
+### 3.7 Services
+
+Located in:
+
+`core/services/`
+
+Responsibilities:
+
+- Shared application services.
+- Backend infrastructure.
+- Dependency injection.
+- Logging.
+- Notifications.
+- Permissions.
+- Location.
+- Shared lifecycle utilities.
+
+Examples of reusable base services:
+
+- RequestHelper
+- DataStateHelper
+- Debouncer
+- SafeExecuter
+- ScrollManager
+- SearchManager
+- PaginationManager
+- AssetService
+- SystemUIService
+
+Rules:
+
+- Services must not depend on the UI layer.
+- Base services must remain generic.
+- Feature-specific services belong inside their feature.
+- Do not store feature UI state inside shared services.
+- Avoid duplicating existing helper functionality.
+
+### 3.8 Theme
+
+Located in:
+
+`core/theme/`
+
+Responsibilities:
+
+- Application themes.
+- Shared colors.
+- Typography.
+- Spacing.
+- Dimensions.
+- Shared visual styles.
+
+Rules:
+
+- Prefer centralized design tokens.
+- Avoid repeated hardcoded colors and dimensions.
+- Prefer theme-based text styles.
+- Local styling is allowed when intentionally feature-specific.
+- Shared theme changes must not unintentionally affect unrelated features.
+
+### 3.9 Additional Core Directories
+
+- `localization/`: App-wide localization infrastructure.
+- `routes/`: Centralized navigation configuration.
+- `security/`: Shared security utilities.
+- `utils/`: Generic utilities that do not fit a more specific layer.
+
+Do not use `utils/` as a dumping ground for unrelated logic.
 
 ---
 
-## 1.2 Constants
+## 4. Models Architecture
 
-txt
-constants/
-├── extensions/
-├── enums/
-├── strings/
-├── api/
-├── firebase/
-└── app_constants.dart
+### 4.1 Shared Models
 
+Located in:
 
-### Rules
+`lib/model/`
 
-- All constants must be centralized
-- No raw strings anywhere in code
-- No duplicated constants
+Structure:
 
----
-
-### Extensions
-
-txt
-extensions/
-├── double_ex.dart
-├── string_ex.dart
-├── context_ex.dart
-└── ...
-
-
----
-
-### Enums
-
-txt
-enums/
-├── login_options_enum.dart
-├── user_role_enum.dart
-├── request_status_enum.dart
-└── ...
-
-
----
-
-### Strings
-
-txt
-strings/
-├── app_strings.dart
-├── firestore_strings.dart
-├── validation_strings.dart
-└── ...
-
-
----
-
-### API Endpoints
-
-txt
-api/
-└── api_endpoints.dart
-
-
-### Rules
-
-- All endpoints must be centralized
-- No hardcoded URLs anywhere in the project
-
----
-
-### Firebase Collections
-
-txt
-firebase/
-└── firebase_collections.dart
-
-
-### Rules
-
-- All collection names must be centralized
-- No raw Firestore collection names anywhere
-
----
-
-### App Constants
-
-txt
-app_constants.dart
-
-
-Contains:
-
-- App configuration
-- Support numbers
-- Global fixed values
-
----
-
-## 1.3 Errors
-
-txt
-errors/
-└── error_handler.dart
-
-
-### Rules
-
-- Centralized error transformation
-- Converts exceptions into user-friendly messages
-- Shared across the entire application
-
----
-
-## 1.4 Services
-
-txt
-services/
-├── api_services.dart
-├── firebase_service.dart
-├── dependency_injection.dart
-├── logging_service.dart
-├── notification_service.dart
-├── permission_service.dart
-├── location_service.dart
+```text
+model/
 ├── base/
-└── ...
+└── domain/
+```
 
+**Base Models**
 
-### Rules
-
-- Shared logic across multiple features
-- Encapsulate external integrations
-- Must not depend on UI layer
-- Must remain feature-independent
-
----
-
-## 1.5 Base Services
-
-The `base/` folder contains reusable infrastructure shared across the project.
-
-txt
-services/
-└── base/
-    ├── asset_service.dart
-    ├── data_state_helper.dart
-    ├── debouncer.dart
-    ├── request_helper.dart
-    ├── safe_executer.dart
-    ├── scroll_manager.dart
-    ├── search_manager.dart
-    ├── system_ui_service.dart
-    └── ...
-
-
-### Rules
-
-The `base/` folder contains reusable architecture utilities only.
+Generic contracts and reusable data structures.
 
 Examples:
 
-- request lifecycle helpers
-- pagination helpers
-- data state helpers
-- scroll managers
-- search managers
-- debouncers
-- async execution helpers
-- shared utility services
+- PaginationModel
+- BaseResponseModel
+- BaseRequestModel
 
-### Forbidden
+**Domain Models**
 
-❌ Feature-specific business logic
+Business models genuinely shared between multiple features.
 
-❌ Feature-specific models
+### 4.2 Feature Models
 
-❌ Feature-specific API/Firebase implementation
+Located in:
 
-❌ UI code
+`view/{feature}/data/models/`
 
-❌ Feature-dependent services
+Rules:
 
-Everything inside `core/services/base` must remain generic and reusable across the application.
+- Feature-specific models must remain inside their feature.
+- Models should own serialization and data representation.
+- Avoid storing unrelated feature models in the global `model/` directory.
+- Move a model to shared `model/domain/` only when it represents a genuinely shared concept.
+- Avoid direct dependencies between unrelated features.
 
----
+### 4.3 Optional Domain Layer
 
-## 1.6 Theme
+A dedicated Clean Architecture Domain Layer may be introduced when justified by complexity.
 
-txt
-theme/
-├── app_theme.dart
-├── app_colors.dart
-├── app_dimens.dart
-├── app_text_styles.dart
-└── ...
+Examples:
 
+- Complex business entities.
+- Independent business use cases.
+- Multiple interchangeable data implementations.
 
-### Rules
-
-- No hardcoded colors
-- No hardcoded spacing
-- No inline text styles
+Do not create separate Entities, UseCases, or Mappers automatically for every simple feature.
 
 ---
 
-# 2. Views Layer
+## 5. Feature Architecture
 
-The `views/` folder contains all application features.
+Every feature is organized into two main sections:
 
-Each feature is fully isolated.
+- `data/`
+- `ui/`
 
-txt
-views/
-├── auth/
-├── home/
-├── invoices/
-└── ...
+### 5.1 Data Layer
 
+```text
+data/
+├── datasource/
+├── repository/
+└── models/
+```
 
----
+**DataSource Responsibilities**
 
-# Feature Structure
+- Communicate with remote APIs or Firebase.
+- Access local databases or local storage through shared infrastructure.
+- Handle data-source-specific operations.
+- Convert raw external data when appropriate.
+- Remain independent of UI and Cubit states.
 
-txt
-views/{feature}/
-├── controller/
+**Repository Responsibilities**
+
+- Coordinate DataSources.
+- Expose feature data to Cubits.
+- Decide cache-first or remote-first strategies.
+- Handle refresh and fallback behavior.
+- Coordinate synchronization.
+- Keep data access independent of UI.
+
+Rules:
+
+- Cubits must not directly access ApiServices, Firebase clients, or database clients for feature data.
+- Repositories must not emit Cubit states.
+- DataSources must not navigate or display UI messages.
+- Avoid unnecessary repository wrappers that provide no architectural value.
+
+### 5.2 UI Layer
+
+```text
+ui/
+├── controllers/
 ├── pages/
 └── widgets/
+```
 
+**Controllers / Cubits**
 
----
+Responsibilities:
 
-## 2.1 Controller
+- Feature state ownership.
+- Business logic.
+- Validation.
+- Search and filtering.
+- Sorting.
+- Pagination state.
+- Form controllers and focus nodes when needed.
+- Request orchestration through Repositories.
+- State emission.
+- Feature initialization and disposal.
 
-txt
-controller/
-├── login_cubit/
-│   ├── login_cubit.dart
-│   └── login_states.dart
-└── register_cubit/
-    ├── register_cubit.dart
-    └── register_states.dart
+Rules:
 
+- Never place rendering logic inside Cubits.
+- Never execute raw HTTP/Firebase queries directly.
+- Reuse existing lifecycle and request helpers where applicable.
 
-### Rules
+**Pages**
 
-* Business logic only
-* API/Firebase communication only
-* Holds feature state
-* Holds controllers, focus nodes and form keys
-* Holds feature variables
-* Coordinates feature flow
-* Uses only centralized helpers/services
-* No UI code allowed
+Responsibilities:
 
----
+- Compose the screen.
+- Connect UI components.
+- Provide Cubit dependencies at appropriate feature boundaries.
+- Delegate user actions to Cubits.
 
-## 2.2 Pages
+Rules:
 
-txt
-pages/
-├── login_page.dart
-├── register_page.dart
-└── ...
+- No business logic.
+- No direct API/Firebase calls.
+- No response parsing.
+- No feature-data transformations inside `build()`.
+- Simple presentation helpers are allowed.
+- Keep pages focused on composition.
 
+**Widgets**
 
-### Rules
+Responsibilities:
 
-* UI composition only
-* Calls Cubit methods only
-* No business logic
-* No state variables
-* No API/Firebase calls
-* No helper methods
-* No widget builder methods
-* Only init/dispose lifecycle logic
+- Render UI.
+- Receive required data.
+- Delegate actions.
+- Rebuild only when needed.
 
----
+Rules:
 
-## 2.3 Widgets
+- Prefer StatelessWidget.
+- Use StatefulWidget when local UI state or lifecycle ownership is necessary.
+- Keep widgets focused on a single visual responsibility.
+- Feature widgets remain inside their feature.
+- Shared feature widgets belong in `ui/widgets/shared/`.
 
-Widgets are grouped by page.
+### 5.3 Widget Class Rules
 
-txt
-widgets/
-├── login/
-│   ├── login_form_widget.dart
-│   ├── login_header_widget.dart
-│   └── ...
-├── register/
-│   └── register_form_widget.dart
-└── shared/
-    └── auth_background_widget.dart
+- One independent Widget class per file.
+- Do not extract UI sections into functions returning `Widget`.
+- Extract reusable or complex UI sections into StatelessWidget or StatefulWidget classes.
+- StatefulWidget and its associated State class are allowed in the same file.
+- Normal Flutter builder callbacks, such as `itemBuilder`, are allowed.
+- Avoid unnecessary splitting of trivial UI elements.
 
-
-### Rules
-
-* Page-specific widgets remain inside feature
-* Shared feature widgets go to `shared/`
-* Move to `core/components` only when reused across multiple features
-* Widgets must remain purely visual
-* No business logic
-* No Cubit creation
-* No service calls
+Detailed rules belong in `ui_architecture_rules.md`.
 
 ---
 
-# 3. Layer Communication
+## 6. Layer Communication
 
-The application follows one-way communication only.
+### Standard Data Flow
 
-txt
-UI
- ↓
-Cubit
- ↓
-RequestHelper / FirebaseHelper
- ↓
-ApiServices / FirebaseServices
- ↓
-Server / Firebase
+```text
+UI (Page / Widget)
+       |
+       v
+     Cubit
+       |
+       v
+   Repository
+       |
+       v
+   DataSource
+       |
+       v
+Core Infrastructure
+(ApiServices / FirebaseService /
+ CacheManager / Local Database)
+       |
+       v
+Backend / Local Storage
+```
 
+### Response Flow
 
-Responses flow back through the same path.
+```text
+Backend / Local Storage
+       |
+       v
+Core Infrastructure
+       |
+       v
+   DataSource
+       |
+       v
+   Repository
+       |
+       v
+     Cubit
+       |
+       v
+     State
+       |
+       v
+      UI
+```
 
-txt
-Server / Firebase
- ↓
-ApiServices / FirebaseServices
- ↓
-RequestHelper / FirebaseHelper
- ↓
-Cubit
- ↓
-State
- ↓
-UI
+Rules:
 
-
-No layer may skip another layer.
+- Preserve separation between UI, business logic, and data access.
+- Use Repository and DataSource for feature persistence and remote access.
+- Shared RequestHelper functionality may be used within the appropriate data-access implementation.
+- Purely local UI interactions do not require Repository or DataSource.
+- Do not create artificial layers for operations that do not require them.
 
 ---
 
-# Architecture Principles
+## 7. Architecture Principles
 
-The system enforces:
+The application must follow:
 
-* strict layer separation
-* feature isolation
-* centralized request handling
-* centralized Firebase handling
-* reusable shared infrastructure
-* predictable folder structure
-* scalable architecture
-* low coupling
-* high readability
-* AI-friendly code generation
+1. Single Responsibility Principle.
+2. Separation of Concerns.
+3. Feature Isolation.
+4. Low Coupling.
+5. High Cohesion.
+6. Centralized Shared Infrastructure.
+7. Predictable Folder Structure.
+8. Reusable Components.
+9. Minimal Duplication.
+10. Maintainability and Scalability.
+11. Consistent State Management.
+12. Avoid Overengineering.
 
 ---
 
-# AI Development Rules
+## 8. AI Development Rules
 
-The AI must always:
+AI coding agents must:
 
-* place files in their correct layer
-* follow the existing project architecture only
-* never introduce alternative architectures
-* reuse existing helpers before creating new ones
-* keep business logic inside Cubits
-* keep UI purely compositional
-* use RequestHelper for API requests
-* use FirebaseHelper for Firebase operations
-* use Base Models for request/response wrappers
-* avoid duplicated variables (never create both public/private versions unless required)
-* avoid unnecessary abstractions
-* keep architecture consistent across all features
+1. Inspect existing code before introducing new implementations.
+2. Follow the project's established folder structure.
+3. Read only the architecture rules relevant to the current task.
+4. Place feature-specific code inside its owning feature.
+5. Reuse existing helpers, services, and widgets.
+6. Keep business logic outside UI components.
+7. Keep remote and persistent data access behind Repositories and DataSources.
+8. Prefer feature-local models over global models.
+9. Avoid unnecessary abstractions, wrappers, and duplicate variables.
+10. Prefer small, focused Widget classes over large build methods.
+11. Preserve existing behavior during architectural refactoring.
+12. Avoid introducing alternative architectural patterns without explicit approval.
+13. Follow the specialized rules for Cubits, Models, UI, API, Firebase, Cache, and Code Quality.
+14. Create only the directories and layers required by the actual feature.
+15. Prefer consistency and readability over theoretical architectural complexity.
+
+---
+
+## 9. Final Architecture Philosophy
+
+> Keep features self-contained, infrastructure reusable, data access isolated, and UI purely presentational.
+
+The architecture should remain scalable without introducing complexity that provides no practical value.

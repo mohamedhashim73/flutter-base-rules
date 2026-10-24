@@ -31,12 +31,12 @@ Each page is:
 
 ## 2.2 Page Size Rule
 
-* Maximum page size: 150 lines
-* If exceeded:
+Keep pages small enough that their composition is clear at a glance. A line
+count is a review signal, not a hard architectural boundary.
 
-  * split into sub-widgets
-  * move logic to Cubits
-  * extract reusable components
+Extract a section when it has an independent visual responsibility, rebuild
+scope, test surface, or reuse value. Move feature logic to the Cubit and share
+components only when their behavior is genuinely reusable.
 
 ---
 
@@ -229,6 +229,27 @@ builder: (context, state)
 
 ✔ Builder should ONLY render UI
 
+### Content Decisions vs Presentation
+
+The Cubit, model, or service decides what data is visible and why. This includes
+filtering, sorting, searching, pagination, permissions, derived collections,
+counts, totals, and any transformation that changes feature behavior or visible
+content. UI builders may perform only loop and index mechanics over data that
+is already prepared for rendering.
+
+Name exposed values by their domain meaning, such as `activeStores` or
+`recentExpenses`, rather than their implementation detail, such as
+`filteredList`.
+
+The UI owns local presentation: layout composition, styles, and simple display
+formatting. When display mapping is complex or repeated across widgets, place
+it in a feature presentation mapper or view model instead of mixing it into a
+widget or a domain model.
+
+Do not use a Cubit getter to hide expensive repeated work. If a derived
+collection is costly, calculate or cache it when its source data or criteria
+changes.
+
 ---
 
 ## 4.7 State Responsibility Rule
@@ -294,106 +315,67 @@ UI MUST NOT manually decide which widget to render based on async state.
 
 ---
 
-# 5. Dependency Injection Rules (UI Layer)
+# 5. Explicit Cubit Injection Rules (UI Layer)
 
-## 5.1 Forbidden Rule
+## 5.1 Page Ownership
 
-❌ NO `sl<T>()` inside UI
+The feature page is the only UI boundary allowed to resolve its Cubit instances
+from the service locator using `sl<T>()`. It owns one instance for the feature
+scope and passes that same instance to every descendant, including dialogs,
+bottom sheets, and responsive layout branches.
 
----
+## 5.2 Constructor Injection
 
-## 5.2 Correct Pattern
+Subwidgets receive the Cubit they need through a required constructor parameter.
+They must not resolve it themselves.
 
-Dependencies must be injected from outside:
+```dart
+// Page
+final productsCubit = sl<ProductsCubit>();
 
-dart
-ProductsPage(
+ProductsBodyWidget(cubit: productsCubit);
+
+// Subwidget
+class ProductsBodyWidget extends StatelessWidget {
+  final ProductsCubit cubit;
+
+  const ProductsBodyWidget({required this.cubit});
+}
+```
+
+## 5.3 Bloc Usage
+
+This architecture uses explicit Cubit parameters, not `BlocProvider` lookup.
+Pass the injected instance directly to `BlocBuilder`, `BlocListener`, and
+`BlocConsumer`:
+
+```dart
+BlocBuilder<ProductsCubit, ProductsState>(
   cubit: cubit,
-  actionsCubit: actionsCubit,
+  builder: (context, state) => const SizedBox(),
 )
+```
 
+## 5.4 Forbidden
 
----
+❌ `sl<Cubit>()` in a subwidget, dialog, or bottom sheet
+❌ `context.read<Cubit>()` or `context.watch<Cubit>()`
+❌ `BlocProvider.of(context)` or `BlocProvider`
+❌ manually creating a Cubit inside UI
+❌ resolving the same Cubit repeatedly within one feature tree
 
-## 5.3 Responsibility Split
+## 5.5 Cubit-to-Cubit Dependencies
 
-| Layer             | Responsibility       |
-| ----------------- | -------------------- |
-| Composition Layer | inject dependencies  |
-| UI Layer          | consume dependencies |
+A Cubit must not resolve another Cubit through `sl()`. If coordination is
+necessary, inject that dependency through the constructor and register the
+wiring in the dependency-injection setup. Prefer depending on a service,
+repository, or use case when the dependency represents shared business work.
 
----
+## 5.6 Goal
 
-## 5.4 Cubit Access Rules
-
-Cubit instances MUST be retrieved from the dependency injection layer using `sl()`.
-
----
-
-### StatelessWidget Rule
-
-Inside `StatelessWidget`:
-
-✔ Retrieve Cubit inside `build()` only if needed.
-
-Example:
-
-dart
-@override
-Widget build(BuildContext context) {
-  final ProductsCubit cubit = sl<ProductsCubit>();
-
-  return Scaffold(
-    body: ProductsBodyWidget(cubit: cubit),
-  );
-}
-
-
----
-
-### StatefulWidget Rule
-
-Inside `StatefulWidget`:
-
-✔ Retrieve Cubit once as a class field outside `build()`.
-
-Example:
-
-dart
-class _ProductsPageState extends State<ProductsPage> {
-  final ProductsCubit cubit = sl<ProductsCubit>();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: ProductsBodyWidget(cubit: cubit),
-    );
-  }
-}
-
-
----
-
-### Forbidden
-
-❌ `context.read<Cubit>()`
-
-❌ `context.watch<Cubit>()`
-
-❌ `BlocProvider.of(context)`
-
-❌ Creating Cubits manually.
-
-❌ Calling `sl<Cubit>()` multiple times inside the same widget.
-
----
-
-### Goal
-
-Every UI widget retrieves its Cubit from the centralized dependency injection system while respecting the widget lifecycle:
-
-- `StatelessWidget` → retrieve inside `build()`.
-- `StatefulWidget` → retrieve once outside `build()`.
+Explicit injection preserves one source of truth, avoids duplicate subscriptions,
+keeps responsive branches synchronized, and makes widgets directly testable
+with fake Cubits.
 
 ---
 
@@ -427,6 +409,55 @@ formKey: cubit.formKey
 
 ---
 
+## 6.4 Form Flow and Transient Form State
+
+The Cubit owns the complete form flow:
+
+* validation and submit methods
+* request execution and request-status decisions
+* form toggle values, such as password visibility
+* domain-specific derived flags, such as `isSubmitting` or `isSavingProfile`
+
+UI only renders those values and calls the Cubit methods. It MUST NOT validate,
+submit, or manage a form toggle with `setState`.
+
+❌
+```dart
+bool _obscurePassword = true;
+
+Future<void> _submit() async {
+  if (!_formKey.currentState!.validate()) return;
+  setState(() => _isSubmitting = true);
+  await cubit.signIn();
+}
+```
+
+✔
+```dart
+// Cubit
+bool obscurePassword = true;
+int _formRevision = 0;
+bool get isSubmitting => state is SignInState &&
+    state.status == RequestStatus.loading;
+
+void togglePasswordVisibility() {
+  obscurePassword = !obscurePassword;
+  emit(SignInFormChangedState(revision: ++_formRevision));
+}
+
+Future<void> submit() async {
+  if (!formKey.currentState!.validate()) return;
+  // Execute the sign-in request.
+}
+
+// UI
+onTap: cubit.submit,
+obscureText: cubit.obscurePassword,
+isLoading: cubit.isSubmitting,
+```
+
+---
+
 # 7. Extensions Usage Rules
 
 UI MUST use extensions instead of raw logic.
@@ -457,6 +488,53 @@ Examples:
 
 ---
 
+## 7.3 Spacing and Padding Rule
+
+Use the established padding and spacing extensions for repeated design spacing
+and simple padding wrappers. Use the project's spacing tokens rather than
+scattered magic numbers.
+
+For a uniform gap between every child of a `Row` or `Column`, prefer its
+`spacing:` parameter. Do not combine `spacing:` with manual spacer widgets for
+the same gap.
+
+The parent owns spacing between sibling widgets. Put padding on the child only
+when that space is part of the child's visual design or touch area. Use a
+parent-owned spacer or padding for an intentionally non-uniform layout gap.
+
+`const SizedBox.shrink()` is allowed for an empty placeholder. A `const
+SizedBox` is also allowed when it preserves a useful const widget tree or is
+clearer than an extension. Do not add an extension for a rare one-off case;
+add one only when it is broadly reusable.
+
+Use existing context extensions for repeated screen-level sizing. When a
+widget must react to its own available size, use `LayoutBuilder` and its local
+constraints instead of screen-wide `MediaQuery` calculations.
+
+---
+
+## 7.4 Adaptive Composition Rule
+
+Reuse components that represent the same content or interaction across narrow
+and wide layouts. Do not duplicate form fields, titles, item renderers,
+buttons, validation, feature logic, controllers, or Cubit state merely because
+the available size changes.
+
+Layout composition may differ when the information hierarchy or interaction
+pattern genuinely changes, such as a column becoming a row, a bottom sheet
+becoming a side panel, or a list becoming a table. Keep a single composition
+when the difference is limited to sizing, spacing, or column count.
+
+Every adaptive branch must receive the same existing Cubit instances and
+preserve relevant widget keys and state. A resize or orientation change must
+not discard in-progress input, selection, or other feature state.
+
+Neither portrait nor landscape is inherently the source of truth. Follow the
+product's design requirements for each mode and share the semantic components
+where possible.
+
+---
+
 # 8. Navigation Rules (UI Side)
 
 ## 8.1 Rule
@@ -479,6 +557,30 @@ Navigation must use centralized system:
 
 ❌ No navigation decision logic inside widgets  
 ✔ Navigation triggered via callbacks or Cubit
+
+---
+
+## 8.4 Dialog, Sheet, Picker, and Effect Rule
+
+The UI layer constructs, opens, closes, and hosts dialogs, bottom sheets,
+pickers, navigation, and other presentation surfaces. A Cubit MUST NOT import
+widget files, build a `Widget`, call a global navigator, or directly open or
+close a presentation surface.
+
+The Cubit owns feature data, validation, and the operation performed from a
+surface. It exposes the result as state or an explicit effect; a UI listener or
+the feature root performs the corresponding presentation action.
+
+Dialog and sheet content receive the existing Cubit through constructor
+injection. A UI-only helper that opens a repeated presentation surface is
+allowed when it stays in the UI layer and does not hide business logic.
+
+Native pickers are presentation effects. The UI opens the picker and sends its
+result to a Cubit method, which validates and stores the feature value.
+
+Form validation through a `FormKey` requires a mounted form. Do not submit when
+`formKey.currentState?.validate()` is not `true`; apply additional business
+validation in the Cubit as needed.
 
 ---
 
@@ -509,7 +611,9 @@ Meaning:
 
 ## 10.2 Const Constructors
 
-Use `const` whenever possible.
+Use `const` whenever it improves the widget tree without making the code less
+clear. The spacing and padding guidance in §7.3 defines its explicit layout
+exceptions.
 
 ---
 
@@ -536,18 +640,19 @@ If widget tree becomes large:
 
 ❌ Avoid unnecessary local variables inside UI
 
-Bad:
+Inline a simple value that is used once:
 
-dart
-final product = cubit.products[index];
-
-
-if used once.
-
-Good:
-
-dart
+```dart
 product: cubit.products[index]
+```
+
+Do not force a meaningful presentation-only value inline merely because it is
+used once. A local is allowed when it makes a complex expression or visual
+condition materially clearer:
+
+```dart
+final hasLongTitle = title.length > maxTitleLength;
+```
 
 
 ---
@@ -567,21 +672,37 @@ UI code should feel:
 
 ✔ Create local variables if they:
 
-* reduce repeated conditions
-* improve readability
-* simplify state checks
+* are reused in the same file
+* improve readability of a complex expression
+* name a meaningful presentation-only concept
 
-Good:
+They MUST NOT interpret state, transform feature data, or make a business
+decision. Expose that value from the Cubit or model instead.
 
-dart
-final isLoading =
+```dart
+// Cubit
+bool get isLoading =>
     state is GetPoliciesState &&
     state.status == RequestStatus.loading;
 
+// UI
+isLoading: cubit.isLoading,
+```
 
 ---
 
-❌ Do not create unnecessary variables for single-use values.
+## 11.5 Value Placement Rule
+
+Put reusable values and logic in the narrowest appropriate location:
+
+* business or domain logic → Cubit, model, or service
+* reusable value transformation with a natural receiver → extension
+* app-wide shared configuration or display data → `core/constants`
+* feature-shared configuration or display data → that feature's constants file
+* widget-only, immutable display data → a private top-level or `static const`
+
+Do not move widget-specific data to global constants merely to centralize it,
+and do not use an extension for logic that belongs to the domain layer.
 
 ---
 
@@ -795,7 +916,11 @@ cubit.init();
 
 ## 16.3 UI Must NOT Hold Business State
 
-UI should remain stateless whenever possible.
+UI MUST NOT own feature, form, request, or derived state.
+
+`setState` MUST NOT manage a value that affects a feature's business flow, form
+flow, request status, loading state, filter, selection, or derived UI decision.
+Those values belong to the Cubit and UI rebuilds through emitted state.
 
 ---
 
@@ -827,7 +952,9 @@ int _lastProductsCount = -1;
 
 Business state belongs inside Cubit.
 
-UI should only keep rendering-related state when absolutely necessary.
+UI may keep only narrowly scoped presentation state that is tied to a rendering
+controller and cannot reasonably live in a Cubit. It must not represent feature
+or form state.
 
 ---
 
@@ -898,21 +1025,9 @@ Pages should contain high-level widgets only.
 
 ## 16.7 Repeated UI Rule
 
-Avoid duplicated layout widgets.
-
-Instead of repeatedly writing:
-
-dart
-SizedBox(height: Dim.vSpace)
-
-
-Prefer reusable extensions such as:
-
-dart
-Widget().paddingSymmetric(...)
-
-
-or reusable spacing extensions/components.
+Avoid repeated padding wrappers and duplicated spacing choices. Reuse the
+established extensions and spacing tokens where they improve consistency; see
+§7.3 for the ownership and exception rules.
 
 ---
 
@@ -924,16 +1039,28 @@ UI lifecycle should remain minimal.
 
 ### Allowed in initState
 
-Only Cubit initialization.
+The feature root may trigger the Cubit's single initialization method once for
+each feature lifecycle instance. Descendant widgets, dialogs, bottom sheets,
+and responsive branches only render; they must not trigger initialization,
+fetching, or refresh work.
 
 Example:
 
-dart
+```dart
 @override
 void initState() {
   super.initState();
   cubit.init();
 }
+```
+
+Call `addPostFrameCallback` only when the work genuinely requires a mounted
+`BuildContext` after the first frame. Do not use it as the default way to start
+a Cubit.
+
+Initial setup is distinct from user-driven work. Pull-to-refresh, retry, and
+changes to filters or account scope must call explicit Cubit methods such as
+`refresh()`; they must not re-run `init()`.
 
 
 ---

@@ -1,6 +1,6 @@
 import 'package:base/core/utils/utils.dart';
+import 'package:base/core/services/services.dart';
 import 'package:base/model/notification_model.dart';
-import 'package:backend_sdk/backend_sdk.dart';
 
 class NotificationsResponseModel
     implements

@@ -17,7 +17,11 @@ class IconBtnWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Icon(iconData, size: size, color: color ?? AppColors.kMain),
+      child: Icon(
+        iconData,
+        size: size,
+        color: color ?? context.colors.primary,
+      ),
     );
   }
 }
@@ -55,25 +59,26 @@ class BtnWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return MaterialButton(
       onPressed: isLoading != null && isLoading == true ? () {} : onTap,
       elevation: 0,
-      splashColor: Colors.transparent,
+      splashColor: Colors.white.withValues(alpha: 0.08),
       highlightColor: Colors.transparent,
-      hoverColor: Colors.transparent,
+      hoverColor: colors.primary.withValues(alpha: 0.06),
       focusColor: Colors.transparent,
       hoverElevation: 0,
       disabledElevation: 0,
       focusElevation: 0,
-      height: height ?? 46,
+      height: height ?? AppSizes.controlHeight,
       minWidth: minWidth,
-      disabledColor: onTap == null ? AppColors.kDisabled : null,
+      disabledColor: AppColors.kDisabled,
       highlightElevation: 0,
-      color: backgroundColor ?? AppColors.kMain,
+      color: backgroundColor ?? colors.primary,
       shape: RoundedRectangleBorder(
         borderRadius: radiusValue != null
             ? BorderRadius.circular(radiusValue!)
-            : AppDimensions.radiusSm,
+            : BorderRadius.circular(AppDesignRadius.control),
         side: BorderSide(color: borderColor ?? Colors.transparent),
       ),
       child: Align(
@@ -82,11 +87,11 @@ class BtnWidget extends StatelessWidget {
           builder: (context) {
             if (isLoading != null && isLoading == true) {
               return SizedBox(
-                height: 26,
-                width: 26,
+                height: 22,
+                width: 22,
                 child: CircularProgressIndicator(
                   color: color ?? AppColors.kWhite,
-                  strokeWidth: 2.4,
+                  strokeWidth: 2.2,
                 ),
               );
             } else {
@@ -94,19 +99,21 @@ class BtnWidget extends StatelessWidget {
                 return widget!;
               } else if (suffix != null || prefix != null) {
                 return Row(
-                  spacing: 10,
+                  spacing: 8,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ?prefix,
                     Flexible(
                       child: Text(
                         title ?? "",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: onTap == null
-                              ? AppColors.kSecondary
+                              ? colors.textSecondary
                               : color ?? AppColors.kWhite,
-                          fontSize: txtSize ?? 14,
+                          fontSize: txtSize ?? 13.5,
                         ),
                       ),
                     ),
@@ -116,12 +123,14 @@ class BtnWidget extends StatelessWidget {
               } else {
                 return Text(
                   title ?? "",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: onTap == null
-                        ? AppColors.kSecondary
+                        ? colors.textSecondary
                         : color ?? AppColors.kWhite,
-                    fontSize: txtSize ?? 14,
+                    fontSize: txtSize ?? 13.5,
                   ),
                 );
               }
@@ -159,17 +168,17 @@ class CustomBtnWidget extends StatelessWidget {
     return MaterialButton(
       onPressed: onTap,
       elevation: 0,
-      height: height ?? 46,
+      height: height ?? AppSizes.controlHeight,
       minWidth: minWidth,
       highlightElevation: 0,
-      splashColor: Colors.transparent,
+      splashColor: Colors.white.withValues(alpha: 0.08),
       color: withoutBackground != null
           ? Colors.transparent
-          : backgroundColor ?? AppColors.kMain,
+          : backgroundColor ?? context.colors.primary,
       shape: RoundedRectangleBorder(
         borderRadius: radiusValue != null
             ? BorderRadius.circular(radiusValue!)
-            : AppDimensions.radiusSm,
+            : BorderRadius.circular(AppDesignRadius.control),
         side: BorderSide(color: borderColor ?? Colors.transparent),
       ),
       child: widget,
@@ -198,8 +207,8 @@ class TextBtnWidget extends StatelessWidget {
         title,
         style: TextStyle(
           fontWeight: FontWeight.w600,
-          color: txtColor ?? AppColors.kBlack,
-          fontSize: txtSize ?? 14,
+          color: txtColor ?? context.colors.primary,
+          fontSize: txtSize ?? 13,
         ),
       ),
     );

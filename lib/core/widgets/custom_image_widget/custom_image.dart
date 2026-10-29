@@ -76,11 +76,11 @@ class CustomImage extends StatelessWidget {
       height: imgHeight?.r,
       width: imgWidth?.r,
       fit: fit ?? BoxFit.contain,
-      colorFilter: color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null,
-      placeholderBuilder: (context) => SizedBox(
-        height: imgHeight?.r,
-        width: imgWidth?.r,
-      ),
+      colorFilter: color != null
+          ? ColorFilter.mode(color!, BlendMode.srcIn)
+          : null,
+      placeholderBuilder: (context) =>
+          SizedBox(height: imgHeight?.r, width: imgWidth?.r),
     );
   }
 
@@ -91,10 +91,8 @@ class CustomImage extends StatelessWidget {
       width: imgWidth?.r,
       fit: fit,
       color: color,
-      errorBuilder: (context, error, stackTrace) => SizedBox(
-        height: imgHeight?.r,
-        width: imgWidth?.r,
-      ),
+      errorBuilder: (context, error, stackTrace) =>
+          SizedBox(height: imgHeight?.r, width: imgWidth?.r),
     );
   }
 
@@ -105,11 +103,11 @@ class CustomImage extends StatelessWidget {
         height: imgHeight?.r,
         width: imgWidth?.r,
         fit: fit ?? BoxFit.contain,
-        colorFilter: color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null,
-        placeholderBuilder: (context) => SizedBox(
-          height: imgHeight?.r,
-          width: imgWidth?.r,
-        ),
+        colorFilter: color != null
+            ? ColorFilter.mode(color!, BlendMode.srcIn)
+            : null,
+        placeholderBuilder: (context) =>
+            SizedBox(height: imgHeight?.r, width: imgWidth?.r),
       );
     }
 
@@ -119,14 +117,10 @@ class CustomImage extends StatelessWidget {
       height: imgHeight?.r,
       width: imgWidth?.r,
       color: color,
-      placeholder: (context, url) => SizedBox(
-        height: imgHeight?.r,
-        width: imgWidth?.r,
-      ),
-      errorWidget: (context, url, error) => SizedBox(
-        height: imgHeight?.r,
-        width: imgWidth?.r,
-      ),
+      placeholder: (context, url) =>
+          SizedBox(height: imgHeight?.r, width: imgWidth?.r),
+      errorWidget: (context, url, error) =>
+          SizedBox(height: imgHeight?.r, width: imgWidth?.r),
     );
   }
 }

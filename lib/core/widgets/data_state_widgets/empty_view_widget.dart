@@ -2,32 +2,23 @@ part of '../widgets.dart';
 
 class EmptyViewWidget extends StatelessWidget {
   final bool isShorten;
+  final String? message;
+  final IconData? icon;
 
-  const EmptyViewWidget({super.key, this.isShorten = false});
+  const EmptyViewWidget({
+    super.key,
+    this.isShorten = false,
+    this.message,
+    this.icon,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ListView(
-        shrinkWrap: true,
-        padding: context.paddingZero,
-        children: [
-          SizedBox(
-            height: null,
-            width: null,
-            child: Center(child: CustomImage(Assets.empty)),
-          ),
-          Text(
-            AppStrings.kNoDataFound,
-            style: TextStyle(
-              color: Color(0xff353A62),
-              fontSize: (isShorten ? 12 : 24).sp,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ).marginOnly(top: (isShorten ? 16 : 24).r),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => AppStateView(
+    compact: isShorten,
+    icon: icon ?? Icons.inbox_outlined,
+    title: message ?? AppStrings.kNoDataFound,
+    message: isShorten
+        ? null
+        : 'ستظهر السجلات هنا بمجرد إنشائها أو مزامنتها.',
+  );
 }

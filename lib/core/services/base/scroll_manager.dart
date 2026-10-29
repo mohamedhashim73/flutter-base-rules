@@ -17,8 +17,8 @@ class ScrollManager {
   final maxExtent = _controller?.position.maxScrollExtent ?? 0;
   final pixels = _controller?.position.pixels ?? 0;
 
-  // لو القايمة مش بتعمل overflow (كل العناصر ظاهرة على الشاشة)
-  // يبقى مفيش داعي ننتظر scroll، نعتبرها جاهزة على طول
+    // لو القايمة مش بتعمل overflow (كل العناصر ظاهرة على الشاشة)
+    // يبقى مفيش داعي ننتظر scroll، نعتبرها جاهزة على طول
   if (maxExtent <= 0) {
     LoggingService.showMsg(
       '[ScrollManager] isPaginationReady → no-overflow case, ready:true',

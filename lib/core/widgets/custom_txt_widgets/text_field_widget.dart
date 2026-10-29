@@ -54,7 +54,7 @@ class TxtFieldWidget extends StatefulWidget {
     this.controller,
     this.txtSize,
     this.isPassword,
-    this.bSpace = 14,
+    this.bSpace = 0,
     this.validator,
     this.onTonTapOutside,
     this.validatorTxt,
@@ -77,12 +77,12 @@ class TxtFieldWidget extends StatefulWidget {
 }
 
 class _TxtFieldWidgetState extends State<TxtFieldWidget> {
-  static const _kBorderColor = Color(0xFFE7EBEF);
+  static const _kBorderColor = Color(0xFFE3E8E5);
 
   FocusNode? _focusNode;
 
   BorderRadius get _radius =>
-      widget.borderRadius ?? BorderRadius.circular(18.r);
+      widget.borderRadius ?? BorderRadius.circular(AppDesignRadius.control);
 
   InputBorder get _enabledBorder => OutlineInputBorder(
     borderRadius: _radius,
@@ -116,9 +116,10 @@ class _TxtFieldWidgetState extends State<TxtFieldWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 10,
+      spacing: 7,
       children: [
         if (widget.label != null)
           Text.rich(
@@ -137,7 +138,11 @@ class _TxtFieldWidgetState extends State<TxtFieldWidget> {
             ),
             style:
                 widget.labelStyle ??
-                const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: colors.onSurface,
+                ),
           ),
         SizedBox(
           height: widget.height,
@@ -165,7 +170,7 @@ class _TxtFieldWidgetState extends State<TxtFieldWidget> {
             onFieldSubmitted: widget.onSaved,
             focusNode: widget.focusNode ?? _focusNode,
             style: TextStyle(
-              fontSize: widget.txtSize ?? 14,
+              fontSize: widget.txtSize ?? 13.5,
               fontWeight: FontWeight.w400,
               color: Theme.of(context).colorScheme.onSurface,
             ),
@@ -182,13 +187,13 @@ class _TxtFieldWidgetState extends State<TxtFieldWidget> {
             decoration: InputDecoration(
               hintText: widget.hint,
               hintStyle: TextStyle(
-                color: Color(0xffEFEFEF),
+                color: colors.textSecondary,
                 fontWeight: FontWeight.w400,
-                fontSize: widget.txtSize ?? 16,
+                fontSize: widget.txtSize ?? 13,
               ),
               contentPadding:
                   widget.padding ??
-                  EdgeInsets.symmetric(horizontal: 12.r, vertical: 14.5.r),
+                  const EdgeInsets.symmetric(horizontal: 13, vertical: 13),
               enabledBorder:
                   Theme.of(context).inputDecorationTheme.enabledBorder ??
                   _enabledBorder,
@@ -230,7 +235,7 @@ class _TxtFieldWidgetState extends State<TxtFieldWidget> {
                   _errorBorder,
               filled: true,
               isDense: widget.isDense,
-              fillColor: AppColors.kWhite,
+              fillColor: colors.surface,
             ),
           ),
         ),

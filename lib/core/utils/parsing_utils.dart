@@ -116,9 +116,9 @@ int? _parseInt(Object? value) {
   if (value is double) return value.toInt();
   if (value is bool) return value ? 1 : 0;
   if (value is String) {
-    final normalized = _normalizeDigits(value)
-        .trim()
-        .replaceAll(',', ''); // strip thousands separators
+    final normalized = _normalizeDigits(
+      value,
+    ).trim().replaceAll(',', ''); // strip thousands separators
     if (normalized.isEmpty) return null;
 
     final asInt = int.tryParse(normalized);
@@ -178,7 +178,8 @@ double asDoubleOr(Object? source, String key, {double fallback = 0.0}) {
   if (value == null) return fallback;
   if (value is double) return value;
   if (value is int) return value.toDouble();
-  if (value is String) return double.tryParse(_normalizeDigits(value)) ?? fallback;
+  if (value is String)
+    return double.tryParse(_normalizeDigits(value)) ?? fallback;
   return fallback;
 }
 
@@ -314,7 +315,11 @@ num? asNumOrNull(Object? source, String key) {
 /// (auto-detected by magnitude: values under ~10 billion are treated as
 /// seconds, since that's below the epoch-seconds/epoch-millis crossover
 /// for any date before the year 2286).
-DateTime asDateTimeOr(Object? source, String key, {required DateTime fallback}) {
+DateTime asDateTimeOr(
+  Object? source,
+  String key, {
+  required DateTime fallback,
+}) {
   return asDateTimeOrNull(source, key) ?? fallback;
 }
 
@@ -347,7 +352,11 @@ DateTime _dateTimeFromEpoch(int value) {
 /// [DateTime.toLocal]. Use this for display purposes (e.g. "joined on ..."),
 /// and prefer [asDateTimeOr] (UTC) when the value will be sent back to an
 /// API or compared/stored, to avoid timezone drift.
-DateTime asLocalDateTimeOr(Object? source, String key, {required DateTime fallback}) {
+DateTime asLocalDateTimeOr(
+  Object? source,
+  String key, {
+  required DateTime fallback,
+}) {
   return asDateTimeOrNull(source, key)?.toLocal() ?? fallback;
 }
 
@@ -363,7 +372,11 @@ DateTime? asLocalDateTimeOrNull(Object? source, String key) {
 
 /// Returns the value at [key] as a [Duration], treating the raw number as
 /// **seconds** (the common convention for API fields like `expiresIn`).
-Duration asDurationOr(Object? source, String key, {Duration fallback = Duration.zero}) {
+Duration asDurationOr(
+  Object? source,
+  String key, {
+  Duration fallback = Duration.zero,
+}) {
   final seconds = asIntOrNull(source, key);
   if (seconds == null) return fallback;
   return Duration(seconds: seconds);
@@ -507,7 +520,11 @@ List<T>? asObjectListOrNull<T>(
 
 /// Parses the list at [key] into a `List<String>`, coercing each element
 /// with [asStringOr]-style rules and dropping anything unparsable.
-List<String> asStringListOr(Object? source, String key, {List<String>? fallback}) {
+List<String> asStringListOr(
+  Object? source,
+  String key, {
+  List<String>? fallback,
+}) {
   final list = asListOrNull(source, key);
   if (list == null) return fallback ?? <String>[];
   return list
@@ -531,7 +548,11 @@ List<int> asIntListOr(Object? source, String key, {List<int>? fallback}) {
 
 /// Parses the list at [key] into a `List<double>`, coercing each element
 /// (int, double, numeric String) and dropping anything unparsable.
-List<double> asDoubleListOr(Object? source, String key, {List<double>? fallback}) {
+List<double> asDoubleListOr(
+  Object? source,
+  String key, {
+  List<double>? fallback,
+}) {
   final list = asListOrNull(source, key);
   if (list == null) return fallback ?? <double>[];
   return list

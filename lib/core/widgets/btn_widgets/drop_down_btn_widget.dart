@@ -21,7 +21,7 @@ class DropDownBtnWidget<T> extends StatelessWidget {
   final bool reverseBackgroundIsOn;
   final String Function(T)? getLabel;
 
-  static const _kBorderColor = Color(0xFFE7EBEF);
+  static const _kBorderColor = Color(0xFFE3E8E5);
 
   DropDownBtnWidget({
     super.key,
@@ -33,7 +33,7 @@ class DropDownBtnWidget<T> extends StatelessWidget {
     this.borderRadius,
     this.iconSize,
     this.height,
-    this.bSpace = 14,
+    this.bSpace = 0,
     required this.onChanged,
     required this.items,
     this.label,
@@ -45,7 +45,8 @@ class DropDownBtnWidget<T> extends StatelessWidget {
     this.padding,
   });
 
-  BorderRadius get _radius => borderRadius ?? BorderRadius.circular(18.r);
+  BorderRadius get _radius =>
+      borderRadius ?? BorderRadius.circular(AppDesignRadius.control);
 
   InputBorder get _enabledBorder => OutlineInputBorder(
     borderRadius: _radius,
@@ -66,9 +67,10 @@ class DropDownBtnWidget<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 10,
+      spacing: 7,
       children: [
         if (label != null)
           Text.rich(
@@ -87,7 +89,11 @@ class DropDownBtnWidget<T> extends StatelessWidget {
             ),
             style:
                 labelStyle ??
-                const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: colors.onSurface,
+                ),
           ),
         SizedBox(
           height: height,
@@ -98,13 +104,13 @@ class DropDownBtnWidget<T> extends StatelessWidget {
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: TextStyle(
-                color: const Color(0xffEFEFEF),
+                color: colors.textSecondary,
                 fontWeight: FontWeight.w400,
-                fontSize: txtSize ?? 16,
+                fontSize: txtSize ?? 13,
               ),
               contentPadding:
                   padding ??
-                  EdgeInsets.symmetric(horizontal: 12.r, vertical: 14.5.r),
+                  const EdgeInsets.symmetric(horizontal: 13, vertical: 13),
               enabledBorder:
                   Theme.of(context).inputDecorationTheme.enabledBorder ??
                   _enabledBorder,
@@ -144,10 +150,10 @@ class DropDownBtnWidget<T> extends StatelessWidget {
               ),
               filled: true,
               isDense: isDense,
-              fillColor: AppColors.kWhite,
+              fillColor: colors.surface,
             ),
             style: TextStyle(
-              fontSize: txtSize ?? 14,
+              fontSize: txtSize ?? 13.5,
               fontWeight: FontWeight.w400,
               color: Theme.of(context).colorScheme.onSurface,
             ),
@@ -159,11 +165,11 @@ class DropDownBtnWidget<T> extends StatelessWidget {
               iconSize: iconSize ?? 18,
             ),
             dropdownStyleData: DropdownStyleData(
-              elevation: 0,
+              elevation: 8,
               decoration: BoxDecoration(
-                color: AppColors.kWhite,
+                color: colors.card,
                 borderRadius: _radius,
-                border: Border.all(color: _kBorderColor),
+                border: Border.all(color: colors.border),
               ),
             ),
             menuItemStyleData: MenuItemStyleData(
@@ -181,10 +187,10 @@ class DropDownBtnWidget<T> extends StatelessWidget {
                   child: Text(
                     labelText,
                     style: TextStyle(
-                      fontSize: txtSize ?? 14,
+                      fontSize: txtSize ?? 13.5,
                       fontFamily: AppFonts.main,
                       fontWeight: FontWeight.w400,
-                      color: AppColors.kBlack,
+                      color: colors.onSurface,
                     ),
                   ),
                 ),

@@ -1,4 +1,5 @@
 import 'package:base/core/theme/theme.dart';
+import 'package:base/core/navigation/app_navigation.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -34,3 +35,8 @@ part 'data_state_widgets/loading_view_widget.dart';
 part 'data_state_widgets/switch_tile_widget.dart';
 part 'data_state_widgets/toggle_between_widgets.dart';
 part 'shimmer_widgets/shimmer_item_widget.dart';
+part 'design_system/responsive_widgets.dart';
+part 'design_system/app_shell_widgets.dart';
+part 'design_system/app_surface_widgets.dart';
+part 'design_system/app_state_widgets.dart';
+part 'design_system/app_table_widgets.dart';

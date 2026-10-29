@@ -6,6 +6,7 @@ Future<void> showAdaptiveDialogWidget({
   required String title,
   bool popImmediate = true,
   Function()? okTap,
+  bool Function()? beforeOk,
   String? cancelTxt,
   Function()? onInit,
   Function()? onDispose,
@@ -18,6 +19,7 @@ Future<void> showAdaptiveDialogWidget({
         content: content,
         popImmediate: popImmediate,
         okTap: okTap,
+        beforeOk: beforeOk,
         title: title,
         okTxt: okTxt,
         cancelTxt: cancelTxt,
@@ -29,6 +31,7 @@ Future<void> showAdaptiveDialogWidget({
       builder: (_) => _AndroidDialogWidget(
         content: content,
         okTap: okTap,
+        beforeOk: beforeOk,
         title: title,
         popImmediate: popImmediate,
         okTxt: okTxt,
@@ -45,6 +48,7 @@ class _AndroidDialogWidget extends StatelessWidget {
   final String? okTxt;
   final String title;
   final Function()? okTap;
+  final bool Function()? beforeOk;
   final bool popImmediate;
   final String? cancelTxt;
   const _AndroidDialogWidget({
@@ -54,6 +58,7 @@ class _AndroidDialogWidget extends StatelessWidget {
     this.cancelTxt,
     this.popImmediate = true,
     this.okTap,
+    this.beforeOk,
   });
 
   @override
@@ -89,6 +94,9 @@ class _AndroidDialogWidget extends StatelessWidget {
                       Expanded(
                         child: BtnWidget(
                           onTap: () {
+                            if (beforeOk != null && !beforeOk!()) {
+                              return;
+                            }
                             if (popImmediate) {
                               Navigator.pop(context);
                             }
@@ -124,6 +132,7 @@ class _IOSDialogWidget extends StatelessWidget {
   final String? okTxt;
   final String title;
   final Function()? okTap;
+  final bool Function()? beforeOk;
   final bool popImmediate;
   final String? cancelTxt;
   const _IOSDialogWidget({
@@ -133,6 +142,7 @@ class _IOSDialogWidget extends StatelessWidget {
     this.cancelTxt,
     this.popImmediate = true,
     this.okTap,
+    this.beforeOk,
   });
 
   @override
@@ -166,6 +176,9 @@ class _IOSDialogWidget extends StatelessWidget {
         CupertinoDialogAction(
           isDefaultAction: true,
           onPressed: () {
+            if (beforeOk != null && !beforeOk!()) {
+              return;
+            }
             if (popImmediate) {
               Navigator.pop(context);
             }

@@ -4,8 +4,6 @@ class UserSessionService {
   static UserModel? get kCachedUser => CacheManager.getUser;
   static LanguageEnums get kCurrentLang => CacheManager.getLanguage();
   static bool get kIsEnglish => kCurrentLang == LanguageEnums.en;
-  static Widget get kGetMainRoute =>
-      kCachedUser != null ? const SizedBox() : const SizedBox();
 
   static Future<void> validateSessionExpire({
     bool logOutIsOn = false,
@@ -28,6 +26,9 @@ class UserSessionService {
   static Future<void> emptyCache() async {
     try {
       CacheHelper.clearCache();
+      if (sl.isRegistered<FirebaseCacheService>()) {
+        await sl<FirebaseCacheService>().clearCurrentScope();
+      }
     } catch (e) {
       LoggingService.showMsg('Ex: $e');
     }

@@ -8,14 +8,17 @@ class DeviceSecurityServiceImpl implements DeviceSecurityService {
   @override
   Future<DeviceSecurityStatus> check() async {
     try {
+      if (kDebugMode) return DeviceSecurityStatus.safe;
       final detection = JailbreakRootDetection.instance;
       final issues = await detection.checkForIssues;
       final isJailBroken = await detection.isJailBroken;
       final isRealDevice = await detection.isRealDevice;
-      final isDeveloperMode =
-          Platform.isAndroid ? await detection.isDevMode : false;
-      final isOnExternalStorage =
-          Platform.isAndroid ? await detection.isOnExternalStorage : false;
+      final isDeveloperMode = Platform.isAndroid
+          ? await detection.isDevMode
+          : false;
+      final isOnExternalStorage = Platform.isAndroid
+          ? await detection.isOnExternalStorage
+          : false;
 
       LoggingService.showMsg(
         'Security check: issues=${issues.map((issue) => issue.name).toList()}, '
@@ -23,6 +26,20 @@ class DeviceSecurityServiceImpl implements DeviceSecurityService {
         'developerMode=$isDeveloperMode, '
         'externalStorage=$isOnExternalStorage',
       );
+
+      // The iOS simulator can be reported by the plugin as both
+      // `notRealDevice` and `tampered`. Classify the environment first so a
+      // simulator is never misreported as a jailbroken physical device.
+      if (!isRealDevice || issues.contains(JailbreakIssue.notRealDevice)) {
+        const allowSimulatorForTesting = bool.fromEnvironment(
+          'CREDEXA_ALLOW_SIMULATOR_FOR_TESTING',
+          defaultValue: false,
+        );
+        if (kDebugMode && allowSimulatorForTesting) {
+          return DeviceSecurityStatus.safe;
+        }
+        return DeviceSecurityStatus.emulatorOrSimulator;
+      }
 
       if (isJailBroken ||
           issues.any(
@@ -38,10 +55,6 @@ class DeviceSecurityServiceImpl implements DeviceSecurityService {
 
       if (isDeveloperMode || issues.contains(JailbreakIssue.devMode)) {
         return DeviceSecurityStatus.developerModeEnabled;
-      }
-
-      if (!isRealDevice || issues.contains(JailbreakIssue.notRealDevice)) {
-        return DeviceSecurityStatus.emulatorOrSimulator;
       }
 
       if (isOnExternalStorage ||

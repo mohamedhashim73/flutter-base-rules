@@ -5,6 +5,9 @@ class AppConstants {
   static const String kGooglePlayStoreID = "com.dev3solutions.beeto.app";
   static const String kAppStoreID = "id6782384506";
   static Future<void> kAppInitialization() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     await Future.value([
       await DI.init(),
       await SystemUiService.enableEdgeToEdge(),

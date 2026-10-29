@@ -1,0 +1,21 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "credit_purchases",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "cardId", "order": "ASCENDING" },
+        { "fieldPath": "purchaseDateMillis", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "credit_periods",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "cardId", "order": "ASCENDING" },
+        { "fieldPath": "updatedAtMillis", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

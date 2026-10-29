@@ -1,0 +1,193 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function hasEmail() {
+      return signedIn() && request.auth.token.email != null;
+    }
+
+    function directoryPath() {
+      return /databases/$(database)/documents/membership_directory/$(request.auth.token.email);
+    }
+
+    function hasDirectoryMembership() {
+      return hasEmail() && exists(directoryPath()) &&
+        get(directoryPath()).data.active == true;
+    }
+
+    function ownsOrganization(organizationId) {
+      return hasDirectoryMembership() &&
+        get(directoryPath()).data.organizationId == organizationId;
+    }
+
+    function managerIn(organizationId) {
+      return ownsOrganization(organizationId) &&
+        get(directoryPath()).data.role == 'manager';
+    }
+
+    function staffIn(organizationId) {
+      return ownsOrganization(organizationId) &&
+        get(directoryPath()).data.role in ['manager', 'accountant', 'employee'];
+    }
+
+    function permissionIn(organizationId, name) {
+      return ownsOrganization(organizationId) &&
+        get(directoryPath()).data.permissions[name] == true;
+    }
+
+    function reviewerIn(organizationId) {
+      return managerIn(organizationId) || permissionIn(organizationId, 'settlements.review');
+    }
+
+    function settlementReviewUpdateAllowed(organizationId) {
+      return reviewerIn(organizationId) &&
+        request.resource.data.createdBy == resource.data.createdBy &&
+        request.resource.data.brandId == resource.data.brandId &&
+        request.resource.data.grossMinor == resource.data.grossMinor &&
+        request.resource.data.commissionMinor == resource.data.commissionMinor &&
+        request.resource.data.includedTransactionIds == resource.data.includedTransactionIds &&
+        (
+          (request.resource.data.approvalStatus == 'approved' &&
+            request.auth.uid != resource.data.createdBy &&
+            request.resource.data.approvedBy == request.auth.uid) ||
+          (request.resource.data.approvalStatus == 'rejected' &&
+            request.auth.uid != resource.data.createdBy &&
+            request.resource.data.rejectedBy == request.auth.uid) ||
+          request.resource.data.approvalStatus == resource.data.approvalStatus
+        );
+    }
+
+    function thresholdFor(organizationId) {
+      return exists(/databases/$(database)/documents/organizations/$(organizationId)/system_settings/finance) &&
+          get(/databases/$(database)/documents/organizations/$(organizationId)/system_settings/finance).data.approvalThresholdMinor is int
+        ? get(/databases/$(database)/documents/organizations/$(organizationId)/system_settings/finance).data.approvalThresholdMinor
+        : 500000;
+    }
+
+    function approvalStateAllowed(organizationId) {
+      return request.resource.data.approvalStatus == 'pending' ||
+        managerIn(organizationId) ||
+        (request.resource.data.referenceType in [
+          'collection_request', 'issued_check', 'treasury_transfer',
+          'installment_payment', 'reconciliation'
+        ] && staffIn(organizationId)) ||
+        (request.resource.data.amountMinor is int &&
+          request.resource.data.amountMinor <= thresholdFor(organizationId));
+    }
+
+    function statusStateAllowed(organizationId) {
+      return request.resource.data.status == 'pending' ||
+        managerIn(organizationId) ||
+        (request.resource.data.amountMinor is int &&
+          request.resource.data.amountMinor <= thresholdFor(organizationId));
+    }
+
+    function clientAuditCreate() {
+      return request.resource.data.createdBy == request.auth.uid &&
+        request.resource.data.source == 'client';
+    }
+
+    function ownsUserData(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    // The directory is the authorization source. The first manager membership
+    // must be created manually by the owner in Firebase Console; registration
+    // never grants a role or organization access by itself.
+    match /membership_directory/{emailKey} {
+      allow read: if hasEmail() && request.auth.token.email == resource.data.email;
+      allow create: if signedIn() &&
+        request.resource.data.email == emailKey &&
+        request.resource.data.active == true &&
+        managerIn(request.resource.data.organizationId);
+      allow update: if signedIn() &&
+        managerIn(resource.data.organizationId) &&
+        request.resource.data.organizationId == resource.data.organizationId &&
+        request.resource.data.email == resource.data.email;
+      allow delete: if managerIn(resource.data.organizationId);
+    }
+
+    match /users/{userId}/{collection}/{documentId} {
+      allow read: if ownsUserData(userId);
+      allow create: if ownsUserData(userId) &&
+        collection == 'audit_logs' && clientAuditCreate();
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    match /organizations/{organizationId}/members/{memberId} {
+      allow read: if managerIn(organizationId);
+      allow create: if managerIn(organizationId) &&
+        request.resource.data.organizationId == organizationId;
+      allow update: if managerIn(organizationId) &&
+        request.resource.data.organizationId == organizationId;
+      allow delete: if managerIn(organizationId);
+    }
+
+    match /organizations/{organizationId}/{collection}/{documentId} {
+      allow read: if ownsOrganization(organizationId) && collection != 'members';
+
+      allow create: if ownsOrganization(organizationId) && (
+        (collection == 'audit_logs' && clientAuditCreate()) ||
+        (collection == 'system_settings' && managerIn(organizationId)) ||
+        (collection == 'members' && managerIn(organizationId)) ||
+        (collection in [
+          'payment_providers', 'brands', 'pos_machines',
+          'bank_accounts', 'receiving_companies', 'withdrawal_people',
+          'expense_categories', 'notifications', 'notification_preferences',
+          'treasury_accounts'
+        ] && staffIn(organizationId)) ||
+        (collection in [
+          'credit_cards', 'credit_purchases', 'credit_deposits', 'credit_periods',
+          'settlement_allocations', 'collection_requests', 'installment_accounts',
+          'installment_schedules', 'installment_payments', 'issued_checks',
+          'settlements'
+        ] && staffIn(organizationId)) ||
+        (collection == 'treasury_reconciliations' && staffIn(organizationId)) ||
+        (collection == 'credit_corrections' &&
+          (managerIn(organizationId) || permissionIn(organizationId, 'records.edit'))) ||
+        (collection in ['bank_movements', 'treasury_movements'] &&
+          staffIn(organizationId) && approvalStateAllowed(organizationId)) ||
+        (collection in ['treasury_transfers', 'personal_withdrawals', 'expenses'] &&
+          staffIn(organizationId) && statusStateAllowed(organizationId))
+      );
+
+      allow update: if ownsOrganization(organizationId) && (
+        (collection == 'system_settings' && managerIn(organizationId)) ||
+        (collection == 'members' && managerIn(organizationId)) ||
+        (collection in [
+          'payment_providers', 'brands', 'pos_machines',
+          'receiving_companies', 'withdrawal_people', 'expense_categories',
+          'notifications', 'notification_preferences'
+        ] && (managerIn(organizationId) || permissionIn(organizationId, 'records.edit'))) ||
+        (collection in [
+          'credit_cards', 'credit_purchases', 'credit_deposits', 'credit_periods',
+          'settlement_allocations', 'installment_accounts', 'installment_schedules',
+          'installment_payments', 'issued_checks', 'treasury_accounts'
+        ] && staffIn(organizationId)) ||
+        (collection in ['bank_movements', 'treasury_movements', 'treasury_transfers',
+          'personal_withdrawals', 'expenses'] &&
+          (managerIn(organizationId) || permissionIn(organizationId, 'records.edit'))) ||
+        (collection == 'settlements' && settlementReviewUpdateAllowed(organizationId)) ||
+        (collection == 'collection_requests' && reviewerIn(organizationId)) ||
+        (collection == 'bank_accounts' &&
+          (managerIn(organizationId) || permissionIn(organizationId, 'records.edit') ||
+            reviewerIn(organizationId)))
+      );
+
+      // Financial writes are intentionally client-transaction compatible for
+      // this Firebase-only deployment. Rules enforce tenant membership and
+      // coarse role/state constraints; they cannot prove every cross-document
+      // balance invariant against a malicious browser client. The app still
+      // uses Firestore transactions, and reconciliation/audit review remains a
+      // required operational control until a trusted backend is authorized.
+      allow delete: if ownsOrganization(organizationId) &&
+        collection != 'audit_logs' &&
+        (managerIn(organizationId) || permissionIn(organizationId, 'records.delete'));
+    }
+  }
+}

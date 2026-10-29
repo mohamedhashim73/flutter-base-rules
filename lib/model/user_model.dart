@@ -1,5 +1,5 @@
-import 'package:backend_sdk/backend_sdk.dart';
 import 'package:base/core/utils/utils.dart';
+import 'package:base/core/services/services.dart';
 
 class UserModel extends Equatable implements LoadableResponse<UserModel> {
   @override

@@ -24,26 +24,38 @@ class AppRoutes {
   static final RouteObserver<ModalRoute<void>> routeObserver =
       RouteObserver<ModalRoute<void>>();
 
-  static dynamic push(Widget widget) => key.currentState?.push(
+  /// Tracks the live navigation stack so destination navigation can reuse an
+  /// existing page instead of pushing the same destination twice.
+  static final List<Route<dynamic>> _stack = <Route<dynamic>>[];
+
+  static final NavigatorObserver stackObserver = _StackObserver();
+
+  static String? get currentRouteName =>
+      _stack.isEmpty ? null : _stack.last.settings.name;
+
+  static bool hasRouteNamed(String name) =>
+      _stack.any((route) => route.settings.name == name);
+
+  static dynamic push(Widget widget, {String? name}) => key.currentState?.push(
     MaterialPageRoute(
       builder: (_) => widget,
-      settings: RouteSettings(name: widget.runtimeType.toString()),
+      settings: RouteSettings(name: name ?? widget.runtimeType.toString()),
     ),
   );
 
-  static dynamic pushReplacement(Widget widget) =>
+  static dynamic pushReplacement(Widget widget, {String? name}) =>
       key.currentState?.pushReplacement(
         MaterialPageRoute(
           builder: (_) => widget,
-          settings: RouteSettings(name: widget.runtimeType.toString()),
+          settings: RouteSettings(name: name ?? widget.runtimeType.toString()),
         ),
       );
 
-  static dynamic pushAndRemovePreviousRoutes(Widget widget) =>
+  static dynamic pushAndRemovePreviousRoutes(Widget widget, {String? name}) =>
       key.currentState?.pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (_) => widget,
-          settings: RouteSettings(name: widget.runtimeType.toString()),
+          settings: RouteSettings(name: name ?? widget.runtimeType.toString()),
         ),
         (_) => false,
       );
@@ -55,5 +67,32 @@ class AppRoutes {
   }
 
   // Nav to pages
-  static VoidCallback goToLogin = () => pushReplacement(const SizedBox());
+  static late VoidCallback goToLogin;
+}
+
+class _StackObserver extends NavigatorObserver {
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPush(route, previousRoute);
+    AppRoutes._stack.add(route);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPop(route, previousRoute);
+    AppRoutes._stack.remove(route);
+  }
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didRemove(route, previousRoute);
+    AppRoutes._stack.remove(route);
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+    if (oldRoute != null) AppRoutes._stack.remove(oldRoute);
+    if (newRoute != null) AppRoutes._stack.add(newRoute);
+  }
 }

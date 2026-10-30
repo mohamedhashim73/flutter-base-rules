@@ -147,6 +147,7 @@ class _ReportsPageState extends State<ReportsPage> {
           BlocBuilder<OperationsCubit, OperationsState>(
             bloc: _operationsCubit,
             builder: (context, operationsState) => DataStateBuilderWidget(
+              shimmerType: AppPageShimmerType.reports,
               dataState: DataState(
                 state: creditState,
                 response: CreditCardsResponseModel(

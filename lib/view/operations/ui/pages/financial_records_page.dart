@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:base/core/enums/enums.dart';
 import 'package:base/core/extensions/extensions.dart';
 import 'package:base/core/navigation/app_navigation.dart';
 import 'package:base/core/services/services.dart';
@@ -56,11 +57,26 @@ class _FinancialRecordsPageState extends State<FinancialRecordsPage> {
     ],
     body: BlocBuilder<OperationsCubit, OperationsState>(
       bloc: _cubit,
-      builder: (context, state) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: AppBreakpoints.of(context).sectionSpacing,
-        children: [_summary(state), ..._records(state)],
-      ),
+      builder: (context, state) {
+        final hasRecords =
+            state.accounts.isNotEmpty ||
+            state.bankAccounts.isNotEmpty ||
+            state.movements.isNotEmpty ||
+            state.bankMovements.isNotEmpty ||
+            state.expenses.isNotEmpty ||
+            state.personalWithdrawals.isNotEmpty ||
+            state.installments.isNotEmpty ||
+            state.checks.isNotEmpty ||
+            state.settlements.isNotEmpty;
+        if (state.status == RequestStatus.loading && !hasRecords) {
+          return AppPageShimmerWidget(type: _shimmerType);
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: AppBreakpoints.of(context).sectionSpacing,
+          children: [_summary(state), ..._records(state)],
+        );
+      },
     ),
   );
 
@@ -71,6 +87,16 @@ class _FinancialRecordsPageState extends State<FinancialRecordsPage> {
     FinancialRecordsSection.installments => AppDestination.installments,
     FinancialRecordsSection.checks => AppDestination.checks,
     FinancialRecordsSection.settlements => AppDestination.settlements,
+  };
+
+  AppPageShimmerType get _shimmerType => switch (widget.section) {
+    FinancialRecordsSection.treasury => AppPageShimmerType.treasuryRecords,
+    FinancialRecordsSection.expenses => AppPageShimmerType.expenseRecords,
+    FinancialRecordsSection.withdrawals => AppPageShimmerType.withdrawalRecords,
+    FinancialRecordsSection.installments =>
+      AppPageShimmerType.installmentRecords,
+    FinancialRecordsSection.checks => AppPageShimmerType.checkRecords,
+    FinancialRecordsSection.settlements => AppPageShimmerType.settlementRecords,
   };
 
   String get _title => switch (widget.section) {

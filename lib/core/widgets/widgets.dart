@@ -34,6 +34,7 @@ part 'data_state_widgets/loading_view_widget.dart';
 part 'data_state_widgets/switch_tile_widget.dart';
 part 'data_state_widgets/toggle_between_widgets.dart';
 part 'shimmer_widgets/shimmer_item_widget.dart';
+part 'shimmer_widgets/app_page_shimmer_widget.dart';
 part 'design_system/responsive_widgets.dart';
 part 'design_system/app_shell_widgets.dart';
 part 'design_system/app_dialogs.dart';

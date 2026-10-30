@@ -724,7 +724,7 @@ class _SidebarBrand extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'CREDIXA · FINANCE',
+                  'Credixa · Finance',
                   style: TextStyle(
                     color: AppColors.kLandscapeSidebarText.withValues(
                       alpha: 0.62,

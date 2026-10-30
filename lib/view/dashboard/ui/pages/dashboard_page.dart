@@ -88,6 +88,7 @@ class _DashboardPageState extends State<DashboardPage> {
               BlocBuilder<OperationsCubit, OperationsState>(
                 bloc: _operationsCubit,
                 builder: (context, operationsState) => DataStateBuilderWidget(
+                  shimmerType: AppPageShimmerType.dashboard,
                   dataState: DataState(
                     state: creditState,
                     response: CreditCardsResponseModel(creditState.cards),

@@ -97,13 +97,7 @@ class _CreditCardsPageState extends State<CreditCardsPage> {
                       : Icons.check_circle_outline_rounded,
                 ),
               if (state.status == RequestStatus.loading && state.cards.isEmpty)
-                const AppStateView(
-                  title: 'جاري تحميل بطاقات الائتمان',
-                  message: 'يتم تحميل البطاقات والكتالوج المالي الآن.',
-                  icon: Icons.credit_card_outlined,
-                  tone: AppTone.info,
-                  compact: true,
-                )
+                const AppPageShimmerWidget(type: AppPageShimmerType.creditCards)
               else if (state.status == RequestStatus.failure &&
                   state.cards.isEmpty)
                 AppStateView(

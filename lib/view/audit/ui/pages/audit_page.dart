@@ -49,6 +49,7 @@ class _AuditPageState extends State<AuditPage> {
     body: BlocBuilder<AuditCubit, AuditState>(
       bloc: _cubit,
       builder: (context, state) => DataStateBuilderWidget(
+        shimmerType: AppPageShimmerType.list,
         dataState: DataState(
           state: state,
           response: AuditResponseModel(state.items),

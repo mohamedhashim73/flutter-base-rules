@@ -6,6 +6,7 @@ class DataStateBuilderWidget extends StatelessWidget {
   final Function()? onFailure;
   final Function()? onRefresh;
   final Widget? shimmerWidget;
+  final AppPageShimmerType shimmerType;
   final double? emptyOrErrorTxtSize;
   final double? errorOrEmptyImageSize;
   final double? errorTxtSize;
@@ -19,6 +20,7 @@ class DataStateBuilderWidget extends StatelessWidget {
     required this.widget,
     this.padding,
     this.shimmerWidget,
+    this.shimmerType = AppPageShimmerType.list,
     this.emptyErrorIsShorten = false,
     this.shimmerListIsOn = false,
     this.emptyOrErrorTxtSize,
@@ -60,7 +62,7 @@ class DataStateBuilderWidget extends StatelessWidget {
               itemBuilder: (index) => shimmerWidget!,
             );
           }
-          return shimmerWidget ?? const LoadingViewWidget();
+          return shimmerWidget ?? AppPageShimmerWidget(type: shimmerType);
         }
       },
     );

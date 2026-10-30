@@ -58,8 +58,8 @@ class _ApprovalCenterPageState extends State<ApprovalCenterPage> {
           if (state.status == RequestStatus.loading &&
               state.accounts.isEmpty &&
               state.settlements.isEmpty) {
-            return const AppLoadingState(
-              message: 'جارٍ تحميل طلبات الاعتماد...',
+            return const AppPageShimmerWidget(
+              type: AppPageShimmerType.approvals,
             );
           }
           final sections = <_ApprovalSection>[

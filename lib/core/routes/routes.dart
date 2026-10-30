@@ -36,29 +36,42 @@ class AppRoutes {
   static bool hasRouteNamed(String name) =>
       _stack.any((route) => route.settings.name == name);
 
-  static dynamic push(Widget widget, {String? name}) => key.currentState?.push(
-    MaterialPageRoute(
-      builder: (_) => widget,
-      settings: RouteSettings(name: name ?? widget.runtimeType.toString()),
-    ),
-  );
+  static dynamic push(Widget widget, {String? name}) =>
+      key.currentState?.push(_route(widget, name: name));
 
   static dynamic pushReplacement(Widget widget, {String? name}) =>
-      key.currentState?.pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => widget,
-          settings: RouteSettings(name: name ?? widget.runtimeType.toString()),
-        ),
-      );
+      key.currentState?.pushReplacement(_route(widget, name: name));
 
   static dynamic pushAndRemovePreviousRoutes(Widget widget, {String? name}) =>
       key.currentState?.pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (_) => widget,
-          settings: RouteSettings(name: name ?? widget.runtimeType.toString()),
-        ),
+        _route(widget, name: name),
         (_) => false,
       );
+
+  /// Matches the SJJL navigation pattern: landscape navigation is immediate,
+  /// so the previous page is never visible behind the next destination.
+  static Route<dynamic> _route(Widget widget, {String? name}) {
+    final mediaQuery = key.currentContext == null
+        ? null
+        : MediaQuery.maybeOf(key.currentContext!);
+    final settings = RouteSettings(name: name ?? widget.runtimeType.toString());
+    final isLandscapeDesktop =
+        mediaQuery != null &&
+        mediaQuery.orientation == Orientation.landscape &&
+        mediaQuery.size.width >= 800;
+
+    if (!isLandscapeDesktop) {
+      return MaterialPageRoute(builder: (_) => widget, settings: settings);
+    }
+
+    return PageRouteBuilder(
+      settings: settings,
+      transitionDuration: Duration.zero,
+      reverseTransitionDuration: Duration.zero,
+      pageBuilder: (_, _, _) => widget,
+      transitionsBuilder: (_, _, _, child) => child,
+    );
+  }
 
   static void popUntil(Widget widget) {
     key.currentState?.popUntil(

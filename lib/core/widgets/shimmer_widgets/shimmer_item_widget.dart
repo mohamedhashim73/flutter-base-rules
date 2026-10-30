@@ -24,7 +24,7 @@ class ShimmerItemWidget extends StatelessWidget {
       width: width,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: color ?? Colors.black.withOpacity(0.04),
+        color: color ?? AppColors.kShimmer,
         borderRadius: radius != null
             ? BorderRadius.circular(radius!)
             : AppDimensions.radiusSm,

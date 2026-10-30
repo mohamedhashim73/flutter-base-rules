@@ -83,6 +83,7 @@ class _UsersPageState extends State<UsersPage> {
                 _createForm(),
                 const _NotificationSettingsCard(),
                 DataStateBuilderWidget(
+                  shimmerType: AppPageShimmerType.users,
                   dataState: DataState(
                     state: state,
                     response: _UsersResponse(state.users),

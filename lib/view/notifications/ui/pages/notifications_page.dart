@@ -52,6 +52,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         ),
       ],
       body: DataStateBuilderWidget(
+        shimmerType: AppPageShimmerType.list,
         dataState: DataState(
           state: state,
           response: AppNotificationsResponseModel(state.items),

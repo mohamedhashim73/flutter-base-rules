@@ -12,13 +12,16 @@ class AuthCubit extends Cubit<AuthState> {
   final formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  bool isRegisterMode = false;
+  bool get isRegisterMode => state.isRegisterMode;
 
   Future<void> submit() async {
     if (formKey.currentState?.validate() != true) return;
-    emit(const AuthState(status: RequestStatus.loading));
+    final registerMode = isRegisterMode;
+    emit(
+      AuthState(status: RequestStatus.loading, isRegisterMode: registerMode),
+    );
     try {
-      if (isRegisterMode) {
+      if (registerMode) {
         await _authService.createAccount(
           email: emailController.text.trim(),
           password: passwordController.text,
@@ -34,19 +37,27 @@ class AuthCubit extends Cubit<AuthState> {
         );
       }
       emit(
-        const AuthState(
+        AuthState(
           status: RequestStatus.success,
-          message: 'تم تسجيل الدخول بنجاح.',
+          message: registerMode
+              ? 'تم إنشاء الحساب بنجاح.'
+              : 'تم تسجيل الدخول بنجاح.',
+          isRegisterMode: registerMode,
         ),
       );
     } catch (error) {
-      emit(AuthState(status: RequestStatus.failure, message: _message(error)));
+      emit(
+        AuthState(
+          status: RequestStatus.failure,
+          message: _message(error),
+          isRegisterMode: registerMode,
+        ),
+      );
     }
   }
 
   void toggleMode() {
-    isRegisterMode = !isRegisterMode;
-    emit(const AuthState());
+    emit(AuthState(isRegisterMode: !isRegisterMode));
   }
 
   String _message(Object error) {

@@ -40,7 +40,9 @@ class LoginPage extends StatelessWidget {
                       vertical: AppSpacing.xxl,
                     ),
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 460),
+                      constraints: BoxConstraints(
+                        maxWidth: AppBreakpoints.isCompact(context) ? 440 : 600,
+                      ),
                       child: _LoginFormWidget(cubit: cubit),
                     ),
                   ),
@@ -95,7 +97,7 @@ class _AuthBrandPanel extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'CREDIXA · FINANCE',
+                    'Credixa · Finance',
                     style: TextStyle(
                       color: Color(0xFFBCD6CB),
                       fontSize: 9,
@@ -191,13 +193,17 @@ class _LoginFormWidget extends StatelessWidget {
       bloc: cubit,
       builder: (context, state) {
         final isLoading = state.status == RequestStatus.loading;
-        final title = cubit.isRegisterMode
+        final title = state.isRegisterMode
             ? 'إنشاء حساب Credexa'
             : 'مرحباً بك في Credexa';
         return AppSurface(
           shadow: AppShadow.card,
           padding: EdgeInsets.all(
-            AppBreakpoints.isCompact(context) ? AppSpacing.lg : AppSpacing.xxl,
+            AppBreakpoints.isCompact(context)
+                ? AppSpacing.lg
+                : AppBreakpoints.isExpanded(context)
+                ? AppSpacing.xxxl
+                : AppSpacing.xxl,
           ),
           child: Form(
             key: cubit.formKey,
@@ -240,7 +246,7 @@ class _LoginFormWidget extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  cubit.isRegisterMode
+                  state.isRegisterMode
                       ? 'أنشئ حسابك للوصول إلى أدوات الإدارة المالية.'
                       : 'سجّل الدخول للمتابعة إلى مساحة العمل المالية.',
                   style: context.textTheme.bodyMedium?.copyWith(
@@ -264,15 +270,15 @@ class _LoginFormWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 BtnWidget(
-                  title: cubit.isRegisterMode ? 'إنشاء الحساب' : 'تسجيل الدخول',
+                  title: state.isRegisterMode ? 'إنشاء الحساب' : 'تسجيل الدخول',
                   onTap: cubit.submit,
                   isLoading: isLoading,
                 ),
                 Center(
                   child: TextBtnWidget(
-                    title: cubit.isRegisterMode
+                    title: state.isRegisterMode
                         ? 'لديك حساب بالفعل؟ تسجيل الدخول'
-                        : 'إنشاء حساب جديد',
+                        : 'ليس لديك حساب؟ إنشاء حساب الآن',
                     txtColor: context.colors.primary,
                     onTap: cubit.toggleMode,
                   ),

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -39,141 +39,160 @@
       font-family: Inter, "Segoe UI", Tahoma, Arial, sans-serif;
     }
 
-    html,
-    body {
+    html, body {
       margin: 0;
-      min-height: 100%;
+      height: 100%;
       background: #f5f8fc;
     }
 
+    /* Splash screen follows the same calm, full-page pattern as Sijil. */
     #app-loading {
-      align-items: center;
-      background:
-        radial-gradient(circle at 15% 15%, rgba(73, 183, 238, 0.16), transparent 30%),
-        radial-gradient(circle at 85% 85%, rgba(15, 82, 138, 0.18), transparent 35%),
-        #f5f8fc;
-      display: flex;
-      inset: 0;
-      justify-content: center;
-      min-height: 100vh;
-      opacity: 1;
       position: fixed;
-      transition: opacity 280ms ease, visibility 280ms ease;
-      visibility: visible;
+      inset: 0;
       z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #f5f8fc;
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      opacity: 1;
+      transition: opacity .55s ease, visibility .55s ease;
     }
 
     #app-loading.is-hidden {
       opacity: 0;
-      pointer-events: none;
       visibility: hidden;
     }
 
-    .loading-card {
-      align-items: center;
-      background: rgba(255, 255, 255, 0.86);
-      border: 1px solid rgba(17, 54, 86, 0.08);
-      border-radius: 24px;
-      box-shadow: 0 24px 70px rgba(12, 46, 76, 0.12);
-      display: flex;
-      flex-direction: column;
-      max-width: calc(100vw - 48px);
-      padding: 40px 48px 34px;
-      text-align: center;
-      width: 280px;
+    .logo-wrap {
+      position: relative;
+      width: 112px;
+      height: 112px;
+      opacity: 0;
+      transform: scale(.7);
+      animation: pop .7s cubic-bezier(.2, .8, .2, 1) .1s forwards;
     }
 
-    .loading-logo {
-      align-items: center;
-      background: linear-gradient(145deg, #48b8ee, #0c568e);
-      border-radius: 18px;
-      box-shadow: 0 12px 24px rgba(12, 86, 142, 0.24);
-      color: #fff;
-      display: flex;
-      font-size: 28px;
-      font-weight: 800;
-      height: 72px;
-      justify-content: center;
-      letter-spacing: -2px;
-      margin-bottom: 22px;
-      width: 72px;
+    .logo-wrap img {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 28px;
+      object-fit: cover;
+      box-shadow: 0 14px 34px rgba(12, 86, 142, .28);
+      animation: float 2.6s ease-in-out .9s infinite;
+    }
+
+    .logo-wrap::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 2px solid #0c568e;
+      border-radius: 32px;
+      opacity: 0;
+      animation: ring 2.2s ease-out 1s infinite;
     }
 
     .brand-name {
-      color: #0b2d4b;
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: 3px;
-      margin-bottom: 8px;
+      margin-top: 28px;
+      color: #10213a;
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: .2px;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: rise .6s ease .45s forwards;
     }
 
     .loading-message {
+      margin-top: 8px;
+      padding: 0 24px;
       color: #688096;
-      font-size: 14px;
-      margin: 0 0 24px;
+      font-size: 15px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: rise .6s ease .65s forwards;
     }
 
     .loading-track {
-      background: #e2edf5;
-      border-radius: 999px;
+      position: relative;
+      width: 168px;
       height: 4px;
+      margin-top: 40px;
       overflow: hidden;
-      width: 100%;
+      border-radius: 2px;
+      background: #e2edf5;
+      opacity: 0;
+      animation: rise .5s ease .9s forwards;
     }
 
-    .loading-progress {
-      animation: loading-progress 1.6s ease-in-out infinite;
-      background: linear-gradient(90deg, #49b7ee, #0c568e);
-      border-radius: inherit;
-      height: 100%;
-      transform-origin: left center;
+    .loading-track::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
       width: 42%;
+      border-radius: 2px;
+      background: #0c568e;
+      animation: slide 1.25s ease-in-out infinite;
     }
 
-    @keyframes loading-progress {
-      0% { transform: translateX(-115%) scaleX(0.7); }
-      50% { transform: translateX(75%) scaleX(1); }
-      100% { transform: translateX(250%) scaleX(0.7); }
+    .loading-text {
+      margin-top: 12px;
+      color: #688096;
+      font-size: 12.5px;
+      opacity: 0;
+      animation: rise .5s ease 1s forwards;
     }
 
-    @media (max-width: 420px) {
-      .loading-card {
-        padding: 32px 28px 28px;
-        width: 250px;
-      }
-    }
+    @keyframes pop { to { opacity: 1; transform: scale(1); } }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    @keyframes ring { 0% { opacity: .35; transform: scale(1); } 100% { opacity: 0; transform: scale(1.35); } }
+    @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+    @keyframes slide { 0% { inset-inline-start: -45%; } 100% { inset-inline-start: 103%; } }
 
     @media (prefers-reduced-motion: reduce) {
-      .loading-progress {
-        animation: none;
-        transform: translateX(20%);
-      }
-
-      #app-loading {
-        transition: none;
+      #app-loading *, #app-loading *::after, #app-loading *::before {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
       }
     }
   </style>
 </head>
 <body>
-  <div id="app-loading" role="status" aria-live="polite" dir="rtl">
-    <div class="loading-card">
-      <div class="loading-logo" aria-hidden="true">C</div>
-      <div class="brand-name" dir="ltr">CREDIXA</div>
-      <p class="loading-message">جارٍ تجهيز لوحة التحكم...</p>
-      <div class="loading-track" aria-hidden="true">
-        <div class="loading-progress"></div>
-      </div>
+  <div id="app-loading" role="status" aria-label="جارٍ التحميل">
+    <div class="logo-wrap">
+      <img src="icons/Icon-512.png" alt="Credixa" />
     </div>
+    <div class="brand-name" dir="ltr">Credixa</div>
+    <div class="loading-message">إدارة الائتمان والخزينة والتسويات</div>
+    <div class="loading-track" aria-hidden="true"></div>
+    <div class="loading-text">جارٍ التحميل…</div>
   </div>
 
   <script>
-    window.addEventListener('flutter-first-frame', function () {
-      var loader = document.getElementById('app-loading');
-      if (!loader) return;
-      loader.classList.add('is-hidden');
-      window.setTimeout(function () { loader.remove(); }, 350);
-    });
+    (function () {
+      var splash = document.getElementById('app-loading');
+      var start = Date.now();
+      var minDuration = 1100;
+      var done = false;
+
+      function hideSplash() {
+        if (done || !splash) return;
+        done = true;
+        var wait = Math.max(0, minDuration - (Date.now() - start));
+        setTimeout(function () {
+          splash.classList.add('is-hidden');
+          setTimeout(function () { splash.remove(); }, 650);
+        }, wait);
+      }
+
+      window.addEventListener('flutter-first-frame', hideSplash);
+      setTimeout(hideSplash, 20000);
+    })();
   </script>
   <!--
     You can customize the "flutter_bootstrap.js" script.

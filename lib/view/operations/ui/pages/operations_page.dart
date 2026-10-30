@@ -79,6 +79,7 @@ class _OperationsPageState extends State<OperationsPage> {
               ),
             ],
             body: DataStateBuilderWidget(
+              shimmerType: AppPageShimmerType.operations,
               dataState: DataState(
                 state: state,
                 response: OperationsResponseModel(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:base/core/enums/enums.dart';
 import 'package:base/core/theme/theme.dart';
+import 'package:base/core/services/services.dart';
 import 'package:base/core/widgets/widgets.dart';
 import 'package:base/core/extensions/extensions.dart';
 import 'package:base/view/auth/ui/controllers/auth_cubit/auth_cubit.dart';
@@ -75,14 +76,11 @@ class _AuthBrandPanel extends StatelessWidget {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  gradient: AppGradients.brand,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(13),
                 ),
-                child: const Icon(
-                  Icons.account_balance_rounded,
-                  color: Colors.white,
-                  size: 24,
-                ),
+                clipBehavior: Clip.antiAlias,
+                child: Image.asset(Assets.logo, fit: BoxFit.contain),
               ),
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,7 +97,7 @@ class _AuthBrandPanel extends StatelessWidget {
                   Text(
                     'Credixa · Finance',
                     style: TextStyle(
-                      color: Color(0xFFBCD6CB),
+                      color: Color(0xFFC9D9F2),
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 1.4,
@@ -123,7 +121,7 @@ class _AuthBrandPanel extends StatelessWidget {
           const Text(
             'تابع البطاقات والعمليات والتسويات والالتزامات من لوحة تحكم تنفيذية واحدة، مع أثر تدقيق لكل حركة مالية.',
             style: TextStyle(
-              color: Color(0xFFBCD6CB),
+              color: Color(0xFFC9D9F2),
               fontSize: 14,
               height: 1.7,
             ),
@@ -142,7 +140,7 @@ class _AuthBrandPanel extends StatelessWidget {
           const Spacer(),
           const Text(
             '© كريديكسا — إدارة مالية مؤسسية',
-            style: TextStyle(color: Color(0xFF9DBAAE), fontSize: 11),
+            style: TextStyle(color: Color(0xBFC9D9F2), fontSize: 11),
           ),
         ],
       ),
@@ -168,7 +166,7 @@ class _BrandPill extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: 6,
       children: [
-        Icon(icon, size: 15, color: const Color(0xFF9EEBCF)),
+        Icon(icon, size: 15, color: AppColors.kPrimaryLight),
         Text(
           label,
           style: const TextStyle(
@@ -219,14 +217,11 @@ class _LoginFormWidget extends StatelessWidget {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          gradient: AppGradients.brand,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(
-                          Icons.account_balance_rounded,
-                          color: Colors.white,
-                          size: 21,
-                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Image.asset(Assets.logo, fit: BoxFit.contain),
                       ),
                       Text(
                         'كريديكسا',

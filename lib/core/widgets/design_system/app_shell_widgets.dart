@@ -692,7 +692,7 @@ class _SidebarBrand extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            gradient: AppGradients.brand,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(11),
             boxShadow: [
               BoxShadow(
@@ -702,11 +702,8 @@ class _SidebarBrand extends StatelessWidget {
               ),
             ],
           ),
-          child: const Icon(
-            Icons.account_balance_rounded,
-            color: Colors.white,
-            size: 21,
-          ),
+          clipBehavior: Clip.antiAlias,
+          child: Image.asset(Assets.logo, fit: BoxFit.contain),
         ),
         if (!rail)
           Expanded(
@@ -821,11 +818,11 @@ class _SidebarFooter extends StatelessWidget {
     final email = appUserEmail();
     final avatar = CircleAvatar(
       radius: 17,
-      backgroundColor: const Color(0xFF1E4D40),
+      backgroundColor: const Color(0xFF173A78),
       child: Text(
         appUserInitial(email),
         style: const TextStyle(
-          color: Color(0xFF9EEBCF),
+          color: Color(0xFFB9D5F5),
           fontWeight: FontWeight.w800,
           fontSize: 13,
         ),

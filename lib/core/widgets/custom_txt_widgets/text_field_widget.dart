@@ -77,7 +77,7 @@ class TxtFieldWidget extends StatefulWidget {
 }
 
 class _TxtFieldWidgetState extends State<TxtFieldWidget> {
-  static const _kBorderColor = Color(0xFFE3E8E5);
+  static const _kBorderColor = Color(0xFFDCE5F0);
 
   FocusNode? _focusNode;
 

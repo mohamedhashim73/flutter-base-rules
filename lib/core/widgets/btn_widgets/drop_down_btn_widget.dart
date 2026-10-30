@@ -21,7 +21,7 @@ class DropDownBtnWidget<T> extends StatelessWidget {
   final bool reverseBackgroundIsOn;
   final String Function(T)? getLabel;
 
-  static const _kBorderColor = Color(0xFFE3E8E5);
+  static const _kBorderColor = Color(0xFFDCE5F0);
 
   DropDownBtnWidget({
     super.key,

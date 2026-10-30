@@ -1,29 +1,29 @@
 part of '../theme.dart';
 
 class AppGradients {
-  /// Deep green shell used by the desktop navigation rail.
+  /// Deep navy shell used by the desktop navigation rail.
   static const LinearGradient sidebar = LinearGradient(
     begin: AlignmentDirectional.topStart,
     end: AlignmentDirectional.bottomEnd,
-    colors: [Color(0xFF14382F), Color(0xFF0C2A23)],
+    colors: [Color(0xFF173A78), Color(0xFF0A1D43)],
   );
 
-  /// Emerald hero surface used for highlighted summaries.
+  /// Royal-blue hero surface used for highlighted summaries.
   static const LinearGradient brand = LinearGradient(
     begin: AlignmentDirectional.topStart,
     end: AlignmentDirectional.bottomEnd,
-    colors: [Color(0xFF0F8A5F), Color(0xFF0A6B4A)],
+    colors: [Color(0xFF3B82D0), Color(0xFF1C4F9A)],
   );
 
   static const LinearGradient gold = LinearGradient(
     begin: AlignmentDirectional.topStart,
     end: AlignmentDirectional.bottomEnd,
-    colors: [Color(0xFFD4A84B), Color(0xFFB8860B)],
+    colors: [Color(0xFF78A7E0), Color(0xFF3D68B2)],
   );
 
   static const LinearGradient page = LinearGradient(
     begin: AlignmentDirectional.topCenter,
     end: AlignmentDirectional.bottomCenter,
-    colors: [Color(0xFFF6F8F7), Color(0xFFF0F3F2)],
+    colors: [Color(0xFFF8FAFD), Color(0xFFF1F5FB)],
   );
 }

@@ -5,8 +5,8 @@ part of '../theme.dart';
 /// Surfaces rely on hairline borders first and a very soft shadow second, so
 /// cards never look heavy on top of the warm neutral background.
 class AppShadow {
-  static const Color _cardColor = Color(0x0F10213A);
-  static const Color _floatingColor = Color(0x1A10213A);
+  static const Color _cardColor = Color(0x0F163567);
+  static const Color _floatingColor = Color(0x1A163567);
 
   static List<BoxShadow> get card => const [
     BoxShadow(color: _cardColor, blurRadius: 18, offset: Offset(0, 6)),

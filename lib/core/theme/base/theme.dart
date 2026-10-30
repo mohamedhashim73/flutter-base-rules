@@ -59,7 +59,7 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
     primary: AppColors.kPrimary,
     primaryLight: AppColors.kPrimaryLight,
     accent: AppColors.kAccentLight,
-    primaryPale: const Color(0xFF173C30),
+    primaryPale: const Color(0xFF17315C),
     surface: AppColors.kSurfaceDark,
     surfaceMuted: AppColors.kSurfaceMutedDark,
     card: AppColors.kCardBackgroundDark,

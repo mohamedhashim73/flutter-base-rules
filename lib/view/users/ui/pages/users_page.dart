@@ -166,7 +166,8 @@ class _UsersPageState extends State<UsersPage> {
               _permissionCheckbox(
                 'إدارة حسابات الخزينة',
                 _cubit.treasuryAccountsManage,
-                (value) => setState(() => _cubit.treasuryAccountsManage = value),
+                (value) =>
+                    setState(() => _cubit.treasuryAccountsManage = value),
               ),
               _permissionCheckbox(
                 'إدارة تصنيفات المصروفات',
@@ -184,10 +185,7 @@ class _UsersPageState extends State<UsersPage> {
           const SizedBox(height: AppSpacing.xs),
           Align(
             alignment: AlignmentDirectional.centerStart,
-            child: BtnWidget(
-              title: 'إنشاء المستخدم',
-              onTap: _cubit.createUser,
-            ),
+            child: BtnWidget(title: 'إنشاء المستخدم', onTap: _cubit.createUser),
           ),
         ],
       ),
@@ -380,8 +378,7 @@ class _NotificationSettingsCardState extends State<_NotificationSettingsCard> {
   @override
   Widget build(BuildContext context) => AppSectionCard(
     title: 'إعدادات التذكير المالي',
-    subtitle:
-        'نافذة التذكير قبل الاستحقاق وحد الاعتماد للعمليات المالية.',
+    subtitle: 'نافذة التذكير قبل الاستحقاق وحد الاعتماد للعمليات المالية.',
     icon: Icons.notifications_active_outlined,
     tone: AppTone.gold,
     showDivider: true,

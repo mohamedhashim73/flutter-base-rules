@@ -20,15 +20,14 @@ class UsersCubit extends Cubit<UsersState> {
   bool recordsDelete = false;
 
   Future<void> load() async {
+    if (isClosed) return;
     emit(state.copyWith(status: RequestStatus.loading));
     try {
-      emit(
-        UsersState(
-          status: RequestStatus.success,
-          users: await _repository.listUsers(),
-        ),
-      );
+      final users = await _repository.listUsers();
+      if (isClosed) return;
+      emit(UsersState(status: RequestStatus.success, users: users));
     } catch (error) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           status: RequestStatus.failure,
@@ -39,6 +38,7 @@ class UsersCubit extends Cubit<UsersState> {
   }
 
   Future<void> createUser() async {
+    if (isClosed) return;
     if (formKey.currentState?.validate() != true) return;
     emit(state.copyWith(actionStatus: RequestStatus.loading));
     try {
@@ -60,6 +60,7 @@ class UsersCubit extends Cubit<UsersState> {
       displayNameController.clear();
       passwordController.clear();
       await load();
+      if (isClosed) return;
       emit(
         state.copyWith(
           actionStatus: RequestStatus.success,
@@ -67,6 +68,7 @@ class UsersCubit extends Cubit<UsersState> {
         ),
       );
     } catch (error) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           actionStatus: RequestStatus.failure,
@@ -81,6 +83,7 @@ class UsersCubit extends Cubit<UsersState> {
     required String role,
     required Map<String, bool> permissions,
   }) async {
+    if (isClosed) return;
     emit(state.copyWith(actionStatus: RequestStatus.loading));
     try {
       await _repository.updateAccess(
@@ -89,6 +92,7 @@ class UsersCubit extends Cubit<UsersState> {
         permissions: permissions,
       );
       await load();
+      if (isClosed) return;
       emit(
         state.copyWith(
           actionStatus: RequestStatus.success,
@@ -96,6 +100,7 @@ class UsersCubit extends Cubit<UsersState> {
         ),
       );
     } catch (error) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           actionStatus: RequestStatus.failure,

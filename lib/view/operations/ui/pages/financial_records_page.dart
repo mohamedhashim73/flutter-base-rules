@@ -59,10 +59,7 @@ class _FinancialRecordsPageState extends State<FinancialRecordsPage> {
       builder: (context, state) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: AppBreakpoints.of(context).sectionSpacing,
-        children: [
-          _summary(state),
-          ..._records(state),
-        ],
+        children: [_summary(state), ..._records(state)],
       ),
     ),
   );
@@ -187,30 +184,34 @@ class _FinancialRecordsPageState extends State<FinancialRecordsPage> {
         tone: AppTone.info,
       ),
       _recordGroup('آخر الحركات', Icons.swap_vert_rounded, [
-        ...state.movements.take(30).map(
-          (item) => AppRecordTile(
-            icon: item.type == 'inflow'
-                ? Icons.south_west_rounded
-                : Icons.north_east_rounded,
-            tone: item.type == 'inflow' ? AppTone.success : AppTone.danger,
-            title: item.note.isEmpty ? 'حركة خزينة' : item.note,
-            subtitle: item.accountId,
-            status: item.approvalStatus,
-            trailing: _amountText(item.amountMinor),
-            showDivider: false,
-          ),
-        ),
-        ...state.bankMovements.take(30).map(
-          (item) => AppRecordTile(
-            icon: Icons.account_balance_outlined,
-            tone: AppTone.info,
-            title: item.note.isEmpty ? 'حركة بنكية' : item.note,
-            subtitle: item.accountId,
-            status: item.approvalStatus,
-            trailing: _amountText(item.amountMinor),
-            showDivider: false,
-          ),
-        ),
+        ...state.movements
+            .take(30)
+            .map(
+              (item) => AppRecordTile(
+                icon: item.type == 'inflow'
+                    ? Icons.south_west_rounded
+                    : Icons.north_east_rounded,
+                tone: item.type == 'inflow' ? AppTone.success : AppTone.danger,
+                title: item.note.isEmpty ? 'حركة خزينة' : item.note,
+                subtitle: item.accountId,
+                status: item.approvalStatus,
+                trailing: _amountText(item.amountMinor),
+                showDivider: false,
+              ),
+            ),
+        ...state.bankMovements
+            .take(30)
+            .map(
+              (item) => AppRecordTile(
+                icon: Icons.account_balance_outlined,
+                tone: AppTone.info,
+                title: item.note.isEmpty ? 'حركة بنكية' : item.note,
+                subtitle: item.accountId,
+                status: item.approvalStatus,
+                trailing: _amountText(item.amountMinor),
+                showDivider: false,
+              ),
+            ),
       ], tone: AppTone.gold),
     ],
     FinancialRecordsSection.expenses => [
@@ -322,7 +323,8 @@ class _FinancialRecordsPageState extends State<FinancialRecordsPage> {
                     : AppTone.warning,
                 title: '${item.payee} · ${item.reference}',
                 subtitle: item.bankName,
-                status: item.status == 'issued' &&
+                status:
+                    item.status == 'issued' &&
                         item.dueDateMillis <
                             DateTime.now().millisecondsSinceEpoch
                     ? 'overdue'

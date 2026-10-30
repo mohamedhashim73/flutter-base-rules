@@ -8,6 +8,9 @@ class DeviceSecurityServiceImpl implements DeviceSecurityService {
   @override
   Future<DeviceSecurityStatus> check() async {
     try {
+      // Browser root/jailbreak detection is unsupported and `dart:io` platform
+      // checks throw on web, which previously produced a false hard block.
+      if (kIsWeb) return DeviceSecurityStatus.safe;
       if (kDebugMode) return DeviceSecurityStatus.safe;
       final detection = JailbreakRootDetection.instance;
       final issues = await detection.checkForIssues;

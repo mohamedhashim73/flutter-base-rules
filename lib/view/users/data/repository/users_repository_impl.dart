@@ -33,6 +33,10 @@ class UsersRepositoryImpl implements UsersRepository {
     if (organizationId == null || organizationId.isEmpty) {
       throw StateError('لا توجد مؤسسة مرتبطة بالحساب الحالي.');
     }
+    final existingUsers = await listUsers();
+    if (existingUsers.any((user) => _key(user.email) == emailKey)) {
+      throw StateError('هذا البريد مرتبط بعضوية موجودة بالفعل.');
+    }
     final now = DateTime.now().millisecondsSinceEpoch;
     final data = {
       'id': emailKey,
@@ -55,14 +59,14 @@ class UsersRepositoryImpl implements UsersRepository {
     final memberRef = _firebaseService
         .scopedCollectionRef(FirebaseCollections.members)
         .doc(emailKey);
-    await _firebaseService.runTransaction((transaction) async {
-      final existing = await transaction.get(directoryRef);
-      if (existing.exists &&
-          existing.data()?['organizationId'] != organizationId) {
-        throw StateError('هذا البريد مرتبط بمؤسسة أخرى.');
-      }
-      transaction.set(directoryRef, data);
-      transaction.set(memberRef, data);
+    await _firebaseService.runBatch((batch) {
+      // A batch keeps both membership documents atomic without causing the
+      // client transaction layer to perform an implicit read of the root
+      // directory. The scoped membership preflight above prevents replacing
+      // an existing member in this organization; the deployed rules still
+      // reject writes to a directory entry owned by another organization.
+      batch.set(directoryRef, data);
+      batch.set(memberRef, data);
     });
   }
 

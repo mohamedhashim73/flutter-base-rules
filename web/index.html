@@ -18,21 +18,163 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Credexa financial management platform.">
+  <meta name="theme-color" content="#0b1f33">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="base">
+  <meta name="apple-mobile-web-app-title" content="Credexa">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>base</title>
+  <title>Credexa</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, "Segoe UI", Tahoma, Arial, sans-serif;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: #f5f8fc;
+    }
+
+    #app-loading {
+      align-items: center;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(73, 183, 238, 0.16), transparent 30%),
+        radial-gradient(circle at 85% 85%, rgba(15, 82, 138, 0.18), transparent 35%),
+        #f5f8fc;
+      display: flex;
+      inset: 0;
+      justify-content: center;
+      min-height: 100vh;
+      opacity: 1;
+      position: fixed;
+      transition: opacity 280ms ease, visibility 280ms ease;
+      visibility: visible;
+      z-index: 9999;
+    }
+
+    #app-loading.is-hidden {
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    .loading-card {
+      align-items: center;
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(17, 54, 86, 0.08);
+      border-radius: 24px;
+      box-shadow: 0 24px 70px rgba(12, 46, 76, 0.12);
+      display: flex;
+      flex-direction: column;
+      max-width: calc(100vw - 48px);
+      padding: 40px 48px 34px;
+      text-align: center;
+      width: 280px;
+    }
+
+    .loading-logo {
+      align-items: center;
+      background: linear-gradient(145deg, #48b8ee, #0c568e);
+      border-radius: 18px;
+      box-shadow: 0 12px 24px rgba(12, 86, 142, 0.24);
+      color: #fff;
+      display: flex;
+      font-size: 28px;
+      font-weight: 800;
+      height: 72px;
+      justify-content: center;
+      letter-spacing: -2px;
+      margin-bottom: 22px;
+      width: 72px;
+    }
+
+    .brand-name {
+      color: #0b2d4b;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      margin-bottom: 8px;
+    }
+
+    .loading-message {
+      color: #688096;
+      font-size: 14px;
+      margin: 0 0 24px;
+    }
+
+    .loading-track {
+      background: #e2edf5;
+      border-radius: 999px;
+      height: 4px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .loading-progress {
+      animation: loading-progress 1.6s ease-in-out infinite;
+      background: linear-gradient(90deg, #49b7ee, #0c568e);
+      border-radius: inherit;
+      height: 100%;
+      transform-origin: left center;
+      width: 42%;
+    }
+
+    @keyframes loading-progress {
+      0% { transform: translateX(-115%) scaleX(0.7); }
+      50% { transform: translateX(75%) scaleX(1); }
+      100% { transform: translateX(250%) scaleX(0.7); }
+    }
+
+    @media (max-width: 420px) {
+      .loading-card {
+        padding: 32px 28px 28px;
+        width: 250px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .loading-progress {
+        animation: none;
+        transform: translateX(20%);
+      }
+
+      #app-loading {
+        transition: none;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div id="app-loading" role="status" aria-live="polite" dir="rtl">
+    <div class="loading-card">
+      <div class="loading-logo" aria-hidden="true">C</div>
+      <div class="brand-name" dir="ltr">CREDIXA</div>
+      <p class="loading-message">جارٍ تجهيز لوحة التحكم...</p>
+      <div class="loading-track" aria-hidden="true">
+        <div class="loading-progress"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var loader = document.getElementById('app-loading');
+      if (!loader) return;
+      loader.classList.add('is-hidden');
+      window.setTimeout(function () { loader.remove(); }, 350);
+    });
+  </script>
   <!--
     You can customize the "flutter_bootstrap.js" script.
     This is useful to provide a custom configuration to the Flutter loader

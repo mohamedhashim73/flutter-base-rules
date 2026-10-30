@@ -1,7 +1,3 @@
 part of '../enums.dart';
 
-enum MsgType {
-  info,
-  error,
-  success,
-}
+enum MsgType { info, error, success }

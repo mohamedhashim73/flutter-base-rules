@@ -448,3 +448,202 @@ login screen. The false jailbreak/security block is no longer shown. This is a
 launch/UI PASS only; authentication and the complete role matrix are not marked
 PASS without successful text entry and persisted post-login evidence.
 
+## Web role-matrix completion pass — 2026-10-29
+
+This pass continued in the existing Brave tab and existing local Flutter web
+server at `127.0.0.1:63479`. The target remained Firebase project
+`credixa-422a1`; all created and exercised records were scoped to the isolated
+test organizations. No production records were deleted, migrated, or
+overwritten.
+
+| Role/action | Result | Evidence or remaining gap |
+|---|---|---|
+| Admin-equivalent manager login, dashboard, RTL, refresh | PASS | `e2e_live_admin_20261026@example.com` loaded the isolated dashboard; visible cash total was EGP 157,005.00. |
+| Admin-equivalent user management | PASS | Users page loaded visibly and listed 7 isolated organization members with role controls. |
+| Admin-equivalent approval center | PASS | Approval Center loaded visibly with no pending operations after processing. |
+| Employee login, navigation, dashboard, logout/login | PASS | Employee session loaded the isolated organization, persisted after refresh, and returned to login after logout/reload. |
+| Employee treasury <= EGP 5,000 | PASS | Visible UI created the isolated EGP 100 deposit and EGP 50 withdrawal; immediate toast and persisted approved movements were observed. |
+| Employee treasury > EGP 5,000 | PASS | Visible UI created large inflow/outflow requests; they remained pending and did not change the balance before manager review. |
+| Manager approve/reject and duplicate-click safety | PASS | Visible Approval Center processed the pending requests; persisted states were approved/rejected, rejected reason was stored, and the final balance was EGP 157,005.00 with no remaining pending requests. |
+| Employee approval/edit restriction and manager-only users page | PASS | Employee Approval Center had no actionable approvals, and Users showed the manager-only denial message. |
+| Settlement reviewer login and settlement list | PASS | Reviewer authenticated and loaded the isolated settlement/collection page. |
+| Settlement reviewer create/review/self-approval matrix | BLOCKED | No pending settlement was available. The visible manual-ID settlement form did not persist because the Firestore data source requires real existing purchase IDs; the credit-card page also remained blank in that reviewer session. No unsupported approval/rejection PASS is claimed. |
+| Other-organization login/isolation | PASS | Other-org dashboard, operations, audit, and approval pages showed no Credexa organization records; manager-only Users access was denied. |
+| Responsive role/page matrix | PARTIAL | Required responsive smoke coverage exists for core Operations/Reports; a complete every-action sweep across every role and page was not fully re-run. |
+
+The logout defect found during this pass was fixed in
+`lib/core/widgets/design_system/app_shell_widgets.dart`: sign-out no longer
+pushes a second login route above `AuthGate`; the auth stream now owns the
+root-route transition. This was rebuilt and the employee logout/login flow was
+retested.
+
+Engineering validation for this pass: `flutter test` PASS (9/9),
+`flutter build web --release` PASS, and `git diff --check` PASS. `flutter
+analyze` returned exit 1 only because it reported 26 info-level style/deprecation
+findings; no error- or warning-level diagnostics were reported. Emulator and
+Firestore Emulator validation remain **DEFERRED_EXTERNAL — Java 21 unavailable
+and Emulator excluded from this Web-only pass**.
+
+Overall owner-acceptance status remains **NO**: the reviewer settlement review
+matrix and the complete per-page/per-viewport action matrix are not fully
+verified, and the reviewer settlement creation path has a UI/backend contract
+mismatch.
+
+## Historical web acceptance closure before targeted retest — 2026-10-30 (superseded)
+
+The active Firebase project was verified in the Console as `credixa-422a1`.
+All test activity remained inside `E2E_TEST_Credexa_2026_10_24` and
+`E2E_TEST_OtherOrg_2026_10_24`; no production records were deleted or
+migrated, and no Functions, Hosting, Storage, billing, or Emulator resource
+was deployed.
+
+| Role/action | Status | Evidence / remaining gap |
+|---|---|---|
+| Employee <= EGP 5,000 treasury | PASS | Visible deposit and withdrawal executed immediately and persisted. |
+| Employee > EGP 5,000 treasury | PASS | Visible requests stayed pending and did not change balances before approval. |
+| Manager approval/rejection/idempotency | PASS | One operation was approved, another rejected with a reason, and repeated actions did not duplicate postings; cash persisted at EGP 157,005.00. |
+| Reviewer approval/rejection | PASS | `e2e_web_reviewer_20261030@example.com` approved EGP 175 and rejected EGP 125 with a reason. |
+| Reviewer self-approval | PASS | Exact error was `Bad state: لا يمكن لمنشئ التسوية اعتمادها.` and the settlement remained pending. |
+| Duplicate settlement source allocation | PASS | Exact error was `Bad state: معاملة الشراء مخصصة لتسوية أخرى.` with no duplicate posting. |
+| Other-organization isolation | PASS | Other-org views were scoped/empty and Credexa Users access was denied. |
+| Audit, Reports, XLSX, PDF, browser print | PASS | Audit and report totals persisted; XLSX passed `file`/`unzip -t`, PDF passed `file`/`pdfinfo`, and print preview opened. |
+| Operations/Reports responsive at 1440/1024/768/390/360 | PASS | Visible checks showed usable RTL desktop/mobile layouts with no RenderFlex overflow or functional console error after clearing stale logs. |
+| Users create | FAIL | Visible flow still returned `[cloud_firestore/permission-denied] Missing and insufficient permissions.`; rules were not weakened. |
+| Direct browser URL route | FAIL | `/#reports` and `/#/reports` produced a missing route-generator error; internal navigation works but deep-link routing is not implemented. |
+
+Code fixes in this closure covered the Credit Cards semantics blank page,
+empty-cache fallback reads, logout route overlay, and closed-Cubit async
+emissions in Credit Cards, Operations, and Users.
+
+Final validation: 9/9 Flutter tests passed; analyzer passed with no errors or
+warnings and 23 info-level findings; release Web build and `git diff --check`
+passed. Emulator status remains **DEFERRED_EXTERNAL — Java 21 unavailable and
+Emulator excluded from this Web-only pass**. Firebase CLI revalidation now
+requires `firebase login --reauth` because its local credential expired; the
+earlier Rules/Indexes deployment remains the recorded successful deployment.
+
+Historical answer at that point: **NO**. The targeted completion retest below
+supersedes these two findings.
+
+## Latest targeted web completion pass — 2026-10-30
+
+The two gaps above were reproduced, fixed, and retested through the existing
+browser sessions. Firebase Console was verified at project `credixa-422a1`;
+all new data remained in the isolated E2E organizations.
+
+| Role/action | Status | Evidence |
+|---|---|---|
+| Manager authentication and membership refresh | PASS | `e2e_web_manager_20261030@example.com` authenticated after its Auth UID, root directory record, and scoped manager membership were created. |
+| Manager Users create | PASS | The manager created `e2e_ui_created_20261030@example.com` from the visible Users form; the list changed from 9 to 10 members and showed the employee. |
+| Manager Users persistence | PASS | Browser refresh retained the manager session and the 10-member list. |
+| Direct `/#users` and `/#reports` routes | PASS | Both deep links resolved authenticated pages; Reports rendered directly at `/#reports`. |
+| Employee treasury threshold matrix | PASS | Immediate <=EGP 5,000 and pending >EGP 5,000 operations were exercised and persisted. |
+| Manager approval/rejection/idempotency | PASS | Approval and rejection states persisted with no duplicate postings. |
+| Reviewer settlement review/self-approval/allocation guard | PASS | Approve, reject reason, self-approval denial, and duplicate source-allocation denial were exercised. |
+| Other-organization isolation | PASS | Scoped empty data and protected manager-only routes were verified. |
+| Responsive and export acceptance | PASS | 1440/1024/768/390/360px checks and XLSX/PDF/print validation passed. |
+
+The user-membership fix uses a scoped duplicate preflight plus a Firestore
+batch; the route fix maps supported destinations through the authenticated auth
+and security gates. Temporary diagnostics were removed before validation.
+Test emails and generated temporary passwords are kept only in the ignored local
+`.env.e2e.local` file (mode 600); no password is recorded in tracked source or
+in this report. The file is a local credential store and does not prove that
+Firebase Auth passwords are synchronized until each account is logged in
+successfully.
+
+Current web-only result: all previously identified web-testable blockers are
+resolved. Emulator/rules-emulator verification remains
+**DEFERRED_EXTERNAL — Java 21 unavailable and Emulator excluded from this
+Web-only pass**.
+
+Credential-store verification: the ignored `.env.e2e.local` file contains five
+isolated email/password pairs, but a visible login attempt with the stored
+Admin pair returned `البريد الإلكتروني أو كلمة المرور غير صحيحة.`. The local
+passwords therefore must not be treated as synchronized Firebase credentials;
+an explicit Firebase Console reset/save and a fresh UI login are still
+required before the role matrix is re-run with these pairs.
+
+## Final credential recovery and web acceptance — 2026-10-30
+
+The credential recovery was completed. Firebase Console was used only for
+`credixa-422a1` and the two isolated E2E organizations. Generated passwords
+remain only in the ignored local `.env.e2e.local` file and are not reproduced
+in tracked documentation.
+
+| Role | Test email | Organization | Result |
+|---|---|---|---|
+| Admin-equivalent | `e2e_final_admin_20261030@example.com` | `E2E_TEST_Credexa_2026_10_24` | PASS: login, dashboard, Users, logout/re-login |
+| Manager | `e2e_final_manager_20261030@example.com` | `E2E_TEST_Credexa_2026_10_24` | PASS: approval, rejection, balance persistence |
+| Employee | `e2e_final_employee_20261030@example.com` | `E2E_TEST_Credexa_2026_10_24` | PASS: dashboard, Operations, restricted Users/approvals, logout/re-login |
+| Settlement reviewer | `e2e_final_reviewer_20261030@example.com` | `E2E_TEST_Credexa_2026_10_24` | PASS: reviewer dashboard, settlements/collections, approval empty state |
+| Other organization | `e2e_final_other_20261030@example.com` | `E2E_TEST_OtherOrg_2026_10_24` | PASS: isolated organization and protected Users route |
+
+The visible admin Users workflow created the final admin, manager, employee,
+and reviewer scoped member records; the persisted list reached 14 members and
+showed the expected role labels. The OtherOrg account retained a separate
+`membership_directory` record. No production business record was deleted,
+migrated, or overwritten.
+
+### Final web role/action matrix
+
+| Role/action | Status | Evidence |
+|---|---|---|
+| Admin login, dashboard, refresh, logout, re-login | PASS | Final-admin identity and isolated totals loaded; logout immediately returned to `AuthGatePage`. |
+| Admin Users list/create/roles | PASS | Four final scoped memberships were created through the visible Users form and survived refresh. |
+| Employee treasury <= EGP 5,000 | PASS | Visible isolated small deposit and withdrawal executed immediately. |
+| Employee treasury > EGP 5,000 | PASS | Large isolated operations stayed pending and did not change cash before review. |
+| Manager approve exactly once | PASS | Cash changed by exactly EGP 6,000 once; duplicate actions did not duplicate the posting. |
+| Manager reject with reason | PASS | Visible rejection reason persisted and the queue became empty. |
+| Employee Users/approval restriction | PASS | Users displayed the manager-only denial; Approval Center had no actionable approvals. |
+| Reviewer settlements/collections | PASS | Final reviewer loaded 5 settlements totaling EGP 490 and two confirmed requests. |
+| Reviewer approve/reject/self-approval/allocation guard | PASS | Isolated reviewer run approved EGP 175, rejected EGP 125 with a reason, denied self-approval, and denied duplicate source allocation. |
+| Other-org login/isolation | PASS | OtherOrg views contained no primary-org records and Users was denied. |
+| Direct Users/Reports routes | PASS | `/#users` and `/#reports` resolved through the authenticated route generator. |
+| Audit/notifications/reports/exports/print | PASS | Audit/notifications/reports loaded; XLSX passed `file`/`unzip -t`, PDF passed `file`/`pdfinfo`, and print preview opened. |
+| Responsive RTL checks | PASS | Operations/Reports were exercised at 1440, 1024, 768, 390, and 360px with no horizontal overflow. |
+
+### Engineering validation
+
+- `flutter test --no-pub`: PASS, 9/9 tests.
+- `flutter build web --release --no-pub`: PASS; `build/web` generated.
+- `git diff --check`: PASS.
+- `flutter analyze --no-pub`: exit 1 from 24 informational style/deprecation findings only; no errors or warnings.
+- Firestore Rules and Indexes were previously deployed successfully to
+  `credixa-422a1`; no Functions, Hosting, Storage, billing, or unrelated
+  Firebase resource was deployed.
+- Emulator: **DEFERRED_EXTERNAL — Java 21 unavailable and Emulator excluded
+  from this Web-only pass**. No emulator result is claimed.
+
+The web-testable acceptance scope is complete for the exercised modules and
+roles. The client-transaction architecture still requires the external
+Java-21 emulator/rules suite for server-side verification of cross-document
+invariants.
+
+## Catalog persistence and final validation closure — 2026-10-30
+
+Provider, brand, receiving-company, bank-account, expense-category, POS, and
+beneficiary edit paths were exercised through the running Web UI. Brand
+deactivation was visible after reload, then reactivation was saved and remained
+active after a second reload. Catalog reads now use an inclusive
+`updatedAtMillis` boundary so writes sharing the cache marker millisecond are
+not omitted from an immediate refresh. The beneficiary edit dialog uses its
+dedicated form key. No production data or security rule was changed.
+
+- `flutter test --no-pub`: PASS, 9/9.
+- `flutter build web --release --no-pub`: PASS.
+- `git diff --check`: PASS.
+- `flutter analyze --no-pub`: `PASS_WITH_INFO`; 24 info-only diagnostics, no
+  errors or warnings.
+- Emulator: **DEFERRED_EXTERNAL — Java 21 unavailable and Emulator excluded
+  from this Web-only pass**.
+
+The purchase-delete action was subsequently executed through the visible UI
+after explicit confirmation for the isolated test data. Two purchases
+(EGP 75 and EGP 125) were deleted; after browser reload the negative card
+balance reversed from EGP -1,015 to EGP -940 and then EGP -815, and the audit
+effect remained visible in the persisted ledger. No production record was
+deleted. Source inspection confirmed this is the only financial delete action
+exposed by the current application UI; other `person_remove` icons are section
+icons, not delete controls.
+

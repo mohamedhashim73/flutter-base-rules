@@ -51,9 +51,7 @@ class DataStateBuilderWidget extends StatelessWidget {
           } else {
             return Container(
               margin: marginOfEmptyOrError,
-              child: EmptyViewWidget(
-                isShorten: emptyErrorIsShorten,
-              ),
+              child: EmptyViewWidget(isShorten: emptyErrorIsShorten),
             );
           }
         } else {

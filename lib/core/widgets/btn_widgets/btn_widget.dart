@@ -17,11 +17,7 @@ class IconBtnWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Icon(
-        iconData,
-        size: size,
-        color: color ?? context.colors.primary,
-      ),
+      child: Icon(iconData, size: size, color: color ?? context.colors.primary),
     );
   }
 }
@@ -103,18 +99,16 @@ class BtnWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ?prefix,
-                    Flexible(
-                      child: Text(
-                        title ?? "",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: onTap == null
-                              ? colors.textSecondary
-                              : color ?? AppColors.kWhite,
-                          fontSize: txtSize ?? 13.5,
-                        ),
+                    Text(
+                      title ?? "",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: onTap == null
+                            ? colors.textSecondary
+                            : color ?? AppColors.kWhite,
+                        fontSize: txtSize ?? 13.5,
                       ),
                     ),
                     ?suffix,

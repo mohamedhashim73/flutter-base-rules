@@ -36,6 +36,12 @@ migrate_working_dir/
 # Symbolication related
 app.*.symbols
 
+# Local isolated E2E credentials (never commit)
+.env.e2e.local
+
+# Firebase CLI deployment cache
+.firebase/
+
 # Obfuscation related
 app.*.map.json
 

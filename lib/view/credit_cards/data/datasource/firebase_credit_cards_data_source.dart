@@ -27,9 +27,18 @@ class FirebaseCreditCardsDataSource implements CreditCardsDataSource {
     try {
       final data = await _firebaseService.getCollection(
         collectionName: collection,
-        query: lastSyncAt == null
+        // A sync marker without its corresponding cache is not a usable
+        // incremental-sync baseline. Fall back to a full read so a fresh
+        // page/session never renders Firestore data as an empty collection.
+        query: lastSyncAt == null || cached == null || cached.isEmpty
             ? null
-            : (ref) => ref.where('updatedAtMillis', isGreaterThan: lastSyncAt),
+            // A write can legitimately share the same millisecond as the
+            // cache marker. Include the boundary value so an immediate
+            // refresh cannot resurrect the stale cached document.
+            : (ref) => ref.where(
+                'updatedAtMillis',
+                isGreaterThanOrEqualTo: lastSyncAt,
+              ),
       );
       final merged = <String, Map<String, dynamic>>{
         for (final item
@@ -53,7 +62,7 @@ class FirebaseCreditCardsDataSource implements CreditCardsDataSource {
       );
       return result.where((item) => item['isDeleted'] != true).toList();
     } catch (_) {
-      if (cached != null) {
+      if (cached != null && cached.isNotEmpty) {
         return cached.where((item) => item['isDeleted'] != true).toList();
       }
       rethrow;
@@ -203,18 +212,18 @@ class FirebaseCreditCardsDataSource implements CreditCardsDataSource {
     int depositDelta = 0,
     int purchaseDelta = 0,
   }) {
-    final openingBalance = existing != null &&
-            existing.containsKey('openingBalanceMinor')
+    final openingBalance =
+        existing != null && existing.containsKey('openingBalanceMinor')
         ? _number(existing['openingBalanceMinor'])
         : _number(card['availableBalanceMinor']);
-    final effectiveLimit = existing != null &&
-            existing.containsKey('effectiveLimitMinor')
+    final effectiveLimit =
+        existing != null && existing.containsKey('effectiveLimitMinor')
         ? _number(existing['effectiveLimitMinor'])
         : _number(card['nextCreditLimitMinor']) > 0
         ? _number(card['nextCreditLimitMinor'])
         : _number(card['creditLimitMinor']);
-    final openingDebt = existing != null &&
-            existing.containsKey('openingDebtMinor')
+    final openingDebt =
+        existing != null && existing.containsKey('openingDebtMinor')
         ? _number(existing['openingDebtMinor'])
         : (effectiveLimit - openingBalance).clamp(0, 1 << 62).toInt();
     final qualifyingDeposits =
@@ -599,13 +608,17 @@ class FirebaseCreditCardsDataSource implements CreditCardsDataSource {
       if (purchaseSnapshot.exists) return;
       final card = cardSnapshot.data();
       final brand = brandSnapshot.data();
-      if (!cardSnapshot.exists || card == null)
+      if (!cardSnapshot.exists || card == null) {
         throw StateError('Credit card was not found.');
-      if (!brandSnapshot.exists || brand == null || !_boolean(brand['active'])) {
+      }
+      if (!brandSnapshot.exists ||
+          brand == null ||
+          !_boolean(brand['active'])) {
         throw StateError('The selected brand is not active.');
       }
-      if (!_boolean(card['active']))
+      if (!_boolean(card['active'])) {
         throw StateError('The credit card is inactive.');
+      }
       final commissionBps = _number(brand['commissionBps']);
       if (commissionBps < 0 || commissionBps > 10000) {
         throw StateError('The brand commission is invalid.');
@@ -703,8 +716,9 @@ class FirebaseCreditCardsDataSource implements CreditCardsDataSource {
     if (amountMinor <= 0) throw StateError('Purchase amount must be positive.');
     await _assertPurchaseNotSettled(purchaseId);
     final purchase = await _purchase(purchaseId);
-    if (purchase['isDeleted'] == true)
+    if (purchase['isDeleted'] == true) {
       throw StateError('A deleted purchase cannot be corrected.');
+    }
     final cardId = '${purchase['cardId'] ?? ''}';
     final cardRef = _firebaseService
         .scopedCollectionRef(FirebaseCollections.creditCards)

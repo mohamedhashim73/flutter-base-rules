@@ -7,9 +7,6 @@ class LoadingViewWidget extends StatelessWidget {
   const LoadingViewWidget({super.key, this.message, this.color, this.size});
 
   @override
-  Widget build(BuildContext context) => AppLoadingState(
-    message: message,
-    compact: size != null,
-    color: color,
-  );
+  Widget build(BuildContext context) =>
+      AppLoadingState(message: message, compact: size != null, color: color);
 }

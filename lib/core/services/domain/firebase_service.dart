@@ -88,4 +88,10 @@ class FirebaseService {
   ) {
     return _firestore.runTransaction(action);
   }
+
+  Future<void> runBatch(void Function(WriteBatch batch) action) {
+    final batch = _firestore.batch();
+    action(batch);
+    return batch.commit();
+  }
 }

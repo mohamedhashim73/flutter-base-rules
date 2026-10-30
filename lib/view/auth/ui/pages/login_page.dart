@@ -20,10 +20,7 @@ class LoginPage extends StatelessWidget {
         bloc: cubit,
         listener: (context, state) {
           if (state.status == RequestStatus.failure && state.message != null) {
-            AppToast.showToast(
-              message: state.message!,
-              type: MsgType.error,
-            );
+            AppToast.showToast(message: state.message!, type: MsgType.error);
           }
         },
         child: Row(
@@ -143,10 +140,7 @@ class _AuthBrandPanel extends StatelessWidget {
           const Spacer(),
           const Text(
             '© كريديكسا — إدارة مالية مؤسسية',
-            style: TextStyle(
-              color: Color(0xFF9DBAAE),
-              fontSize: 11,
-            ),
+            style: TextStyle(color: Color(0xFF9DBAAE), fontSize: 11),
           ),
         ],
       ),
@@ -203,9 +197,7 @@ class _LoginFormWidget extends StatelessWidget {
         return AppSurface(
           shadow: AppShadow.card,
           padding: EdgeInsets.all(
-            AppBreakpoints.isCompact(context)
-                ? AppSpacing.lg
-                : AppSpacing.xxl,
+            AppBreakpoints.isCompact(context) ? AppSpacing.lg : AppSpacing.xxl,
           ),
           child: Form(
             key: cubit.formKey,

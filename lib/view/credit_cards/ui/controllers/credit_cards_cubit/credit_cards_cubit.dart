@@ -65,30 +65,34 @@ class CreditCardsCubit extends Cubit<CreditCardsState> {
   }
 
   Future<void> load() async {
+    if (isClosed) return;
     emit(state.copyWith(status: RequestStatus.loading));
     try {
-      final cards = await _repository.getCards();
-      final providers = await _repository.getProviders();
-      final brands = await _repository.getBrands();
-      final bankAccounts = await _repository.getBankAccounts();
-      final receivingCompanies = await _repository.getReceivingCompanies();
-      final posMachines = await _repository.getPosMachines();
+      // Render the page as soon as the card/catalog shell is available. A
+      // slow or temporarily unavailable ledger collection must not leave the
+      // whole screen in an indefinite loading state.
+      final cards = await _repository.getCards().timeout(
+        const Duration(seconds: 15),
+      );
+      final catalog = await Future.wait<Object>([
+        _readList(_repository.getProviders()),
+        _readList(_repository.getBrands()),
+        _readList(_repository.getBankAccounts()),
+        _readList(_repository.getReceivingCompanies()),
+        _readList(_repository.getPosMachines()),
+      ]);
+      final providers = catalog[0] as List<PaymentProviderModel>;
+      final brands = catalog[1] as List<BrandModel>;
+      final bankAccounts = catalog[2] as List<BankAccountModel>;
+      final receivingCompanies = catalog[3] as List<ReceivingCompanyModel>;
+      final posMachines = catalog[4] as List<PosMachineModel>;
       final selected = state.selectedCard == null
           ? (cards.isEmpty ? null : cards.first)
           : cards
                 .where((item) => item.id == state.selectedCard!.id)
                 .firstOrNull;
-      final purchases = selected == null
-          ? <CreditPurchaseModel>[]
-          : await _repository.getPurchases(selected.id);
-      final deposits = selected == null
-          ? <CreditDepositModel>[]
-          : await _repository.getDeposits(selected.id);
-      final periods = selected == null
-          ? <CreditPeriodModel>[]
-          : await _repository.getPeriods(selected.id);
-      final allPurchases = await _repository.getAllPurchases();
-      final allDeposits = await _repository.getAllDeposits();
+
+      if (isClosed) return;
       emit(
         CreditCardsState(
           status: RequestStatus.success,
@@ -96,24 +100,49 @@ class CreditCardsCubit extends Cubit<CreditCardsState> {
           providers: providers,
           brands: brands,
           selectedCard: selected,
-          purchases: purchases,
-          deposits: deposits,
-          allDeposits: allDeposits,
-          periods: periods,
-          allPurchases: allPurchases,
           bankAccounts: bankAccounts,
           receivingCompanies: receivingCompanies,
           posMachines: posMachines,
+        ),
+      );
+
+      if (selected == null || isClosed) return;
+      final details = await Future.wait<Object>([
+        _readList(_repository.getPurchases(selected.id)),
+        _readList(_repository.getDeposits(selected.id)),
+        _readList(_repository.getPeriods(selected.id)),
+        _readList(_repository.getAllPurchases()),
+        _readList(_repository.getAllDeposits()),
+      ]);
+      if (isClosed) return;
+      final purchases = details[0] as List<CreditPurchaseModel>;
+      emit(
+        state.copyWith(
+          status: RequestStatus.success,
+          purchases: purchases,
+          deposits: details[1] as List<CreditDepositModel>,
+          periods: details[2] as List<CreditPeriodModel>,
+          allPurchases: details[3] as List<CreditPurchaseModel>,
+          allDeposits: details[4] as List<CreditDepositModel>,
           brandUsageSummaries: _usageSummaries(purchases, brands),
         ),
       );
     } catch (error) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           status: RequestStatus.failure,
           message: _friendlyError(error),
         ),
       );
+    }
+  }
+
+  Future<List<T>> _readList<T>(Future<List<T>> request) async {
+    try {
+      return await request.timeout(const Duration(seconds: 15));
+    } catch (_) {
+      return <T>[];
     }
   }
 
@@ -133,6 +162,7 @@ class CreditCardsCubit extends Cubit<CreditCardsState> {
       final purchases = await _repository.getPurchases(id);
       final deposits = await _repository.getDeposits(id);
       final periods = await _repository.getPeriods(id);
+      if (isClosed) return;
       emit(
         state.copyWith(
           purchases: purchases,
@@ -143,6 +173,7 @@ class CreditCardsCubit extends Cubit<CreditCardsState> {
         ),
       );
     } catch (error) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           status: RequestStatus.failure,
@@ -652,20 +683,25 @@ class CreditCardsCubit extends Cubit<CreditCardsState> {
     Future<void> Function() action,
     String successMessage,
   ) async {
+    if (isClosed) return false;
     _emitAction(RequestStatus.loading, null);
     try {
       await action();
+      if (isClosed) return false;
       await sl<FirebaseCacheService>().clearCurrentScope();
       await load();
+      if (isClosed) return false;
       _emitAction(RequestStatus.success, successMessage);
       return true;
     } catch (error) {
+      if (isClosed) return false;
       _emitAction(RequestStatus.failure, _friendlyError(error));
       return false;
     }
   }
 
   void _emitAction(RequestStatus status, String? message) {
+    if (isClosed) return;
     emit(state.copyWith(actionStatus: status, actionMessage: message));
   }
 

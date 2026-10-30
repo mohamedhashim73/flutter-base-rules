@@ -184,7 +184,7 @@ class AppSpacing {
 
 /// Structural measurements shared by the adaptive shell.
 class AppSizes {
-  static const double sidebarWidth = 268;
+  static const double sidebarWidth = 250;
   static const double sidebarRailWidth = 88;
   static const double topBarHeight = 64;
   static const double maxContentWidth = 1480;
@@ -192,4 +192,3 @@ class AppSizes {
   static const double compactControlHeight = 42;
   static const double avatarSize = 36;
 }
-

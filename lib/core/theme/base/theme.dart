@@ -348,14 +348,17 @@ class AppTheme {
 
   static TextTheme textThemeData({required bool isDarkMode}) {
     final primary = isDarkMode ? AppColors.kMainTxtDark : AppColors.kMainTxt;
-    final secondary = isDarkMode ? AppColors.kSecondaryDark : AppColors.kSecondary;
-    TextStyle style(double size, FontWeight weight, [Color? color]) => TextStyle(
-      color: color ?? primary,
-      fontSize: size,
-      fontWeight: weight,
-      fontFamily: AppFonts.main,
-      height: 1.45,
-    );
+    final secondary = isDarkMode
+        ? AppColors.kSecondaryDark
+        : AppColors.kSecondary;
+    TextStyle style(double size, FontWeight weight, [Color? color]) =>
+        TextStyle(
+          color: color ?? primary,
+          fontSize: size,
+          fontWeight: weight,
+          fontFamily: AppFonts.main,
+          height: 1.45,
+        );
     return TextTheme(
       displayLarge: style(34, FontWeight.w700),
       displayMedium: style(30, FontWeight.w700),

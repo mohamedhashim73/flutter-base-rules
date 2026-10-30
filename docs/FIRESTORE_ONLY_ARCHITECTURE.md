@@ -244,3 +244,146 @@ After the security-gate change, the iPhone 17 Pro simulator launched the app
 successfully and displayed the Credexa login screen. This confirms the
 Firestore-only client can start on the test simulator; it does not claim that
 authentication or financial flows were completed.
+
+## Web role-matrix completion pass — 2026-10-29
+
+The existing local Web session used Firebase project `credixa-422a1` and only
+the isolated test organizations. The pass did not deploy Functions, Hosting,
+Storage, billing changes, or emulator resources.
+
+The live browser verified authenticated Admin-equivalent, Employee, Manager,
+Settlement Reviewer, and Other-Organization sessions. Employee small treasury
+operations executed immediately; employee operations above EGP 5,000 remained
+pending until manager review; manager approval/rejection was idempotent and the
+persisted isolated treasury total ended at EGP 157,005.00. Other-organization
+routes returned only that organization's empty/zero-scoped data and protected
+manager-only pages.
+
+The reviewer settlement approval matrix is not upgraded to PASS. The visible
+settlement form describes manual transaction IDs as optional, while
+`FirebaseOperationsDataSource.createSettlement` requires real existing purchase
+IDs and validates their brand/allocation. As a result, the reviewer-created
+isolated settlement did not persist, no pending reviewer settlement existed to
+approve or reject, and the reviewer credit-card page was blank in that browser
+session. This is a client/data-source contract gap, not evidence that the
+Firestore Rules were bypassed.
+
+The logout route overlay defect was fixed by allowing `AuthGate` to own the
+post-sign-out route rather than pushing a second login page. Engineering
+validation passed for tests, Web release build, and diff whitespace; analyzer
+reported only 26 informational findings. Emulator status is
+**DEFERRED_EXTERNAL — Java 21 unavailable and Emulator excluded from this
+Web-only pass**. The client-transaction architecture and its limitation remain
+unchanged: Firestore Rules enforce tenant/role/state boundaries but cannot by
+themselves prove every cross-document accounting invariant against a malicious
+client.
+
+## Historical web acceptance evidence before targeted retest — 2026-10-30 (superseded)
+
+The Firestore-only architecture was exercised against `credixa-422a1` using
+only the isolated E2E organizations. The visible browser pass verified
+immediate versus pending employee treasury operations, manager approval and
+rejection idempotency, settlement-reviewer approval/rejection,
+self-approval denial, duplicate purchase allocation denial, audit persistence,
+reports, exports, print preview, and responsive Operations/Reports rendering at
+1440/1024/768/390/360px.
+
+At that point, two application gaps remained: Users creation still received Firestore
+`permission-denied` under the deployed rules, and the Navigator-only web shell
+does not support direct browser deep links such as `/#reports`, although
+internal AppNavigation works. These are web-testable limitations, so the
+application is not declared fully complete and the rules were not weakened.
+
+Latest validation passed 9 Flutter tests, analyzer with no errors or warnings
+(23 informational findings), the release Web build, and diff whitespace
+validation. No Functions, Hosting, Storage, billing, service account, or
+Emulator resource was introduced. Emulator status remains
+**DEFERRED_EXTERNAL — Java 21 unavailable and Emulator excluded from this
+Web-only pass**. Local Firebase CLI revalidation is awaiting
+`firebase login --reauth` because its credential expired; the earlier Rules and
+Indexes deployment remains the recorded deployment for the target project.
+
+## Targeted web completion retest — 2026-10-30
+
+The prior Users-create permission failure was caused by the client transaction
+implicitly reading the root membership directory while the deployed rules only
+allow the scoped manager read path. The repository now performs a scoped
+duplicate preflight and commits the root directory plus scoped member record in
+one Firestore batch. This preserves tenant authorization and avoids weakening
+the rules. The visible manager flow created an isolated employee membership and
+the result survived refresh.
+
+The Web shell now maps supported `AppDestination` values in
+`onGenerateRoute`/`onUnknownRoute` and wraps direct authenticated pages with the
+same security/auth gates as internal navigation. Direct `/#users` and
+`/#reports` were both verified in the browser.
+
+No Functions, callable Functions, Storage, Hosting, service-account
+credentials, or billing changes were introduced. Emulator verification remains
+**DEFERRED_EXTERNAL — Java 21 unavailable and Emulator excluded from this
+Web-only pass**.
+
+The isolated E2E email identifiers and generated temporary passwords are stored
+only in the ignored local `.env.e2e.local` file (mode 600). They are not part of
+the Flutter Web bundle, tracked source, or production data. Firebase Auth
+synchronization must still be verified by a successful UI login for each
+account. The first visible attempt with the stored isolated Admin pair was
+rejected by Firebase as an invalid email/password pair, so the local file is
+currently a credential target, not evidence of synchronized Auth state.
+
+## Final web-only acceptance closure — 2026-10-30
+
+The credential-recovery gap is superseded. The five isolated Auth accounts were
+used through the running Flutter Web app against `credixa-422a1`; passwords
+remain only in `.env.e2e.local`, which is ignored and local-only. The final
+admin, manager, employee, and reviewer scoped member records were created
+through the visible Users workflow in `E2E_TEST_Credexa_2026_10_24`. The other
+account remained isolated through its separate `membership_directory`
+organization record.
+
+Visible acceptance evidence includes employee immediate/pending treasury
+thresholds; manager one-time approval, rejection reason, and balance
+persistence; reviewer settlement/collection visibility plus the previously
+verified approve/reject/self-approval and duplicate-allocation guards; OtherOrg
+tenant isolation and manager-only denial; authenticated `/#users` and
+`/#reports` routes; audit, notifications, reports, XLSX, PDF, browser print;
+and the required desktop/tablet/mobile RTL viewport checks.
+
+The logout defect is fixed: Firebase auth state now recreates `AuthGate`
+immediately instead of leaving a stale login page above the application.
+Engineering results are 9/9 Flutter tests, successful Web release build, and
+clean `git diff --check`. Analyzer exit 1 is limited to 24 informational
+style/deprecation diagnostics and contains no error or warning diagnostics.
+Firestore Rules and indexes remain deployed to `credixa-422a1`; no Functions,
+Hosting, Storage, billing, service-account credential, or production-data
+operation was introduced.
+
+Emulator status remains exactly **DEFERRED_EXTERNAL — Java 21 unavailable and
+Emulator excluded from this Web-only pass**. This is the only intentionally
+deferred external validation item; it is not represented as an emulator pass.
+
+## Web-only persistence verification closure — 2026-10-30
+
+The Firestore-only architecture was revalidated through the existing Web
+client. Catalog mutations continue through the scoped organization repository
+and data-source layers; no callable Function, Storage path, service-account
+credential, or rule relaxation was introduced. The incremental reader now
+queries with `updatedAtMillis >= lastSyncAt`, preserving writes that occur in
+the same millisecond as the local cache marker.
+
+Visible UI verification covered provider, brand, POS, receiving-company,
+bank-account, expense-category, and beneficiary edits. Brand deactivation and
+reactivation survived full browser reloads, proving persisted state rather
+than only widget state. Flutter tests (9/9), the release Web build, and diff
+whitespace validation pass; analyzer has only 24 info-level diagnostics.
+Emulator status remains **DEFERRED_EXTERNAL — Java 21 unavailable and Emulator
+excluded from this Web-only pass**.
+
+## Delete persistence verification — 2026-10-30
+
+The only financial delete action exposed by the current Web UI is purchase
+deletion. It was exercised twice with the visible confirmation dialog against
+isolated E2E records. The resulting soft-delete/audit path persisted through a
+full browser reload and reversed the card balance exactly. No production
+document was deleted and no alternate direct Firestore write was used to
+simulate the workflow.

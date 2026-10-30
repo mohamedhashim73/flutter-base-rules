@@ -68,6 +68,7 @@ class AppRoutes {
 
   // Nav to pages
   static late VoidCallback goToLogin;
+  static late VoidCallback goToAuthGate;
 }
 
 class _StackObserver extends NavigatorObserver {

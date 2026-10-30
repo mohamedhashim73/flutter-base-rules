@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:base/core/enums/enums.dart';
 import 'package:base/core/extensions/extensions.dart';
 import 'package:base/core/navigation/app_navigation.dart';
-import 'package:base/core/routes/routes.dart';
 import 'package:base/core/services/services.dart';
 import 'package:base/core/theme/theme.dart';
 import 'package:base/core/utils/finance_money.dart';
@@ -296,28 +295,13 @@ class _ApprovalCenterPageState extends State<ApprovalCenterPage> {
   }
 
   Future<void> _rejectSettlement(String settlementId) async {
-    final controller = TextEditingController();
-    final reason = await showDialog<String>(
+    final reason = await showAppPromptDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('سبب رفض التسوية'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          maxLines: 3,
-          decoration: const InputDecoration(labelText: 'السبب'),
-        ),
-        actions: [
-          TextButton(onPressed: AppRoutes.pop, child: const Text('إلغاء')),
-          FilledButton(
-            onPressed: () => AppRoutes.pop(controller.text.trim()),
-            child: const Text('رفض'),
-          ),
-        ],
-      ),
+      title: 'سبب رفض التسوية',
+      label: 'السبب',
+      confirmText: 'رفض',
     );
-    controller.dispose();
-    if (reason == null || reason.isEmpty) return;
+    if (reason == null) return;
     _cubit.settlementRejectionReasonController.text = reason;
     await _run(() => _cubit.rejectSettlement(settlementId));
   }
@@ -342,53 +326,24 @@ class _ApprovalCenterPageState extends State<ApprovalCenterPage> {
     );
   }
 
-  Future<String?> _reasonDialog(String title) async {
-    final controller = TextEditingController();
-    final reason = await showDialog<String>(
+  Future<String?> _reasonDialog(String title) {
+    return showAppPromptDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          maxLines: 3,
-          decoration: const InputDecoration(labelText: 'السبب'),
-        ),
-        actions: [
-          TextButton(onPressed: AppRoutes.pop, child: const Text('إلغاء')),
-          FilledButton(
-            onPressed: () => AppRoutes.pop(controller.text.trim()),
-            child: const Text('رفض'),
-          ),
-        ],
-      ),
+      title: title,
+      label: 'السبب',
+      confirmText: 'رفض',
     );
-    controller.dispose();
-    return reason == null || reason.isEmpty ? null : reason;
   }
 
   Future<void> _confirmCollection(String requestId) async {
-    final controller = TextEditingController();
-    final reference = await showDialog<String>(
+    final reference = await showAppPromptDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('تأكيد التحصيل البنكي'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(labelText: 'مرجع التحويل'),
-        ),
-        actions: [
-          TextButton(onPressed: AppRoutes.pop, child: const Text('إلغاء')),
-          FilledButton(
-            onPressed: () => AppRoutes.pop(controller.text.trim()),
-            child: const Text('تأكيد'),
-          ),
-        ],
-      ),
+      title: 'تأكيد التحصيل البنكي',
+      label: 'مرجع التحويل',
+      confirmText: 'تأكيد',
+      multiline: false,
     );
-    controller.dispose();
-    if (reference == null || reference.isEmpty) return;
+    if (reference == null) return;
     _cubit.selectedCollectionRequestId = requestId;
     _cubit.collectionConfirmationController.text = reference;
     await _run(_cubit.confirmCollectionRequest);

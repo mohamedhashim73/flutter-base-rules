@@ -17,7 +17,6 @@ import 'package:base/model/domain/payment_provider_model.dart';
 import 'package:base/model/domain/bank_account_model.dart';
 import 'package:base/model/domain/receiving_company_model.dart';
 import 'package:base/model/domain/pos_machine_model.dart';
-import 'package:base/view/credit_cards/data/models/credit_cards_response_model.dart';
 import 'package:base/view/credit_cards/ui/controllers/credit_cards_cubit/credit_cards_cubit.dart';
 import 'package:base/view/credit_cards/ui/controllers/credit_cards_cubit/credit_cards_states.dart';
 
@@ -97,14 +96,29 @@ class _CreditCardsPageState extends State<CreditCardsPage> {
                       ? Icons.error_outline_rounded
                       : Icons.check_circle_outline_rounded,
                 ),
-              DataStateBuilderWidget(
-                dataState: DataState(
-                  state: state,
-                  response: CreditCardsResponseModel(state.cards),
-                ),
-                onFailure: _cubit.load,
-                widget: _CreditCardsContentWidget(cubit: _cubit, state: state),
-              ),
+              if (state.status == RequestStatus.loading && state.cards.isEmpty)
+                const AppStateView(
+                  title: 'جاري تحميل بطاقات الائتمان',
+                  message: 'يتم تحميل البطاقات والكتالوج المالي الآن.',
+                  icon: Icons.credit_card_outlined,
+                  tone: AppTone.info,
+                  compact: true,
+                )
+              else if (state.status == RequestStatus.failure &&
+                  state.cards.isEmpty)
+                AppStateView(
+                  title: 'تعذر تحميل بطاقات الائتمان',
+                  message: state.message,
+                  icon: Icons.error_outline_rounded,
+                  tone: AppTone.danger,
+                  compact: true,
+                  action: BtnWidget(
+                    title: 'إعادة المحاولة',
+                    onTap: _cubit.load,
+                  ),
+                )
+              else
+                _CreditCardsContentWidget(cubit: _cubit, state: state),
               _CatalogManagementWidget(cubit: _cubit),
             ],
           ),
@@ -285,7 +299,7 @@ class _CatalogManagementWidget extends StatelessWidget {
     return showAdaptiveDialogWidget(
       title: 'تعديل مزود الدفع',
       okTxt: 'حفظ التعديل',
-      content: _ProviderEditForm(cubit: cubit),
+      content: _ProviderEditForm(cubit: cubit, provider: provider),
       beforeOk: () => cubit.providerFormKey.currentState?.validate() == true,
       okTap: cubit.updateProvider,
     );
@@ -296,7 +310,7 @@ class _CatalogManagementWidget extends StatelessWidget {
     return showAdaptiveDialogWidget(
       title: 'تعديل العلامة التجارية',
       okTxt: 'حفظ التعديل',
-      content: _BrandEditForm(cubit: cubit),
+      content: _BrandEditForm(cubit: cubit, brand: brand),
       beforeOk: () => cubit.brandFormKey.currentState?.validate() == true,
       okTap: cubit.updateBrand,
     );
@@ -538,14 +552,27 @@ class _BrandFormWidget extends StatelessWidget {
   }
 }
 
-class _ProviderEditForm extends StatelessWidget {
-  const _ProviderEditForm({required this.cubit});
+class _ProviderEditForm extends StatefulWidget {
+  const _ProviderEditForm({required this.cubit, required this.provider});
 
   final CreditCardsCubit cubit;
+  final PaymentProviderModel provider;
+
+  @override
+  State<_ProviderEditForm> createState() => _ProviderEditFormState();
+}
+
+class _ProviderEditFormState extends State<_ProviderEditForm> {
+  @override
+  void initState() {
+    super.initState();
+    widget.cubit.providerNameController.text = widget.provider.name;
+    widget.cubit.providerActive = widget.provider.active;
+  }
 
   @override
   Widget build(BuildContext context) => Form(
-    key: cubit.providerFormKey,
+    key: widget.cubit.providerFormKey,
     child: Column(
       mainAxisSize: MainAxisSize.min,
       spacing: AppSpacing.sm,
@@ -553,27 +580,44 @@ class _ProviderEditForm extends StatelessWidget {
         TxtFieldWidget(
           label: 'اسم المزود',
           hint: 'اسم مزود الدفع',
-          controller: cubit.providerNameController,
+          controller: widget.cubit.providerNameController,
         ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: const Text('مزود نشط'),
-          value: cubit.providerActive,
-          onChanged: cubit.setProviderActive,
+          value: widget.cubit.providerActive,
+          onChanged: (value) {
+            setState(() => widget.cubit.setProviderActive(value));
+          },
         ),
       ],
     ),
   );
 }
 
-class _BrandEditForm extends StatelessWidget {
-  const _BrandEditForm({required this.cubit});
+class _BrandEditForm extends StatefulWidget {
+  const _BrandEditForm({required this.cubit, required this.brand});
 
   final CreditCardsCubit cubit;
+  final BrandModel brand;
+
+  @override
+  State<_BrandEditForm> createState() => _BrandEditFormState();
+}
+
+class _BrandEditFormState extends State<_BrandEditForm> {
+  @override
+  void initState() {
+    super.initState();
+    widget.cubit.brandNameController.text = widget.brand.name;
+    widget.cubit.commissionController.text = (widget.brand.commissionBps / 100)
+        .toString();
+    widget.cubit.brandActive = widget.brand.active;
+  }
 
   @override
   Widget build(BuildContext context) => Form(
-    key: cubit.brandFormKey,
+    key: widget.cubit.brandFormKey,
     child: Column(
       mainAxisSize: MainAxisSize.min,
       spacing: AppSpacing.sm,
@@ -581,20 +625,22 @@ class _BrandEditForm extends StatelessWidget {
         TxtFieldWidget(
           label: 'اسم العلامة',
           hint: 'اسم العلامة التجارية',
-          controller: cubit.brandNameController,
+          controller: widget.cubit.brandNameController,
         ),
         TxtFieldWidget(
           label: 'نسبة العمولة %',
           hint: '2',
-          controller: cubit.commissionController,
+          controller: widget.cubit.commissionController,
           isNum: true,
           textInputType: TextInputType.number,
         ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: const Text('علامة نشطة'),
-          value: cubit.brandActive,
-          onChanged: cubit.setBrandActive,
+          value: widget.cubit.brandActive,
+          onChanged: (value) {
+            setState(() => widget.cubit.setBrandActive(value));
+          },
         ),
       ],
     ),
@@ -805,8 +851,7 @@ class _CardListTileWidget extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppDesignRadius.control),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 160),
+        child: Container(
           padding: const EdgeInsets.all(AppSpacing.sm),
           decoration: BoxDecoration(
             color: selected ? colors.primaryPale : colors.surface,

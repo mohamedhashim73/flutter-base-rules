@@ -18,9 +18,7 @@ class LocalizationService {
 
   Future<void> loadJsonFile() async {
     if (jsonData != null) return;
-    String jsonSource = await rootBundle.loadString(
-      Assets.localizationJson,
-    );
+    String jsonSource = await rootBundle.loadString(Assets.localizationJson);
     jsonData = jsonDecode(jsonSource);
   }
 

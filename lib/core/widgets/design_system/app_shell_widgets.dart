@@ -46,15 +46,19 @@ class AppPageScaffold extends StatelessWidget {
       floatingActionButton: floatingActionButton,
       drawer: factor.isCompact
           ? Drawer(
-              width: AppSizes.sidebarWidth + 20,
+              width: AppSizes.sidebarWidth,
               backgroundColor: AppColors.kLandscapeSidebar,
               shape: const RoundedRectangleBorder(),
-              child: AppSidebar(
-                current: destination,
-                onNavigate: (next) {
-                  Navigator.of(context).pop();
-                  AppNavigation.go(next);
-                },
+              child: SafeArea(
+                right: false,
+                child: AppSidebar(
+                  current: destination,
+                  rounded: false,
+                  onNavigate: (next) {
+                    Navigator.of(context).pop();
+                    AppNavigation.go(next);
+                  },
+                ),
               ),
             )
           : null,
@@ -68,40 +72,53 @@ class AppPageScaffold extends StatelessWidget {
               AppNavigation.go(next);
             },
           );
+          final utilityActions = [
+            _NotificationButton(
+              unreadNotifications: unreadNotifications,
+              destination: destination,
+            ),
+            const _AccountMenu(),
+          ];
+          final pageBody = _PageBody(
+            title: title,
+            subtitle: subtitle,
+            actions: actions,
+            body: body,
+            onRefresh: onRefresh,
+            scrollable: scrollable,
+            maxWidth: maxWidth,
+            padding: padding ?? factor.pagePadding,
+            leading: leading,
+            utilityActions: factor.isCompact ? const [] : utilityActions,
+          );
           return SafeArea(
             bottom: false,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (!factor.isCompact) sidebar,
-                Expanded(
-                  child: Column(
+            child: factor.isCompact
+                ? Column(
                     children: [
                       AppTopBar(
                         destination: destination,
-                        onMenu: factor.isCompact
-                            ? () => Scaffold.of(shellContext).openDrawer()
-                            : null,
+                        onMenu: () => Scaffold.of(shellContext).openDrawer(),
                         unreadNotifications: unreadNotifications,
                       ),
-                      Expanded(
-                        child: _PageBody(
-                          title: title,
-                          subtitle: subtitle,
-                          actions: actions,
-                          body: body,
-                          onRefresh: onRefresh,
-                          scrollable: scrollable,
-                          maxWidth: maxWidth,
-                          padding: padding ?? factor.pagePadding,
-                          leading: leading,
+                      Expanded(child: pageBody),
+                    ],
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                          16,
+                          16,
+                          0,
+                          16,
                         ),
+                        child: sidebar,
                       ),
+                      Expanded(child: pageBody),
                     ],
                   ),
-                ),
-              ],
-            ),
           );
         },
       ),
@@ -120,6 +137,7 @@ class _PageBody extends StatelessWidget {
     required this.maxWidth,
     required this.padding,
     this.leading,
+    this.utilityActions = const [],
   });
 
   final String title;
@@ -131,6 +149,7 @@ class _PageBody extends StatelessWidget {
   final double maxWidth;
   final EdgeInsets padding;
   final Widget? leading;
+  final List<Widget> utilityActions;
 
   @override
   Widget build(BuildContext context) {
@@ -147,6 +166,7 @@ class _PageBody extends StatelessWidget {
                 subtitle: subtitle,
                 actions: actions,
                 leading: leading,
+                utilityActions: utilityActions,
               ),
               SizedBox(height: AppBreakpoints.of(context).sectionSpacing),
               body,
@@ -166,6 +186,9 @@ class _PageBody extends StatelessWidget {
 }
 
 /// Page title, description, and actions.
+///
+/// Rendered as a surface card so every screen opens with the same header
+/// rhythm as the reference web layout.
 class AppPageHeader extends StatelessWidget {
   const AppPageHeader({
     super.key,
@@ -173,12 +196,14 @@ class AppPageHeader extends StatelessWidget {
     this.subtitle,
     this.actions = const [],
     this.leading,
+    this.utilityActions = const [],
   });
 
   final String title;
   final String? subtitle;
   final List<Widget> actions;
   final Widget? leading;
+  final List<Widget> utilityActions;
 
   @override
   Widget build(BuildContext context) {
@@ -191,10 +216,12 @@ class AppPageHeader extends StatelessWidget {
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 4,
+            spacing: 3,
             children: [
               Text(
                 title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: context.textTheme.headlineSmall?.copyWith(
                   color: colors.onSurface,
                   fontWeight: FontWeight.w700,
@@ -204,6 +231,8 @@ class AppPageHeader extends StatelessWidget {
               if (subtitle != null && subtitle!.isNotEmpty)
                 Text(
                   subtitle!,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: context.textTheme.bodyMedium?.copyWith(
                     color: colors.textSecondary,
                     height: 1.5,
@@ -215,33 +244,64 @@ class AppPageHeader extends StatelessWidget {
       ],
     );
 
-    if (actions.isEmpty) return titleBlock;
+    final utilityRow = utilityActions.isEmpty
+        ? null
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: AppSpacing.xxs,
+            children: utilityActions,
+          );
+    final actionRow = actions.isEmpty
+        ? null
+        : Wrap(
+            spacing: AppSpacing.xs,
+            runSpacing: AppSpacing.xs,
+            alignment: WrapAlignment.end,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: actions,
+          );
 
-    final actionRow = Wrap(
-      spacing: AppSpacing.xs,
-      runSpacing: AppSpacing.xs,
-      alignment: WrapAlignment.end,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: actions,
-    );
-
-    if (factor.isCompact) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: AppSpacing.md,
-        children: [
-          titleBlock,
-          Align(alignment: AlignmentDirectional.centerStart, child: actionRow),
-        ],
-      );
-    }
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: AppSpacing.lg,
-      children: [
-        Expanded(child: titleBlock),
-        actionRow,
-      ],
+    return AppSurface(
+      shadow: AppShadow.soft,
+      padding: EdgeInsets.symmetric(
+        horizontal: factor.isCompact ? AppSpacing.md : AppSpacing.xl,
+        vertical: factor.isCompact ? AppSpacing.md : AppSpacing.lg,
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final stacked = factor.isCompact || constraints.maxWidth < 720;
+          if (stacked) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: AppSpacing.md,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: AppSpacing.sm,
+                  children: [
+                    Expanded(child: titleBlock),
+                    ?utilityRow,
+                  ],
+                ),
+                if (actionRow != null)
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: actionRow,
+                  ),
+              ],
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            spacing: AppSpacing.lg,
+            children: [
+              Expanded(child: titleBlock),
+              ?utilityRow,
+              ?actionRow,
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -262,7 +322,6 @@ class AppTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final email = appUserEmail();
     return Container(
       height: AppSizes.topBarHeight,
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
@@ -304,76 +363,121 @@ class AppTopBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.xxs),
-          PopupMenuButton<String>(
-            tooltip: 'حساب المستخدم',
-            offset: const Offset(0, 46),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppDesignRadius.control),
-            ),
-            onSelected: (value) {
-              if (value == 'profile') showAppProfileDialog(context);
-              if (value == 'logout') appSignOut();
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem<String>(
-                enabled: false,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      email,
-                      style: context.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(appUserRole(), style: context.textTheme.bodySmall),
-                  ],
-                ),
-              ),
-              const PopupMenuDivider(),
-              const PopupMenuItem<String>(
-                value: 'profile',
-                child: Row(
-                  spacing: 10,
-                  children: [Icon(Icons.person_outline), Text('الملف الشخصي')],
-                ),
-              ),
-              const PopupMenuItem<String>(
-                value: 'logout',
-                child: Row(
-                  spacing: 10,
-                  children: [Icon(Icons.logout_rounded), Text('تسجيل الخروج')],
-                ),
-              ),
-            ],
-            child: Row(
-              spacing: AppSpacing.xs,
+          const _AccountMenu(),
+        ],
+      ),
+    );
+  }
+}
+
+class _NotificationButton extends StatelessWidget {
+  const _NotificationButton({
+    required this.unreadNotifications,
+    this.destination,
+  });
+
+  final int unreadNotifications;
+  final AppDestination? destination;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return IconButton(
+      tooltip: 'مركز الإشعارات',
+      visualDensity: VisualDensity.compact,
+      onPressed: destination == AppDestination.notifications
+          ? null
+          : () => AppNavigation.go(AppDestination.notifications),
+      icon: Badge(
+        isLabelVisible: unreadNotifications > 0,
+        label: Text('$unreadNotifications'),
+        backgroundColor: colors.error,
+        child: const Icon(Icons.notifications_none_rounded),
+      ),
+    );
+  }
+}
+
+class _AccountMenu extends StatelessWidget {
+  const _AccountMenu();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final email = appUserEmail();
+    final expanded = AppBreakpoints.of(context).isExpanded;
+    return SizedBox(
+      width: expanded ? 64 : 34,
+      height: 34,
+      child: PopupMenuButton<String>(
+        tooltip: 'حساب المستخدم',
+        offset: const Offset(0, 46),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDesignRadius.control),
+        ),
+        onSelected: (value) {
+          if (value == 'profile') showAppProfileDialog(context);
+          if (value == 'logout') appSignOut();
+        },
+        itemBuilder: (context) => [
+          PopupMenuItem<String>(
+            enabled: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  radius: 17,
-                  backgroundColor: colors.primaryPale,
-                  child: Text(
-                    appUserInitial(email),
-                    style: TextStyle(
-                      color: colors.primary,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
-                    ),
+                Text(
+                  email,
+                  style: context.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                if (AppBreakpoints.of(context).isExpanded)
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(end: 4),
-                    child: Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      size: 18,
-                      color: colors.textSecondary,
-                    ),
-                  ),
+                Text(appUserRole(), style: context.textTheme.bodySmall),
               ],
             ),
           ),
+          const PopupMenuDivider(),
+          const PopupMenuItem<String>(
+            value: 'profile',
+            child: Row(
+              spacing: 10,
+              children: [Icon(Icons.person_outline), Text('الملف الشخصي')],
+            ),
+          ),
+          const PopupMenuItem<String>(
+            value: 'logout',
+            child: Row(
+              spacing: 10,
+              children: [Icon(Icons.logout_rounded), Text('تسجيل الخروج')],
+            ),
+          ),
         ],
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: AppSpacing.xs,
+          children: [
+            CircleAvatar(
+              radius: 17,
+              backgroundColor: colors.primaryPale,
+              child: Text(
+                appUserInitial(email),
+                style: TextStyle(
+                  color: colors.primary,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            if (expanded)
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 4),
+                child: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 18,
+                  color: colors.textSecondary,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -414,37 +518,36 @@ Future<void> appSignOut() async {
   if (sl.isRegistered<FirebaseAuthService>()) {
     await sl<FirebaseAuthService>().signOut();
   }
+  // Navigation between modules pushes pages above the AuthGate. Recreate the
+  // gate after sign-out so the login screen is visible immediately and the
+  // next sign-in is handled by the same auth-state stream.
+  AppRoutes.goToAuthGate();
 }
 
 void showAppProfileDialog(BuildContext context) {
-  showDialog<void>(
+  showAppDialog<void>(
     context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('الملف الشخصي'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 12,
-        children: [
-          _ProfileRow(
-            icon: Icons.alternate_email_rounded,
-            label: 'البريد الإلكتروني',
-            value: appUserEmail(),
-          ),
-          _ProfileRow(
-            icon: Icons.badge_outlined,
-            label: 'الدور',
-            value: appUserRole(),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('إغلاق'),
+    title: 'الملف الشخصي',
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: AppSpacing.sm,
+      children: [
+        _ProfileRow(
+          icon: Icons.alternate_email_rounded,
+          label: 'البريد الإلكتروني',
+          value: appUserEmail(),
+        ),
+        _ProfileRow(
+          icon: Icons.badge_outlined,
+          label: 'الدور',
+          value: appUserRole(),
         ),
       ],
     ),
+    actions: [
+      BtnWidget(title: 'إغلاق', onTap: () => Navigator.of(context).pop()),
+    ],
   );
 }
 
@@ -488,11 +591,13 @@ class AppSidebar extends StatelessWidget {
     super.key,
     this.current,
     this.rail = false,
+    this.rounded = true,
     this.onNavigate,
   });
 
   final AppDestination? current;
   final bool rail;
+  final bool rounded;
   final ValueChanged<AppDestination>? onNavigate;
 
   @override
@@ -508,16 +613,16 @@ class AppSidebar extends StatelessWidget {
           Padding(
             padding: EdgeInsetsDirectional.only(
               start: 22,
-              top: items.isEmpty ? 4 : 20,
-              bottom: 8,
+              top: items.isEmpty ? 2 : 8,
+              bottom: 3,
             ),
             child: Text(
               group.label,
               style: TextStyle(
                 color: AppColors.kLandscapeSidebarText.withValues(alpha: 0.55),
-                fontSize: 10,
+                fontSize: 9.5,
                 fontWeight: FontWeight.w700,
-                letterSpacing: 1.4,
+                letterSpacing: 1.2,
               ),
             ),
           ),
@@ -547,14 +652,18 @@ class AppSidebar extends StatelessWidget {
 
     return Container(
       width: rail ? AppSizes.sidebarRailWidth : AppSizes.sidebarWidth,
-      decoration: const BoxDecoration(gradient: AppGradients.sidebar),
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: AppColors.kLandscapeSidebar,
+        borderRadius: rounded ? BorderRadius.circular(20) : null,
+      ),
       child: Column(
         children: [
           _SidebarBrand(rail: rail),
           Divider(height: 1, color: Colors.white.withValues(alpha: 0.08)),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: 4),
               children: items,
             ),
           ),
@@ -572,7 +681,7 @@ class _SidebarBrand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: EdgeInsets.symmetric(horizontal: rail ? 18 : 20, vertical: 18),
+    padding: EdgeInsets.symmetric(horizontal: rail ? 18 : 20, vertical: 14),
     child: Row(
       mainAxisAlignment: rail
           ? MainAxisAlignment.center
@@ -580,11 +689,11 @@ class _SidebarBrand extends StatelessWidget {
       spacing: 12,
       children: [
         Container(
-          width: 40,
-          height: 40,
+          width: 36,
+          height: 36,
           decoration: BoxDecoration(
             gradient: AppGradients.brand,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(11),
             boxShadow: [
               BoxShadow(
                 color: AppColors.kLandscapePrimary.withValues(alpha: 0.45),
@@ -609,7 +718,7 @@ class _SidebarBrand extends StatelessWidget {
                   'كريديكسا',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 18,
+                    fontSize: 20,
                     fontWeight: FontWeight.w800,
                     height: 1.1,
                   ),
@@ -652,23 +761,16 @@ class _SidebarItem extends StatelessWidget {
       selected: selected,
       button: true,
       label: destination.label,
+      excludeSemantics: true,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         child: Container(
-          margin: EdgeInsets.symmetric(horizontal: rail ? 12 : 12, vertical: 2),
-          padding: EdgeInsets.symmetric(
-            horizontal: rail ? 0 : 12,
-            vertical: 11,
-          ),
+          margin: EdgeInsets.symmetric(horizontal: rail ? 12 : 12, vertical: 1),
+          padding: EdgeInsets.symmetric(horizontal: rail ? 0 : 12, vertical: 8),
           decoration: BoxDecoration(
-            color: selected
-                ? Colors.white.withValues(alpha: 0.11)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-            border: selected
-                ? Border.all(color: Colors.white.withValues(alpha: 0.08))
-                : null,
+            color: selected ? AppColors.kLandscapePrimary : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
             mainAxisAlignment: rail
@@ -676,15 +778,6 @@ class _SidebarItem extends StatelessWidget {
                 : MainAxisAlignment.start,
             spacing: 11,
             children: [
-              if (selected && !rail)
-                Container(
-                  width: 3,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF6EE7B7),
-                    borderRadius: BorderRadius.circular(99),
-                  ),
-                ),
               Icon(
                 destination.icon,
                 size: 20,

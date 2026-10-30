@@ -53,8 +53,7 @@ extension AppFormFactorX on AppFormFactor {
 class AppResponsiveBuilder extends StatelessWidget {
   const AppResponsiveBuilder({super.key, required this.builder});
 
-  final Widget Function(BuildContext context, AppFormFactor formFactor)
-  builder;
+  final Widget Function(BuildContext context, AppFormFactor formFactor) builder;
 
   @override
   Widget build(BuildContext context) =>
@@ -91,9 +90,7 @@ class AppResponsiveGrid extends StatelessWidget {
             children: children,
           );
         }
-        final columns = (available / minItemWidth)
-            .floor()
-            .clamp(1, maxColumns);
+        final columns = (available / minItemWidth).floor().clamp(1, maxColumns);
         final width = (available - spacing * (columns - 1)) / columns;
         return Wrap(
           spacing: spacing,
@@ -157,7 +154,6 @@ class AppSectionGap extends StatelessWidget {
   final double? height;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    height: height ?? AppBreakpoints.of(context).sectionSpacing,
-  );
+  Widget build(BuildContext context) =>
+      SizedBox(height: height ?? AppBreakpoints.of(context).sectionSpacing);
 }

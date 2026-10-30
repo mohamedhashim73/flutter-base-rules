@@ -33,9 +33,7 @@ class FinanceSettingsService {
       documentId: 'finance',
     );
     return {
-      'installmentReminderDays': _readDays(
-        data?['installmentReminderDays'],
-      ),
+      'installmentReminderDays': _readDays(data?['installmentReminderDays']),
       'checkReminderDays': _readDays(data?['checkReminderDays']),
     };
   }
@@ -57,8 +55,6 @@ class FinanceSettingsService {
 
   int _readDays(Object? value) {
     final days = value is num ? value.toInt() : int.tryParse('$value');
-    return days != null && days >= 0 && days <= 60
-        ? days
-        : defaultReminderDays;
+    return days != null && days >= 0 && days <= 60 ? days : defaultReminderDays;
   }
 }

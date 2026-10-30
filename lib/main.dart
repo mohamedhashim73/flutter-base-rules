@@ -45,6 +45,9 @@ void main() async {
   });
   AppRoutes.goToLogin = () =>
       AppRoutes.pushAndRemovePreviousRoutes(LoginPage(cubit: sl<AuthCubit>()));
+  AppRoutes.goToAuthGate = () => AppRoutes.pushAndRemovePreviousRoutes(
+    AuthGatePage(authService: sl<FirebaseAuthService>(), authCubit: sl()),
+  );
   runApp(
     MyApp(
       home: AppSecurityGate(
@@ -102,6 +105,8 @@ class MyApp extends StatelessWidget {
                 return Locale(_language.name);
               },
               navigatorKey: AppRoutes.key,
+              onGenerateRoute: _buildDeepLinkRoute,
+              onUnknownRoute: _buildDeepLinkRoute,
               home: home ?? const SizedBox(),
             ),
           ),
@@ -114,5 +119,52 @@ class MyApp extends StatelessWidget {
     return sl.isRegistered<SharedPreferences>()
         ? UserSessionService.kCurrentLang
         : LanguageEnums.ar;
+  }
+
+  AppDestination? _destinationFromRoute(String? route) {
+    if (route == null || route.isEmpty || route == '/') return null;
+    final normalized = route
+        .replaceFirst(RegExp(r'^/'), '')
+        .replaceFirst(RegExp(r'^#/?'), '')
+        .replaceFirst(RegExp(r'^/'), '');
+    for (final destination in AppDestination.values) {
+      if (destination.name == normalized) return destination;
+    }
+    return null;
+  }
+
+  Widget? _pageForDestination(AppDestination destination) =>
+      switch (destination) {
+        AppDestination.dashboard => const DashboardPage(),
+        AppDestination.creditCards => const CreditCardsPage(),
+        AppDestination.operations => const OperationsPage(),
+        AppDestination.treasury => const TreasuryLedgerPage(),
+        AppDestination.expenses => const ExpenseManagementPage(),
+        AppDestination.withdrawals => const PersonalWithdrawalsPage(),
+        AppDestination.installments => const InstallmentsPage(),
+        AppDestination.checks => const ChecksPage(),
+        AppDestination.settlements => const SettlementsPage(),
+        AppDestination.reports => const ReportsPage(),
+        AppDestination.notifications => const NotificationsPage(),
+        AppDestination.users => const UsersPage(),
+        AppDestination.audit => const AuditPage(),
+        AppDestination.approvals => const ApprovalCenterPage(),
+        AppDestination.catalogs => const CatalogManagementPage(),
+      };
+
+  Route<dynamic>? _buildDeepLinkRoute(RouteSettings settings) {
+    final destination = _destinationFromRoute(settings.name);
+    final page = destination == null ? null : _pageForDestination(destination);
+    if (page == null) return null;
+    return MaterialPageRoute(
+      settings: settings,
+      builder: (_) => AppSecurityGate(
+        child: AuthGatePage(
+          authService: sl<FirebaseAuthService>(),
+          authCubit: sl<AuthCubit>(),
+          authenticatedPage: page,
+        ),
+      ),
+    );
   }
 }

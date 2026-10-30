@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:base/core/navigation/app_navigation.dart';
+import 'package:base/core/extensions/extensions.dart';
 import 'package:base/core/services/services.dart';
 import 'package:base/core/widgets/widgets.dart';
 import 'package:base/view/notifications/data/models/notifications_response_model.dart';
 import 'package:base/view/notifications/ui/controllers/notifications_cubit/notifications_cubit.dart';
 import 'package:base/view/notifications/ui/controllers/notifications_cubit/notifications_states.dart';
-import 'package:base/core/routes/routes.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -29,10 +29,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   @override
-  Widget build(BuildContext context) => BlocBuilder<
-    NotificationsCubit,
-    NotificationsState
-  >(
+  Widget build(
+    BuildContext context,
+  ) => BlocBuilder<NotificationsCubit, NotificationsState>(
     bloc: _cubit,
     builder: (context, state) => AppPageScaffold(
       destination: AppDestination.notifications,
@@ -95,7 +94,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                             ),
                       onTap: () async {
                         if (!item.read) await _cubit.markRead(item.id);
-                        if (mounted) _openTarget(item.targetType, item.targetId);
+                        if (mounted)
+                          _openTarget(item.targetType, item.targetId);
                       },
                     );
                   },
@@ -135,47 +135,60 @@ class _NotificationsPageState extends State<NotificationsPage> {
     await showDialog<void>(
       context: context,
       builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('تفضيلات الإشعارات'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _preferenceTile('الاعتمادات', preferences.approvals, (value) {
-                setState(
-                  () => preferences = preferences.copyWith(approvals: value),
-                );
-              }),
-              _preferenceTile('الأقساط', preferences.installments, (value) {
-                setState(
-                  () => preferences = preferences.copyWith(installments: value),
-                );
-              }),
-              _preferenceTile('الشيكات', preferences.checks, (value) {
-                setState(
-                  () => preferences = preferences.copyWith(checks: value),
-                );
-              }),
-              _preferenceTile('التحصيلات', preferences.collections, (value) {
-                setState(
-                  () => preferences = preferences.copyWith(collections: value),
-                );
-              }),
-              _preferenceTile('الإشعارات الفورية', preferences.push, (value) {
-                setState(() => preferences = preferences.copyWith(push: value));
-              }),
+        builder: (context, setState) {
+          final colors = context.colors;
+          return AppDialog(
+            title: 'تفضيلات الإشعارات',
+            actions: [
+              BtnWidget(
+                title: 'حفظ',
+                onTap: () async {
+                  await sl<NotificationPreferencesService>().save(preferences);
+                  if (context.mounted) Navigator.of(context).pop();
+                },
+              ),
+              BtnWidget(
+                title: 'إلغاء',
+                onTap: () => Navigator.of(context).pop(),
+                backgroundColor: colors.card,
+                borderColor: colors.border,
+                color: colors.onSurface,
+              ),
             ],
-          ),
-          actions: [
-            TextButton(onPressed: AppRoutes.pop, child: const Text('إلغاء')),
-            FilledButton(
-              onPressed: () async {
-                await sl<NotificationPreferencesService>().save(preferences);
-                if (context.mounted) AppRoutes.pop();
-              },
-              child: const Text('حفظ'),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _preferenceTile('الاعتمادات', preferences.approvals, (value) {
+                  setState(
+                    () => preferences = preferences.copyWith(approvals: value),
+                  );
+                }),
+                _preferenceTile('الأقساط', preferences.installments, (value) {
+                  setState(
+                    () =>
+                        preferences = preferences.copyWith(installments: value),
+                  );
+                }),
+                _preferenceTile('الشيكات', preferences.checks, (value) {
+                  setState(
+                    () => preferences = preferences.copyWith(checks: value),
+                  );
+                }),
+                _preferenceTile('التحصيلات', preferences.collections, (value) {
+                  setState(
+                    () =>
+                        preferences = preferences.copyWith(collections: value),
+                  );
+                }),
+                _preferenceTile('الإشعارات الفورية', preferences.push, (value) {
+                  setState(
+                    () => preferences = preferences.copyWith(push: value),
+                  );
+                }),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

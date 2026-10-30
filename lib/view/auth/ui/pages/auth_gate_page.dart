@@ -9,10 +9,12 @@ class AuthGatePage extends StatelessWidget {
     super.key,
     required this.authService,
     required this.authCubit,
+    this.authenticatedPage,
   });
 
   final FirebaseAuthService authService;
   final AuthCubit authCubit;
+  final Widget? authenticatedPage;
 
   @override
   Widget build(BuildContext context) {
@@ -27,15 +29,22 @@ class AuthGatePage extends StatelessWidget {
         }
         return snapshot.data == null
             ? LoginPage(cubit: authCubit)
-            : _AuthenticatedShell(authService: authService);
+            : _AuthenticatedShell(
+                authService: authService,
+                authenticatedPage: authenticatedPage,
+              );
       },
     );
   }
 }
 
 class _AuthenticatedShell extends StatefulWidget {
-  const _AuthenticatedShell({required this.authService});
+  const _AuthenticatedShell({
+    required this.authService,
+    this.authenticatedPage,
+  });
   final FirebaseAuthService authService;
+  final Widget? authenticatedPage;
   @override
   State<_AuthenticatedShell> createState() => _AuthenticatedShellState();
 }
@@ -58,7 +67,9 @@ class _AuthenticatedShellState extends State<_AuthenticatedShell> {
           body: const AppLoadingState(message: 'جارٍ تحميل عضوية المؤسسة...'),
         );
       }
-      if (widget.authService.hasMembership) return const DashboardPage();
+      if (widget.authService.hasMembership) {
+        return widget.authenticatedPage ?? const DashboardPage();
+      }
       return Scaffold(
         backgroundColor: context.colors.background,
         body: Center(

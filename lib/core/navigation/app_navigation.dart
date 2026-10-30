@@ -126,7 +126,26 @@ class AppNavigation {
     final navigator = AppRoutes.key.currentState;
     if (navigator == null) return;
     if (destination == AppDestination.dashboard) {
+      const routeName = 'destination:dashboard';
+      if (AppRoutes.hasRouteNamed(routeName)) {
+        navigator.popUntil((route) => route.settings.name == routeName);
+        return;
+      }
+
+      // The authenticated shell is the root route in the normal flow, and it
+      // already displays the dashboard. Popping back to it is enough.
       navigator.popUntil((route) => route.isFirst);
+      final rootName = AppRoutes.currentRouteName;
+      if (rootName == null || rootName == '/') return;
+
+      final builder = _builders[destination];
+      final context = AppRoutes.key.currentContext;
+      if (builder == null || context == null) return;
+
+      // A direct deep link can make another destination the first route. Keep
+      // that gated root intact and push the dashboard above it instead of
+      // replacing it and dropping the auth/security gate.
+      AppRoutes.push(builder(context), name: routeName);
       return;
     }
     final builder = _builders[destination];

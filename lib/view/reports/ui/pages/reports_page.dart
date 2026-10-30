@@ -5,7 +5,6 @@ import 'package:base/core/enums/enums.dart';
 import 'package:base/core/extensions/extensions.dart';
 import 'package:base/core/navigation/app_navigation.dart';
 import 'package:base/core/services/services.dart';
-import 'package:base/core/routes/routes.dart';
 import 'package:base/core/theme/theme.dart';
 import 'package:base/core/utils/finance_money.dart';
 import 'package:base/core/widgets/widgets.dart';
@@ -88,20 +87,14 @@ class _ReportsPageState extends State<ReportsPage> {
             value: 'csv',
             child: Row(
               spacing: 10,
-              children: [
-                Icon(Icons.file_download_outlined),
-                Text('نسخ CSV'),
-              ],
+              children: [Icon(Icons.file_download_outlined), Text('نسخ CSV')],
             ),
           ),
           PopupMenuItem(
             value: 'excel',
             child: Row(
               spacing: 10,
-              children: [
-                Icon(Icons.table_view_outlined),
-                Text('تنزيل Excel'),
-              ],
+              children: [Icon(Icons.table_view_outlined), Text('تنزيل Excel')],
             ),
           ),
           PopupMenuItem(
@@ -576,67 +569,77 @@ class _ReportsPageState extends State<ReportsPage> {
   Future<void> _showExpenseCategory(
     String category,
     OperationsState operations,
-  ) => showDialog<void>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text('تفاصيل مصروفات $category'),
-      content: SizedBox(
-        width: 560,
-        child: ListView(
-          shrinkWrap: true,
-          children: operations.expenses
-              .where(
-                (item) =>
-                    item.category == category && item.status == 'approved',
-              )
-              .map(
-                (item) => AppRecordTile(
-                  title: item.description,
-                  subtitle:
-                      '${item.beneficiary.isEmpty ? 'بدون مستفيد' : item.beneficiary} · ${item.notes}',
-                  trailing: Text(FinanceMoney.formatEgp(item.amountMinor)),
-                ),
-              )
-              .toList(),
-        ),
-      ),
+  ) {
+    final items = operations.expenses
+        .where((item) => item.category == category && item.status == 'approved')
+        .toList();
+    return showAppDialog<void>(
+      context: context,
+      title: 'تفاصيل مصروفات $category',
+      child: items.isEmpty
+          ? Text(
+              'لا توجد مصروفات معتمدة في هذه الفئة.',
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: context.colors.textSecondary,
+              ),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: AppSpacing.xs,
+              children: items
+                  .map(
+                    (item) => AppRecordTile(
+                      title: item.description,
+                      subtitle:
+                          '${item.beneficiary.isEmpty ? 'بدون مستفيد' : item.beneficiary} · ${item.notes}',
+                      trailing: Text(FinanceMoney.formatEgp(item.amountMinor)),
+                      showDivider: false,
+                    ),
+                  )
+                  .toList(),
+            ),
       actions: [
-        TextButton(onPressed: AppRoutes.pop, child: const Text('إغلاق')),
+        BtnWidget(title: 'إغلاق', onTap: () => Navigator.of(context).pop()),
       ],
-    ),
-  );
+    );
+  }
 
   Future<void> _showPersonWithdrawals(
     String person,
     OperationsState operations,
-  ) => showDialog<void>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text('سجل سحوبات $person'),
-      content: SizedBox(
-        width: 560,
-        child: ListView(
-          shrinkWrap: true,
-          children: operations.personalWithdrawals
-              .where(
-                (item) =>
-                    item.personName == person && item.status == 'approved',
-              )
-              .map(
-                (item) => AppRecordTile(
-                  title: item.reason,
-                  subtitle: item.accountId,
-                  trailing: Text(FinanceMoney.formatEgp(item.amountMinor)),
-                ),
-              )
-              .toList(),
-        ),
-      ),
+  ) {
+    final items = operations.personalWithdrawals
+        .where((item) => item.personName == person && item.status == 'approved')
+        .toList();
+    return showAppDialog<void>(
+      context: context,
+      title: 'سجل سحوبات $person',
+      child: items.isEmpty
+          ? Text(
+              'لا توجد سحوبات معتمدة لهذا الشخص.',
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: context.colors.textSecondary,
+              ),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: AppSpacing.xs,
+              children: items
+                  .map(
+                    (item) => AppRecordTile(
+                      title: item.reason,
+                      subtitle: item.accountId,
+                      trailing: Text(FinanceMoney.formatEgp(item.amountMinor)),
+                      showDivider: false,
+                    ),
+                  )
+                  .toList(),
+            ),
       actions: [
-        TextButton(onPressed: AppRoutes.pop, child: const Text('إغلاق')),
+        BtnWidget(title: 'إغلاق', onTap: () => Navigator.of(context).pop()),
       ],
-    ),
-  );
+    );
+  }
 
   bool _isSettlementOverdue(SettlementModel settlement) {
     if (settlement.status == 'settled') return false;

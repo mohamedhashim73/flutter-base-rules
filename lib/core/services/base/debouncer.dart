@@ -1,9 +1,7 @@
 part of '../services.dart';
 
 class Debouncer {
-  Debouncer({
-    this.delay = const Duration(milliseconds: 500),
-  });
+  Debouncer({this.delay = const Duration(milliseconds: 500)});
 
   final Duration delay;
 

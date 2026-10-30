@@ -21,11 +21,7 @@ class ConditionalPadding extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
 
-  const ConditionalPadding({
-    super.key,
-    required this.child,
-    this.padding,
-  });
+  const ConditionalPadding({super.key, required this.child, this.padding});
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +29,7 @@ class ConditionalPadding extends StatelessWidget {
       return child;
     }
 
-    return Padding(
-      padding: padding!,
-      child: child,
-    );
+    return Padding(padding: padding!, child: child);
   }
 }
 
@@ -71,10 +64,7 @@ class ConditionalRefreshIndicator extends StatelessWidget {
       return child;
     }
 
-    return RefreshIndicator(
-      onRefresh: onRefresh!,
-      child: child,
-    );
+    return RefreshIndicator(onRefresh: onRefresh!, child: child);
   }
 }
 

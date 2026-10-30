@@ -44,6 +44,7 @@ class OperationsCubit extends Cubit<OperationsState> {
   final transferFormKey = GlobalKey<FormState>();
   final personalWithdrawalFormKey = GlobalKey<FormState>();
   final withdrawalPersonFormKey = GlobalKey<FormState>();
+  final withdrawalPersonEditFormKey = GlobalKey<FormState>();
   final reconciliationFormKey = GlobalKey<FormState>();
   final bankAccountFormKey = GlobalKey<FormState>();
   final receivingCompanyFormKey = GlobalKey<FormState>();
@@ -184,6 +185,7 @@ class OperationsCubit extends Cubit<OperationsState> {
   }
 
   Future<void> load() async {
+    if (isClosed) return;
     emit(state.copyWith(status: RequestStatus.loading));
     try {
       final results = await Future.wait<Object>([
@@ -205,6 +207,7 @@ class OperationsCubit extends Cubit<OperationsState> {
         _repository.getInstallmentSchedules(),
         _repository.getWithdrawalPeople(),
       ]);
+      if (isClosed) return;
       final accounts = results[0] as List<TreasuryAccountModel>;
       selectedAccountId ??= accounts.firstOrNull?.id;
       selectedMovementAccountId ??= accounts.firstOrNull?.id;
@@ -227,12 +230,14 @@ class OperationsCubit extends Cubit<OperationsState> {
         // Operations remain usable from their own cache/domain if credit
         // purchase reads are temporarily unavailable.
       }
+      if (isClosed) return;
       selectedInstallmentScheduleId ??= installmentSchedules.firstOrNull?.id;
       selectedSettlementBrandId ??= brands.firstOrNull?.id;
       await _repository.refreshDueNotifications(
         installments: results[4] as List<InstallmentAccountModel>,
         checks: results[5] as List<IssuedCheckModel>,
       );
+      if (isClosed) return;
       emit(
         OperationsState(
           status: RequestStatus.success,
@@ -257,6 +262,7 @@ class OperationsCubit extends Cubit<OperationsState> {
         ),
       );
     } catch (error) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           status: RequestStatus.failure,
@@ -978,11 +984,14 @@ class OperationsCubit extends Cubit<OperationsState> {
   }
 
   Future<void> _action(Future<void> Function() action, String message) async {
+    if (isClosed) return;
     emit(state.copyWith(actionStatus: RequestStatus.loading));
     try {
       await action();
+      if (isClosed) return;
       await sl<FirebaseCacheService>().clearCurrentScope();
       await load();
+      if (isClosed) return;
       emit(
         state.copyWith(
           actionStatus: RequestStatus.success,
@@ -990,6 +999,7 @@ class OperationsCubit extends Cubit<OperationsState> {
         ),
       );
     } catch (error) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           actionStatus: RequestStatus.failure,

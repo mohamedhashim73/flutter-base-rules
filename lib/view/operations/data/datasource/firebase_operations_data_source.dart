@@ -38,9 +38,14 @@ class FirebaseOperationsDataSource implements OperationsDataSource {
         // incremental-sync baseline. This can happen after browser storage
         // cleanup or when a new device/session restores preferences partially;
         // fall back to a full read so Firestore data is not shown as empty.
-        query: lastSyncAt == null || cached == null
+        query: lastSyncAt == null || cached == null || cached.isEmpty
             ? null
-            : (ref) => ref.where('updatedAtMillis', isGreaterThan: lastSyncAt),
+            // Include the sync boundary because a write and cache marker may
+            // have the same millisecond timestamp.
+            : (ref) => ref.where(
+                'updatedAtMillis',
+                isGreaterThanOrEqualTo: lastSyncAt,
+              ),
       );
       final merged = <String, Map<String, dynamic>>{
         for (final item
@@ -64,7 +69,7 @@ class FirebaseOperationsDataSource implements OperationsDataSource {
       );
       return result.where((item) => item['isDeleted'] != true).toList();
     } catch (_) {
-      if (cached != null) {
+      if (cached != null && cached.isNotEmpty) {
         return cached.where((item) => item['isDeleted'] != true).toList();
       }
       rethrow;

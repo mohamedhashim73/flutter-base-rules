@@ -65,7 +65,8 @@ class _DashboardPageState extends State<DashboardPage> {
       builder: (context, notificationState) => AppPageScaffold(
         destination: AppDestination.dashboard,
         title: 'لوحة التحكم',
-        subtitle: 'نظرة تنفيذية على أموال المؤسسة والائتمان · ${_rangeLabel(_range)}',
+        subtitle:
+            'نظرة تنفيذية على أموال المؤسسة والائتمان · ${_rangeLabel(_range)}',
         onRefresh: _refresh,
         actions: [
           _filterControl(context),
@@ -339,12 +340,10 @@ class _DashboardPageState extends State<DashboardPage> {
           range: range,
         ),
         _InsightBanner(
-          onCreditCards: () =>
-              AppNavigation.go(AppDestination.creditCards),
+          onCreditCards: () => AppNavigation.go(AppDestination.creditCards),
           onOperations: () => AppNavigation.go(AppDestination.operations),
           onReports: () => AppNavigation.go(AppDestination.reports),
-          onNotifications: () =>
-              AppNavigation.go(AppDestination.notifications),
+          onNotifications: () => AppNavigation.go(AppDestination.notifications),
           onUsers: () => AppNavigation.go(AppDestination.users),
           onEnablePush: _enablePush,
         ),
@@ -503,10 +502,8 @@ class _ProviderSummaryWidget extends StatelessWidget {
                       ),
                     ),
                     showDivider: index != entries.length - 1,
-                    onTap: () => onProviderTap(
-                      entries[index].key,
-                      entries[index].value,
-                    ),
+                    onTap: () =>
+                        onProviderTap(entries[index].key, entries[index].value),
                   ),
               ],
             ),

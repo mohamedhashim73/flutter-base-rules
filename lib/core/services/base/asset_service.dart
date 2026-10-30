@@ -73,7 +73,7 @@ class Assets {
   static const String addresses = '${images}addresses.png';
   static const String oil = '${images}change-oil.png';
   static const String notifications = '${images}notifications.png';
-    static const String jerryCan = '${images}jerrycan.png';
+  static const String jerryCan = '${images}jerrycan.png';
   static const String persil = '${images}persil.png';
   static const String hospital = '${images}hospital.png';
   static const String orders = '${images}orders.png';

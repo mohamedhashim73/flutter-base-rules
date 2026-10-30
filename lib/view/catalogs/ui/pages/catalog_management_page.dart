@@ -56,183 +56,178 @@ class _CatalogManagementPageState extends State<CatalogManagementPage> {
     ],
     body: BlocBuilder<CreditCardsCubit, CreditCardsState>(
       bloc: _creditCubit,
-      builder: (context, creditState) =>
-          BlocBuilder<OperationsCubit, OperationsState>(
-            bloc: _operationsCubit,
-            builder: (context, operationsState) => Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: AppBreakpoints.of(context).sectionSpacing,
+      builder: (context, creditState) => BlocBuilder<OperationsCubit, OperationsState>(
+        bloc: _operationsCubit,
+        builder: (context, operationsState) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: AppBreakpoints.of(context).sectionSpacing,
+          children: [
+            AppStatGrid(
+              maxColumns: 4,
               children: [
-                AppStatGrid(
-                  maxColumns: 4,
-                  children: [
-                    AppStatCard(
-                      label: 'مزودو الدفع',
-                      value: '${creditState.providers.length}',
-                      icon: Icons.storefront_outlined,
-                      tone: AppTone.primary,
-                    ),
-                    AppStatCard(
-                      label: 'العلامات التجارية',
-                      value: '${creditState.brands.length}',
-                      icon: Icons.sell_outlined,
-                      tone: AppTone.info,
-                    ),
-                    AppStatCard(
-                      label: 'أجهزة POS',
-                      value: '${creditState.posMachines.length}',
-                      icon: Icons.point_of_sale_outlined,
-                      tone: AppTone.gold,
-                    ),
-                    AppStatCard(
-                      label: 'الحسابات البنكية',
-                      value: '${operationsState.bankAccounts.length}',
-                      icon: Icons.account_balance_outlined,
-                      highlight: true,
-                    ),
-                  ],
+                AppStatCard(
+                  label: 'مزودو الدفع',
+                  value: '${creditState.providers.length}',
+                  icon: Icons.storefront_outlined,
+                  tone: AppTone.primary,
                 ),
-                _section(
-                  'مزودو الدفع',
-                  Icons.storefront_outlined,
-                  creditState.providers
-                      .map(
-                        (provider) => SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(provider.name),
-                          subtitle: Text(
-                            provider.active ? 'نشط' : 'غير نشط',
-                          ),
-                          value: provider.active,
-                          onChanged: (value) async {
-                            await _creditCubit.updateProviderRecord(
-                              provider.copyWith(active: value),
-                            );
-                            await _creditCubit.load();
-                          },
-                        ),
-                      )
-                      .toList(),
-                ),
-                _section(
-                  'العلامات التجارية',
-                  Icons.sell_outlined,
-                  creditState.brands
-                      .map(
-                        (brand) => SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(brand.name),
-                          subtitle: Text(
-                            '${brand.providerName} · ${brand.commissionBps / 100}%',
-                          ),
-                          value: brand.active,
-                          onChanged: (value) async {
-                            await _creditCubit.updateBrandRecord(
-                              brand.copyWith(active: value),
-                            );
-                            await _creditCubit.load();
-                          },
-                        ),
-                      )
-                      .toList(),
+                AppStatCard(
+                  label: 'العلامات التجارية',
+                  value: '${creditState.brands.length}',
+                  icon: Icons.sell_outlined,
                   tone: AppTone.info,
                 ),
-                _section(
-                  'أجهزة POS',
-                  Icons.point_of_sale_outlined,
-                  creditState.posMachines
-                      .map(
-                        (machine) => SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(machine.name),
-                          subtitle: Text(machine.providerName),
-                          value: machine.active,
-                          onChanged: (value) async {
-                            await _creditCubit.updatePosMachine(
-                              machine.copyWith(active: value),
-                            );
-                            await _creditCubit.load();
-                          },
-                        ),
-                      )
-                      .toList(),
+                AppStatCard(
+                  label: 'أجهزة POS',
+                  value: '${creditState.posMachines.length}',
+                  icon: Icons.point_of_sale_outlined,
                   tone: AppTone.gold,
                 ),
-                _section(
-                  'الحسابات البنكية',
-                  Icons.account_balance_outlined,
-                  operationsState.bankAccounts
-                      .map(
-                        (account) => SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(
-                            '${account.bankName} · ${account.accountName}',
-                          ),
-                          subtitle: Text(
-                            '•••• ${account.lastFour} · الرصيد ${account.balanceMinor / 100}',
-                          ),
-                          value: account.active,
-                          onChanged: (value) =>
-                              _updateBankAccount(account, value),
-                          secondary: IconButton(
-                            tooltip: 'تعديل الحساب',
-                            onPressed: () => _showBankAccountEdit(account),
-                            icon: const Icon(Icons.edit_outlined),
-                          ),
-                        ),
-                      )
-                      .toList(),
+                AppStatCard(
+                  label: 'الحسابات البنكية',
+                  value: '${operationsState.bankAccounts.length}',
+                  icon: Icons.account_balance_outlined,
+                  highlight: true,
                 ),
-                _section(
-                  'شركات التحصيل',
-                  Icons.business_outlined,
-                  operationsState.receivingCompanies
-                      .map(
-                        (company) => SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(company.name),
-                          subtitle: Text(
-                            '${company.bankAccountIds.length} حساب مرتبط',
-                          ),
-                          value: company.active,
-                          onChanged: (value) =>
-                              _updateReceivingCompany(company, value),
-                          secondary: IconButton(
-                            tooltip: 'تعديل الشركة',
-                            onPressed: () => _showReceivingCompanyEdit(company),
-                            icon: const Icon(Icons.edit_outlined),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  tone: AppTone.info,
-                ),
-                _section(
-                  'تصنيفات المصروفات',
-                  Icons.category_outlined,
-                  operationsState.expenseCategories
-                      .map(
-                        (category) => SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(category.name),
-                          subtitle: Text(category.active ? 'نشط' : 'غير نشط'),
-                          value: category.active,
-                          onChanged: (value) =>
-                              _updateCategory(category, value),
-                          secondary: IconButton(
-                            tooltip: 'تعديل التصنيف',
-                            onPressed: () => _showCategoryEdit(category),
-                            icon: const Icon(Icons.edit_outlined),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  tone: AppTone.warning,
-                ),
-                _withdrawalPeopleSection(operationsState),
               ],
             ),
-          ),
+            _section(
+              'مزودو الدفع',
+              Icons.storefront_outlined,
+              creditState.providers
+                  .map(
+                    (provider) => SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(provider.name),
+                      subtitle: Text(provider.active ? 'نشط' : 'غير نشط'),
+                      value: provider.active,
+                      onChanged: (value) async {
+                        await _creditCubit.updateProviderRecord(
+                          provider.copyWith(active: value),
+                        );
+                        await _creditCubit.load();
+                      },
+                    ),
+                  )
+                  .toList(),
+            ),
+            _section(
+              'العلامات التجارية',
+              Icons.sell_outlined,
+              creditState.brands
+                  .map(
+                    (brand) => SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(brand.name),
+                      subtitle: Text(
+                        '${brand.providerName} · ${brand.commissionBps / 100}%',
+                      ),
+                      value: brand.active,
+                      onChanged: (value) async {
+                        await _creditCubit.updateBrandRecord(
+                          brand.copyWith(active: value),
+                        );
+                        await _creditCubit.load();
+                      },
+                    ),
+                  )
+                  .toList(),
+              tone: AppTone.info,
+            ),
+            _section(
+              'أجهزة POS',
+              Icons.point_of_sale_outlined,
+              creditState.posMachines
+                  .map(
+                    (machine) => SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(machine.name),
+                      subtitle: Text(machine.providerName),
+                      value: machine.active,
+                      onChanged: (value) async {
+                        await _creditCubit.updatePosMachine(
+                          machine.copyWith(active: value),
+                        );
+                        await _creditCubit.load();
+                      },
+                    ),
+                  )
+                  .toList(),
+              tone: AppTone.gold,
+            ),
+            _section(
+              'الحسابات البنكية',
+              Icons.account_balance_outlined,
+              operationsState.bankAccounts
+                  .map(
+                    (account) => SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        '${account.bankName} · ${account.accountName}',
+                      ),
+                      subtitle: Text(
+                        '•••• ${account.lastFour} · الرصيد ${account.balanceMinor / 100}',
+                      ),
+                      value: account.active,
+                      onChanged: (value) => _updateBankAccount(account, value),
+                      secondary: IconButton(
+                        tooltip: 'تعديل الحساب',
+                        onPressed: () => _showBankAccountEdit(account),
+                        icon: const Icon(Icons.edit_outlined),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+            _section(
+              'شركات التحصيل',
+              Icons.business_outlined,
+              operationsState.receivingCompanies
+                  .map(
+                    (company) => SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(company.name),
+                      subtitle: Text(
+                        '${company.bankAccountIds.length} حساب مرتبط',
+                      ),
+                      value: company.active,
+                      onChanged: (value) =>
+                          _updateReceivingCompany(company, value),
+                      secondary: IconButton(
+                        tooltip: 'تعديل الشركة',
+                        onPressed: () => _showReceivingCompanyEdit(company),
+                        icon: const Icon(Icons.edit_outlined),
+                      ),
+                    ),
+                  )
+                  .toList(),
+              tone: AppTone.info,
+            ),
+            _section(
+              'تصنيفات المصروفات',
+              Icons.category_outlined,
+              operationsState.expenseCategories
+                  .map(
+                    (category) => SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(category.name),
+                      subtitle: Text(category.active ? 'نشط' : 'غير نشط'),
+                      value: category.active,
+                      onChanged: (value) => _updateCategory(category, value),
+                      secondary: IconButton(
+                        tooltip: 'تعديل التصنيف',
+                        onPressed: () => _showCategoryEdit(category),
+                        icon: const Icon(Icons.edit_outlined),
+                      ),
+                    ),
+                  )
+                  .toList(),
+              tone: AppTone.warning,
+            ),
+            _withdrawalPeopleSection(operationsState),
+          ],
+        ),
+      ),
     ),
   );
 
@@ -317,9 +312,7 @@ class _CatalogManagementPageState extends State<CatalogManagementPage> {
             builder: (context, constraints) {
               final field = TextField(
                 controller: _personController,
-                decoration: const InputDecoration(
-                  labelText: 'اسم المستفيد',
-                ),
+                decoration: const InputDecoration(labelText: 'اسم المستفيد'),
               );
               final button = FilledButton.icon(
                 onPressed: () async {
@@ -541,7 +534,7 @@ class _CatalogManagementPageState extends State<CatalogManagementPage> {
       title: 'تعديل اسم المستفيد',
       okTxt: 'حفظ التعديل',
       content: Form(
-        key: _operationsCubit.withdrawalPersonFormKey,
+        key: _operationsCubit.withdrawalPersonEditFormKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -563,7 +556,8 @@ class _CatalogManagementPageState extends State<CatalogManagementPage> {
         ),
       ),
       beforeOk: () =>
-          _operationsCubit.withdrawalPersonFormKey.currentState?.validate() ==
+          _operationsCubit.withdrawalPersonEditFormKey.currentState
+              ?.validate() ==
           true,
       okTap: _operationsCubit.saveWithdrawalPersonEdit,
     );

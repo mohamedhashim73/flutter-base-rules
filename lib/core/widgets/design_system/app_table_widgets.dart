@@ -130,7 +130,9 @@ class AppDataTable<T> extends StatelessWidget {
                     row: rows[index],
                     columns: columns,
                     isLast: index == rows.length - 1,
-                    onTap: onRowTap == null ? null : () => onRowTap!(rows[index]),
+                    onTap: onRowTap == null
+                        ? null
+                        : () => onRowTap!(rows[index]),
                   ),
               ],
             ),

@@ -50,9 +50,7 @@ class _AppSecurityGateState extends State<AppSecurityGate>
     if (_securityStatus != null) {
       return PopScope(
         canPop: false,
-        child: SecurityBlockedPage(
-          status: _securityStatus!,
-        ),
+        child: SecurityBlockedPage(status: _securityStatus!),
       );
     }
     return widget.child;

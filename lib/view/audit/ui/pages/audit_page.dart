@@ -71,10 +71,7 @@ class _AuditPageState extends State<AuditPage> {
                       children: [
                         _AuditExpandable(item: item),
                         if (index != state.items.length - 1)
-                          Divider(
-                            height: 1,
-                            color: context.colors.divider,
-                          ),
+                          Divider(height: 1, color: context.colors.divider),
                       ],
                     );
                   },
@@ -136,10 +133,7 @@ class _AuditExpandable extends StatelessWidget {
           if (item.reason.isNotEmpty)
             _AuditDetail(
               label: 'السبب',
-              child: Text(
-                item.reason,
-                style: context.textTheme.bodySmall,
-              ),
+              child: Text(item.reason, style: context.textTheme.bodySmall),
             ),
           if (item.previousValues.isNotEmpty)
             _AuditDetail(

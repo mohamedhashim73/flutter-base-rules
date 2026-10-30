@@ -17,8 +17,6 @@ class EmptyViewWidget extends StatelessWidget {
     compact: isShorten,
     icon: icon ?? Icons.inbox_outlined,
     title: message ?? AppStrings.kNoDataFound,
-    message: isShorten
-        ? null
-        : 'ستظهر السجلات هنا بمجرد إنشائها أو مزامنتها.',
+    message: isShorten ? null : 'ستظهر السجلات هنا بمجرد إنشائها أو مزامنتها.',
   );
 }
